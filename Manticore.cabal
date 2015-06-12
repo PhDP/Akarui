@@ -1,0 +1,37 @@
+name:                Manticore
+version:             0.1.0.0
+synopsis:            Hybrid logic + probabilistic machine learning library
+description:
+license:             MIT
+license-file:        LICENSE.md
+author:              Philippe Desjardins-Proulx <philippe.d.proulx@gmail.com>
+maintainer:          Philippe Desjardins-Proulx philippe.d.proulx@gmail.com
+category:            Math
+build-type:          Simple
+cabal-version:       >= 1.10
+
+library
+  default-language: Haskell2010
+  ghc-options: -O2 -Wall
+  exposed-modules:
+    Manticore.Formula
+    Manticore.FOL
+    Manticore.Parser
+  build-depends:
+    base >= 4.6,
+    containers,
+    parsec,
+    text,
+    transformers
+
+--test-suite tests
+--  hs-source-dirs: tests
+--  main-is:        Properties.hs
+--  build-depends:
+--    base >= 4.6,
+--    QuickCheck >= 2.7,
+--    test-framework-quickcheck2
+
+source-repository head
+  type:       git
+  location:   git://github.com/PhDP/Manticore.git

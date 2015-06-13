@@ -1,7 +1,7 @@
 module Manticore.Formula where
 
 import qualified Data.Set as Set
-import Data.Set(Set)
+import Data.Set (Set)
 import Manticore.Symbols
 
 -- Supported binary connectives (in order of precedence).
@@ -51,20 +51,6 @@ showFm s = buildStr (0 :: Int)
       BinOp Iff x y         -> showInfix (pr > 2) 2 (symIff s) x y
       Qualifier ForAll v x  -> symForall s ++ " " ++ v ++ ", " ++ buildStr pr x
       Qualifier Exists v x  -> symExists s ++ " " ++ v ++ ", " ++ buildStr pr x
-
-showFmStruct :: (Show a) => Formula a -> String
-showFmStruct f = case f of
-  Atom a                -> "Atom(" ++ show a ++ ")"
-  Top                   -> "Top"
-  Bottom                -> "Bottom"
-  Not x                 -> "Not (" ++ showFmStruct x ++ ")"
-  BinOp And x y         -> "And (" ++ showFmStruct x ++ ") (" ++ showFmStruct y ++ ")"
-  BinOp Or x y          -> "Or (" ++ showFmStruct x ++ ") (" ++ showFmStruct y ++ ")"
-  BinOp Implies x y     -> "Implies (" ++ showFmStruct x ++ ") (" ++ showFmStruct y ++ ")"
-  BinOp Xor x y         -> "Xor (" ++ showFmStruct x ++ ") (" ++ showFmStruct y ++ ")"
-  BinOp Iff x y         -> "Iff (" ++ showFmStruct x ++ ") (" ++ showFmStruct y ++ ")"
-  Qualifier ForAll v x  -> "ForAll " ++ v ++ "(" ++ showFmStruct x ++ ")"
-  Qualifier Exists v x  -> "Exists " ++ v ++ "(" ++ showFmStruct x ++ ")"
 
 -- Gathers all atoms in the formula.
 atoms :: (Ord a) => Formula a -> Set a

@@ -47,14 +47,14 @@ numVars :: (Num n) => Term t -> n
 numVars t = case t of
   Variable _    -> 1
   Constant _    -> 0
-  Function _ ts -> foldl (\acc trm -> acc + numVars trm) 0 ts
+  Function _ ts -> foldl' (\acc trm -> acc + numVars trm) 0 ts
 
 -- Returns the number of constants in the term.
 numCons :: (Num n) => Term t -> n
 numCons t = case t of
   Variable _    -> 0
   Constant _    -> 1
-  Function _ ts -> foldl (\acc trm -> acc + numCons trm) 0 ts
+  Function _ ts -> foldl' (\acc trm -> acc + numCons trm) 0 ts
 
 -- Returns the number of functions in the term.
 numFuns :: (Num n) => Term t -> n

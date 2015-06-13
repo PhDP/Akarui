@@ -40,7 +40,8 @@ instance (Show t) => Show (Predicate t) where
   show = showPredicate symbolic
 
 showPredicate :: (Show t) => Symbols -> Predicate t -> String
-showPredicate s (Predicate n ts) = n ++ "(" ++ (if null ts then "" else terms) ++ ")"
+showPredicate s (Predicate n ts) =
+  n ++ "(" ++ (if null ts then "" else terms) ++ ")"
   where terms = mkString $ map (showTerm s) ts
 
 -- Returns the number of variables in the term.
@@ -108,8 +109,8 @@ hasFun f = case f of
 -- Show the internal structure of the predicate.
 showPreStruct :: (Show a) => Predicate a -> String
 showPreStruct (Predicate n ts) =
-  let terms = foldr1 (\x acc -> x ++ ", " ++ acc) (map showTermStruct ts) in
-  "Predicate (" ++ n ++ "[" ++ terms ++ "])"
+  "Predicate " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"
+  where terms = mkString (map showTermStruct ts)
 
 -- Show the internal structure of the term.
 showTermStruct :: (Show a) => Term a -> String
@@ -117,8 +118,8 @@ showTermStruct t = case t of
   Variable x    -> "Variable (" ++ show x ++ ")"
   Constant x    -> "Constant (" ++ show x ++ ")"
   Function n ts ->
-    let terms = foldr1 (\x acc -> x ++ ", " ++ acc) (map showTermStruct ts) in
-    "Function (" ++ n ++ "[" ++ terms ++ "])"
+    "Function " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"
+    where terms = mkString (map showTermStruct ts)
 
 -- Show the internal structure of the first-order logic formula.
 showFOLStruct :: (Show a) => Formula (Predicate a) -> String

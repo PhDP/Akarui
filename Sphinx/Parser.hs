@@ -77,7 +77,18 @@ parsePredicate = do
   return (Atom (Predicate n ts))
 
 parseTerm :: Parser (Term String)
-parseTerm = do
+parseTerm = try parseFunction <|> parseVarCon
+
+parseFunction :: Parser (Term String)
+parseFunction = do
+  n <- identifier
+  reservedOp "("
+  ts <- commaSep parseTerm
+  reservedOp ")"
+  return (Function n ts)
+
+parseVarCon :: Parser (Term String)
+parseVarCon = do
   n <- identifier
   return (if isLower $ head n then Variable n else Constant n)
 

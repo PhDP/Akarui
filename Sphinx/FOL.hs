@@ -5,6 +5,7 @@ import Data.Set (Set)
 import Data.List (foldl')
 import Sphinx.Formula
 import Sphinx.Symbols
+import Sphinx.Text
 
 data TypedObj = TypedObj
   { objName :: String
@@ -29,8 +30,8 @@ showTerm :: (Show t) => Symbols -> Term t -> String
 showTerm s t = case t of
   Variable x    -> show x
   Constant x    -> show x
-  Function n ts ->
-    n ++ "(" ++ foldr (\t' acc -> showTerm s t' ++ ", " ++ acc) "" ts ++ ")"
+  Function n ts -> n ++ "(" ++ (if null ts then "" else terms) ++ ")"
+    where terms = mkString $ map (showTerm s) ts
 
 -- Predicates are atoms (thus they evaluate to true/false).
 data Predicate t = Predicate String [Term t]
@@ -40,8 +41,7 @@ instance (Show t) => Show (Predicate t) where
 
 showPredicate :: (Show t) => Symbols -> Predicate t -> String
 showPredicate s (Predicate n ts) = n ++ "(" ++ (if null ts then "" else terms) ++ ")"
-  where
-    terms = foldr1 (\t' acc -> t' ++ ", " ++ acc) (map (showTerm s) ts)
+  where terms = mkString $ map (showTerm s) ts
 
 -- Returns the number of variables in the term.
 numVars :: (Num n) => Term t -> n

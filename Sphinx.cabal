@@ -24,13 +24,17 @@ library
     text,
     transformers
 
---test-suite tests
---  hs-source-dirs: tests
---  main-is:        Properties.hs
---  build-depends:
---    base >= 4.6,
---    QuickCheck >= 2.7,
---    test-framework-quickcheck2
+test-suite tests
+  default-language: Haskell2010
+  ghc-options: -Wall
+  hs-source-dirs: tests
+  type:           exitcode-stdio-1.0
+  main-is:        Properties.hs
+  build-depends:
+    base >= 4.6,
+    Sphinx,
+    QuickCheck >= 2.7,
+    test-framework-quickcheck2
 
 source-repository head
   type:       git

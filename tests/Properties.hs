@@ -12,6 +12,7 @@ import Test.QuickCheck
 --           liftM2 Branch subtree subtree]
 --             where subtree = tree' (n `div` 2)
 
+
 qsort :: Ord a => [a] -> [a]
 qsort [] = []
 qsort (x:xs) = qsort lhs ++ [x] ++ qsort rhs
@@ -19,12 +20,8 @@ qsort (x:xs) = qsort lhs ++ [x] ++ qsort rhs
     lhs = filter (< x) xs
     rhs = filter (>= x) xs
 
-prop_ordered :: [Int] -> Bool
-prop_ordered xs = ordered (qsort xs)
- where
-   ordered [] = True
-   ordered [_] = True
-   ordered (x:y:_) = x <= y && ordered (y:xs)
+prop_idempotent :: [Int] -> Bool
+prop_idempotent xs = qsort (qsort xs) == qsort xs
 
 main :: IO ()
-main = quickCheck prop_ordered
+main = quickCheck prop_idempotent

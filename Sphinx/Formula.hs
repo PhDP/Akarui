@@ -1,8 +1,9 @@
-module Manticore.Formula where
+module Sphinx.Formula where
 
 import qualified Data.Set as Set
 import Data.Set (Set)
-import Manticore.Symbols
+import Sphinx.Symbols
+import Sphinx.Text
 
 -- Supported binary connectives (in order of precedence).
 data BinT = And | Or | Implies | Xor | Iff
@@ -23,7 +24,7 @@ instance Show a => Show (Formula a) where
   show = showFm symbolic
 
 showFm :: (Show a) => Symbols -> Formula a -> String
-showFm s = buildStr (0 :: Int)
+showFm s = rmQuotes . buildStr (0 :: Int)
   where
     --notSpace = " "
     --qualSpace = " "

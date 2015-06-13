@@ -1,4 +1,4 @@
-name:                Manticore
+name:                Sphinx
 version:             0.1.0.0
 synopsis:            Hybrid logic + probabilistic machine learning library
 description:
@@ -14,9 +14,9 @@ library
   default-language: Haskell2010
   ghc-options: -O2 -Wall
   exposed-modules:
-    Manticore.Formula
-    Manticore.FOL
-    Manticore.Parser
+    Sphinx.Formula
+    Sphinx.FOL
+    Sphinx.Parser
   build-depends:
     base >= 4.6,
     containers,
@@ -34,4 +34,4 @@ library
 
 source-repository head
   type:       git
-  location:   git://github.com/PhDP/Manticore.git
+  location:   git://github.com/PhDP/Sphinx.git

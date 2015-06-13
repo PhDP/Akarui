@@ -1,4 +1,4 @@
-module Manticore.Symbols where
+module Sphinx.Symbols where
 
 -- List of symbols
 data Symbols = Symbols

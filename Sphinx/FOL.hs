@@ -1,10 +1,10 @@
-module Manticore.FOL where
+module Sphinx.FOL where
 
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
-import Manticore.Formula
-import Manticore.Symbols
+import Sphinx.Formula
+import Sphinx.Symbols
 
 data TypedObj = TypedObj
   { objName :: String
@@ -30,7 +30,7 @@ showTerm s t = case t of
   Variable x    -> show x
   Constant x    -> show x
   Function n ts ->
-    n ++ "(" ++ foldr (\t' acc -> showTerm s t' ++ "," ++ acc) "" ts ++ ")"
+    n ++ "(" ++ foldr (\t' acc -> showTerm s t' ++ ", " ++ acc) "" ts ++ ")"
 
 -- Predicates are atoms (thus they evaluate to true/false).
 data Predicate t = Predicate String [Term t]
@@ -39,8 +39,9 @@ instance (Show t) => Show (Predicate t) where
   show = showPredicate symbolic
 
 showPredicate :: (Show t) => Symbols -> Predicate t -> String
-showPredicate s (Predicate n ts) =
-  n ++ "(" ++ foldr (\t' acc -> showTerm s t' ++ "," ++ acc) "" ts ++ ")"
+showPredicate s (Predicate n ts) = n ++ "(" ++ (if null ts then "" else terms) ++ ")"
+  where
+    terms = foldr1 (\t' acc -> t' ++ ", " ++ acc) (map (showTerm s) ts)
 
 -- Returns the number of variables in the term.
 numVars :: (Num n) => Term t -> n

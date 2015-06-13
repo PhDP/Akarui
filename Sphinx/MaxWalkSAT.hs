@@ -1,6 +1,6 @@
-module Manticore.MaxWalkSAT where
+module Sphinx.MaxWalkSAT where
 
-import Manticore.FOL
+import Sphinx.FOL
 --import Data.Map (Map)
 
 data Ass t = Map (Predicate t) Bool

@@ -45,6 +45,19 @@ identifier = Tok.identifier lexer
 commaSep :: ParsecT String () Identity a -> ParsecT String () Identity [a]
 commaSep = Tok.commaSep lexer
 
+reservedOps :: [String] -> ParsecT String () Identity ()
+reservedOps names = foldr1 (<|>) $ map reservedOp names
+
+-- Prefix operators
+tbl :: Ex.OperatorTable String () Identity (Formula (Predicate t))
+tbl =
+  [ [binary ["And", "and", "AND", "∧"] (BinOp And) Ex.AssocRight]
+  , [binary ["Or", "or", "OR", "∨", "v"] (BinOp Or) Ex.AssocRight]
+  , [binary ["Implies", "implies", "IMPLIES", "⇒", "=>"] (BinOp Implies) Ex.AssocRight]
+  , [binary ["Xor", "xor", "XOR", "⊕"] (BinOp Xor) Ex.AssocRight]
+  , [binary ["Iff", "iff", "IFF", "⇔", "<=>"] (BinOp Iff) Ex.AssocRight] ]
+  where binary ns fun = Ex.Infix (do { reservedOps ns; return fun })
+
 contents :: Parser a -> Parser a
 contents p = do
   Tok.whiteSpace lexer
@@ -53,14 +66,25 @@ contents p = do
   return r
 
 parseFOL :: String -> Either ParseError (Formula (Predicate String))
-parseFOL = parse (contents parseAll) "<stdin>"
+parseFOL = parse (contents parseQual) "<stdin>"
 
-parseAll :: Parser (Formula (Predicate String))
-parseAll = Ex.buildExpressionParser tbl (parseNots <|> parseAtoms)
+parseQual :: Parser (Formula (Predicate String))
+parseQual = do
+  quals <- parseExists <|> parseForAll --- many1
+  v <- identifier
+  a <- parseSentence
+  return (Qualifier quals v a)
+
+parseSentence :: Parser (Formula (Predicate String))
+parseSentence = Ex.buildExpressionParser tbl (parseNots <|> parseAtoms)
 
 parseTop, parseBottom :: Parser (Formula (Predicate t))
 parseTop  = reserved "True" >> return Top
 parseBottom = reserved "False" >> return Bottom
+
+parseExists, parseForAll :: Parser QualT
+parseExists = reservedOps ["Exists", "exists", "∃"] >> return Exists
+parseForAll = reservedOps ["ForAll", "forall", "∀"] >> return ForAll
 
 parseNots :: Parser (Formula (Predicate String))
 parseNots = do
@@ -73,7 +97,11 @@ parseAtoms =
       parseTop
   <|> parseBottom
   <|> parsePredicate
-  <|> parens parseAll
+  <|> parens parseSentence
+
+---------------------------
+-- Parsing terms         --
+---------------------------
 
 parsePredicate :: Parser (Formula (Predicate String))
 parsePredicate = do
@@ -98,16 +126,3 @@ parseVarCon :: Parser (Term String)
 parseVarCon = do
   n <- identifier
   return (if isLower $ head n then Variable n else Constant n)
-
-reservedOps :: [String] -> ParsecT String () Identity ()
-reservedOps names = foldr1 (<|>) $ map reservedOp names
-
--- Prefix operators
-tbl :: Ex.OperatorTable String () Identity (Formula (Predicate t))
-tbl =
-  [ [binary ["And", "and", "AND", "∧"] (BinOp And) Ex.AssocRight]
-  , [binary ["Or", "or", "OR", "∨", "v"] (BinOp Or) Ex.AssocRight]
-  , [binary ["Implies", "implies", "IMPLIES", "⇒", "=>"] (BinOp Implies) Ex.AssocRight]
-  , [binary ["Xor", "xor", "XOR", "⊕"] (BinOp Xor) Ex.AssocRight]
-  , [binary ["Iff", "iff", "IFF", "⇔", "<=>"] (BinOp Iff) Ex.AssocRight] ]
-  where binary ns fun = Ex.Infix (do { reservedOps ns; return fun })

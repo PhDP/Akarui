@@ -4,6 +4,7 @@ module Sphinx.Parser (
 
 import Data.Functor.Identity
 import Data.Char (isLower)
+import Data.List (foldl')
 import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr as Ex
@@ -55,7 +56,17 @@ parseFOL :: String -> Either ParseError (Formula (Predicate String))
 parseFOL = parse (contents parseAll) "<stdin>"
 
 parseAll :: Parser (Formula (Predicate String))
-parseAll = Ex.buildExpressionParser tbl parseAtoms
+parseAll = Ex.buildExpressionParser tbl (parseNots <|> parseAtoms)
+
+parseTop, parseBottom :: Parser (Formula (Predicate t))
+parseTop  = reserved "True" >> return Top
+parseBottom = reserved "False" >> return Bottom
+
+parseNots :: Parser (Formula (Predicate String))
+parseNots = do
+  nots <- many1 $ reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
+  a <- parseAtoms
+  return (foldl' (\acc n -> n acc) a nots)
 
 parseAtoms :: Parser (Formula (Predicate String))
 parseAtoms =
@@ -63,10 +74,6 @@ parseAtoms =
   <|> parseBottom
   <|> parsePredicate
   <|> parens parseAll
-
-parseTop, parseBottom :: Parser (Formula (Predicate t))
-parseTop  = reserved "True" >> return Top
-parseBottom = reserved "False" >> return Bottom
 
 parsePredicate :: Parser (Formula (Predicate String))
 parsePredicate = do
@@ -98,13 +105,9 @@ reservedOps names = foldr1 (<|>) $ map reservedOp names
 -- Prefix operators
 tbl :: Ex.OperatorTable String () Identity (Formula (Predicate t))
 tbl =
-  let
-    binary ns fun = Ex.Infix (do { reservedOps ns; return fun })
-    prefix ns fun = Ex.Prefix (do { reservedOps ns; return fun })
-  in
-    [ [prefix ["not", "NOT", "~", "!", "¬"] Not]
-    , [binary ["and", "AND", "∧"] (BinOp And) Ex.AssocRight]
-    , [binary ["or", "OR", "∨", "v"] (BinOp Or) Ex.AssocRight]
-    , [binary ["implies", "IMPLIES", "⇒", "=>"] (BinOp Implies) Ex.AssocRight]
-    , [binary ["xor", "XOR", "⊕"] (BinOp Xor) Ex.AssocRight]
-    , [binary ["iff", "IFF", "⇔", "<=>"] (BinOp Iff) Ex.AssocRight] ]
+  [ [binary ["And", "and", "AND", "∧"] (BinOp And) Ex.AssocRight]
+  , [binary ["Or", "or", "OR", "∨", "v"] (BinOp Or) Ex.AssocRight]
+  , [binary ["Implies", "implies", "IMPLIES", "⇒", "=>"] (BinOp Implies) Ex.AssocRight]
+  , [binary ["Xor", "xor", "XOR", "⊕"] (BinOp Xor) Ex.AssocRight]
+  , [binary ["Iff", "iff", "IFF", "⇔", "<=>"] (BinOp Iff) Ex.AssocRight] ]
+  where binary ns fun = Ex.Infix (do { reservedOps ns; return fun })

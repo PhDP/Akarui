@@ -89,9 +89,12 @@ parseExists, parseForAll :: Parser QualT
 parseExists = reservedOps ["Exists", "exists", "∃"] >> return Exists
 parseForAll = reservedOps ["ForAll", "forall", "∀"] >> return ForAll
 
+parseNot :: Parser (Formula (Predicate String) -> Formula (Predicate String))
+parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
+
 parseNots :: Parser (Formula (Predicate String))
 parseNots = do
-  nots <- many1 $ reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
+  nots <- many1 parseNot
   a <- parseAtoms
   return (foldl' (\acc n -> n acc) a nots)
 

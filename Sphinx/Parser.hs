@@ -66,11 +66,14 @@ contents p = do
   return r
 
 parseFOL :: String -> Either ParseError (Formula (Predicate String))
-parseFOL = parse (contents parseQual) "<stdin>"
+parseFOL = parse (contents parseAll) "<stdin>"
+
+parseAll :: Parser (Formula (Predicate String))
+parseAll = parseQual <|> parseSentence
 
 parseQual :: Parser (Formula (Predicate String))
 parseQual = do
-  quals <- parseExists <|> parseForAll --- many1
+  quals <- parseExists <|> parseForAll -- many1
   v <- identifier
   a <- parseSentence
   return (Qualifier quals v a)
@@ -97,7 +100,7 @@ parseAtoms =
       parseTop
   <|> parseBottom
   <|> parsePredicate
-  <|> parens parseSentence
+  <|> parens parseAll
 
 ---------------------------
 -- Parsing terms         --

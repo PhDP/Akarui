@@ -4,86 +4,10 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
 import Sphinx.Formula
-import Sphinx.Symbols
-import Sphinx.Text
+import Sphinx.Predicate
+import Sphinx.Term
 
 type FOL t = Formula (Predicate t)
-
-data TypedObj = TypedObj
-  { objName :: String
-  , objType :: String}
-
-instance Show TypedObj where
-  show t = objName t ++ " -> " ++ objType t
-
--- | A term represents objects. It is either a
--- constants, which represent an object, a variable
--- that ranges over objects, or a function of an
--- arbitrary number of objects to an object.
-data Term t =
-    Variable t
-  | Constant t
-  | Function String [Term t]
-
-instance (Show t) => Show (Term t) where
-  show = showTerm symbolic
-
-instance (Eq t) => Eq (Term t) where
-  (Variable t0) == (Variable t1) = t0 == t1
-  (Constant t0) == (Constant t1) = t0 == t1
-  (Function n0 ts0) == (Function n1 ts1) = n0 == n1 && all (uncurry (==)) (zip ts0 ts1)
-  _ == _ = False
-
-showTerm :: (Show t) => Symbols -> Term t -> String
-showTerm s t = case t of
-  Variable x    -> show x
-  Constant x    -> show x
-  Function n ts -> n ++ "(" ++ (if null ts then "" else terms) ++ ")"
-    where terms = mkString $ map (showTerm s) ts
-
--- Predicates are atoms (thus they evaluate to true/false).
-data Predicate t = Predicate String [Term t]
-
-instance (Show t) => Show (Predicate t) where
-  show = showPredicate symbolic
-
-instance (Eq t) => Eq (Predicate t) where
-  (Predicate n0 ts0) == (Predicate n1 ts1) = n0 == n1 && all (uncurry (==)) (zip ts0 ts1)
-
-instance (Ord t) => Ord (Predicate t) where
-  (Predicate n0 _) `compare` (Predicate n1 _) = n0 `compare` n1
-
-showPredicate :: (Show t) => Symbols -> Predicate t -> String
-showPredicate s (Predicate n ts) =
-  n ++ "(" ++ (if null ts then "" else terms) ++ ")"
-  where terms = mkString $ map (showTerm s) ts
-
--- Returns the number of variables in the term.
-numVars :: (Num n) => Term t -> n
-numVars t = case t of
-  Variable _    -> 1
-  Constant _    -> 0
-  Function _ ts -> foldl' (\acc trm -> acc + numVars trm) 0 ts
-
--- Returns the number of constants in the term.
-numCons :: (Num n) => Term t -> n
-numCons t = case t of
-  Variable _    -> 0
-  Constant _    -> 1
-  Function _ ts -> foldl' (\acc trm -> acc + numCons trm) 0 ts
-
--- Returns the number of functions in the term.
-numFuns :: (Num n) => Term t -> n
-numFuns t = case t of
-  Variable _    -> 0
-  Constant _    -> 0
-  Function _ ts -> 1 + foldl' (\acc trm -> acc + numFuns trm) 0 ts
-
--- Tests if the term is 'grounded', i.e. if it has no variables.
-groundTerm :: Term t -> Bool
-groundTerm (Variable _) = False
-groundTerm (Constant _) = True
-groundTerm (Function _ ts) = all groundTerm ts
 
 -- Tests if the formula is 'grounded', i.e. if it has no variables.
 groundFm :: FOL t -> Bool
@@ -119,21 +43,6 @@ hasFun f = case f of
   BinOp _ x y           -> hasFun x || hasFun y
   Qualifier _ _ x       -> hasFun x
   _                     -> False
-
--- Show the internal structure of the predicate.
-showPreStruct :: (Show a) => Predicate a -> String
-showPreStruct (Predicate n ts) =
-  "Predicate " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"
-  where terms = mkString (map showTermStruct ts)
-
--- Show the internal structure of the term.
-showTermStruct :: (Show a) => Term a -> String
-showTermStruct t = case t of
-  Variable x    -> "Variable (" ++ show x ++ ")"
-  Constant x    -> "Constant (" ++ show x ++ ")"
-  Function n ts ->
-    "Function " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"
-    where terms = mkString (map showTermStruct ts)
 
 -- Show the internal structure of the first-order logic formula.
 showFOLStruct :: (Show a) => FOL a -> String

@@ -1,6 +1,6 @@
 module Sphinx.MaxWalkSAT where
 
-import Sphinx.FOL
+import Sphinx.Predicate
 --import Data.Map (Map)
 
 data Ass t = Map (Predicate t) Bool

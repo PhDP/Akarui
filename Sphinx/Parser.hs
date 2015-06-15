@@ -10,6 +10,8 @@ import qualified Text.Parsec.Expr as Ex
 import qualified Text.Parsec.Token as Tok
 import Sphinx.Formula
 import Sphinx.FOL
+import Sphinx.Term
+import Sphinx.Predicate
 
 langDef :: Tok.LanguageDef ()
 langDef = Tok.LanguageDef {

@@ -19,6 +19,8 @@ library
     Sphinx.Parser
     Sphinx.MLN
     Sphinx.MaxWalkSAT
+    Sphinx.Predicate
+    Sphinx.Term
   build-depends:
     base >= 4.6,
     containers,

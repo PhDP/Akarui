@@ -78,7 +78,7 @@ parseBottom = reserved "False" >> return Bottom
 parseQuals = do
   qs <- many1 parseQual
   a <- parseSentence
-  return (foldl' (\acc q -> q acc) a qs)
+  return (foldr (\q acc -> q acc) a qs)
 
 parseNots = do
   nots <- many1 parseNot

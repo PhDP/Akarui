@@ -50,8 +50,8 @@ showFm s = rmQuotes . buildStr (0 :: Int)
       BinOp Implies x y     -> showInfix (pr > 6) 6 (symImplies s) x y
       BinOp Xor x y         -> showInfix (pr > 4) 4 (symXor s) x y
       BinOp Iff x y         -> showInfix (pr > 2) 2 (symIff s) x y
-      Qualifier ForAll v x  -> symForall s ++ " " ++ v ++ ", " ++ buildStr pr x
-      Qualifier Exists v x  -> symExists s ++ " " ++ v ++ ", " ++ buildStr pr x
+      Qualifier ForAll v x  -> symForall s ++ " " ++ v ++ " " ++ buildStr pr x
+      Qualifier Exists v x  -> symExists s ++ " " ++ v ++ " " ++ buildStr pr x
 
 -- Gathers all atoms in the formula.
 atoms :: (Ord a) => Formula a -> Set a

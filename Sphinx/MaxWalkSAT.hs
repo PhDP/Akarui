@@ -5,7 +5,8 @@ import Sphinx.FOL
 
 data Ass t = Map (Predicate t) Bool
 
-maxWalkSAT :: Int -> Ass t -> Ass t
-maxWalkSAT 0     c = c
-maxWalkSAT tries c =
-  maxWalkSAT (tries - 1) c
+--maxWalkSAT :: MLN String -> Int -> Int -> Double -> Double -> Ass t
+--maxWalkSAT mln mt mf target p =
+--  where
+--    vars = predicates mln
+--    step

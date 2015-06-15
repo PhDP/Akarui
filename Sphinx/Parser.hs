@@ -46,7 +46,7 @@ reservedOps :: [String] -> ParsecT String () Identity ()
 reservedOps names = foldr1 (<|>) $ map reservedOp names
 
 -- Prefix operators
-tbl :: Ex.OperatorTable String () Identity (Formula (Predicate t))
+tbl :: Ex.OperatorTable String () Identity (FOL t)
 tbl =
   [ [binary ["And", "and", "AND", "∧"] (BinOp And) Ex.AssocRight]
   , [binary ["Or", "or", "OR", "∨", "v"] (BinOp Or) Ex.AssocRight]
@@ -62,10 +62,10 @@ contents p = do
   eof
   return r
 
-parseFOL :: String -> Either ParseError (Formula (Predicate String))
+parseFOL :: String -> Either ParseError (FOL String)
 parseFOL = parse (contents parseAll) "<stdin>"
 
-parseAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseQual, parseNots :: Parser (Formula (Predicate String))
+parseAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseQual, parseNots :: Parser (FOL String)
 parseAll = parseQual <|> parseSentence
 
 parseSentence = Ex.buildExpressionParser tbl (parseNots <|> parseAtoms)
@@ -91,7 +91,7 @@ parsePredicate = do
   args <- parseFunForm
   return $ Atom $ uncurry Predicate args
 
-parseNot :: Parser (Formula (Predicate String) -> Formula (Predicate String))
+parseNot :: Parser (FOL String -> FOL String)
 parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
 
 parseExists, parseForAll :: Parser QualT

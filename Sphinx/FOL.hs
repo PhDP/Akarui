@@ -7,6 +7,8 @@ import Sphinx.Formula
 import Sphinx.Symbols
 import Sphinx.Text
 
+type FOL t = Formula (Predicate t)
+
 data TypedObj = TypedObj
   { objName :: String
   , objType :: String}
@@ -26,6 +28,12 @@ data Term t =
 instance (Show t) => Show (Term t) where
   show = showTerm symbolic
 
+instance (Eq t) => Eq (Term t) where
+  (Variable t0) == (Variable t1) = t0 == t1
+  (Constant t0) == (Constant t1) = t0 == t1
+  (Function n0 ts0) == (Function n1 ts1) = n0 == n1 && all (uncurry (==)) (zip ts0 ts1)
+  _ == _ = False
+
 showTerm :: (Show t) => Symbols -> Term t -> String
 showTerm s t = case t of
   Variable x    -> show x
@@ -38,6 +46,12 @@ data Predicate t = Predicate String [Term t]
 
 instance (Show t) => Show (Predicate t) where
   show = showPredicate symbolic
+
+instance (Eq t) => Eq (Predicate t) where
+  (Predicate n0 ts0) == (Predicate n1 ts1) = n0 == n1 && all (uncurry (==)) (zip ts0 ts1)
+
+instance (Ord t) => Ord (Predicate t) where
+  (Predicate n0 _) `compare` (Predicate n1 _) = n0 `compare` n1
 
 showPredicate :: (Show t) => Symbols -> Predicate t -> String
 showPredicate s (Predicate n ts) =
@@ -72,7 +86,7 @@ groundTerm (Constant _) = True
 groundTerm (Function _ ts) = all groundTerm ts
 
 -- Tests if the formula is 'grounded', i.e. if it has no variables.
-groundFm :: Formula (Predicate t) -> Bool
+groundFm :: FOL t -> Bool
 groundFm f = case f of
   Atom (Predicate _ ts) -> all groundTerm ts
   BinOp _ x y           -> groundFm x || groundFm y
@@ -80,7 +94,7 @@ groundFm f = case f of
   _                     -> False
 
 -- Gathers all the variables in a first-order logic formula.
-variables :: (Ord t) => Formula (Predicate t) -> Set t
+variables :: (Ord t) => FOL t -> Set t
 variables = gat Set.empty
   where
     -- Gathers variables from terms
@@ -99,7 +113,7 @@ variables = gat Set.empty
     gatE = gat Set.empty
 
 -- Returns true if the formula has functions.
-hasFun :: Formula (Predicate t) -> Bool
+hasFun :: FOL t -> Bool
 hasFun f = case f of
   Atom (Predicate _ ts) -> any (\trm -> (numFuns trm :: Int) > 0) ts
   BinOp _ x y           -> hasFun x || hasFun y
@@ -122,7 +136,7 @@ showTermStruct t = case t of
     where terms = mkString (map showTermStruct ts)
 
 -- Show the internal structure of the first-order logic formula.
-showFOLStruct :: (Show a) => Formula (Predicate a) -> String
+showFOLStruct :: (Show a) => FOL a -> String
 showFOLStruct f = case f of
   Atom a                -> showPreStruct a
   Top                   -> "Top"

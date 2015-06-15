@@ -17,6 +17,8 @@ library
     Sphinx.Formula
     Sphinx.FOL
     Sphinx.Parser
+    Sphinx.MLN
+    Sphinx.MaxWalkSAT
   build-depends:
     base >= 4.6,
     containers,

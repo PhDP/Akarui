@@ -65,8 +65,8 @@ contents p = do
 parseFOL :: String -> Either ParseError (Formula (Predicate String))
 parseFOL = parse (contents parseAll) "<stdin>"
 
-parseAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseQuals, parseNots :: Parser (Formula (Predicate String))
-parseAll = parseQuals <|> parseSentence
+parseAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseQual, parseNots :: Parser (Formula (Predicate String))
+parseAll = parseQual <|> parseSentence
 
 parseSentence = Ex.buildExpressionParser tbl (parseNots <|> parseAtoms)
 
@@ -74,15 +74,16 @@ parseTop  = reserved "True" >> return Top
 
 parseBottom = reserved "False" >> return Bottom
 
-parseQuals = do
-  qs <- many1 parseQual
-  a <- parseSentence
-  return (foldr (\q acc -> q acc) a qs)
+parseQual = do
+  q <- parseExists <|> parseForAll -- many1
+  v <- identifier
+  a <- parseAll
+  return $ Qualifier q v a
 
 parseNots = do
   nots <- many1 parseNot
   a <- parseAtoms
-  return (if even $ length nots then Not a else a)
+  return $ if even $ length nots then Not a else a
 
 parseAtoms = parseTop <|> parseBottom <|> parsePredicate <|> parens parseAll
 
@@ -90,16 +91,8 @@ parsePredicate = do
   args <- parseFunForm
   return $ Atom $ uncurry Predicate args
 
-parseNot, parseQual :: Parser (Formula (Predicate String) -> Formula (Predicate String))
-
+parseNot :: Parser (Formula (Predicate String) -> Formula (Predicate String))
 parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
-
--- parseNQual
-
-parseQual = do
-  quals <- parseExists <|> parseForAll -- many1
-  v <- identifier
-  return (Qualifier quals v)
 
 parseExists, parseForAll :: Parser QualT
 parseExists = reservedOps ["Exists", "exists", "∃"] >> return Exists

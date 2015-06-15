@@ -4,7 +4,6 @@ module Sphinx.Parser (
 
 import Data.Functor.Identity
 import Data.Char (isLower)
-import Data.List (foldl')
 import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr as Ex
@@ -83,23 +82,20 @@ parseQuals = do
 parseNots = do
   nots <- many1 parseNot
   a <- parseAtoms
-  return (foldl' (\acc n -> n acc) a nots)
+  return (if even $ length nots then Not a else a)
 
-parseAtoms =
-      parseTop
-  <|> parseBottom
-  <|> parsePredicate
-  <|> parens parseAll
+parseAtoms = parseTop <|> parseBottom <|> parsePredicate <|> parens parseAll
 
 parsePredicate = do
-  n <- identifier
-  reservedOp "("
-  ts <- commaSep parseTerm
-  reservedOp ")"
-  return (Atom (Predicate n ts))
+  args <- parseFunForm
+  return $ Atom $ uncurry Predicate args
 
 parseNot, parseQual :: Parser (Formula (Predicate String) -> Formula (Predicate String))
+
 parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
+
+-- parseNQual
+
 parseQual = do
   quals <- parseExists <|> parseForAll -- many1
   v <- identifier
@@ -109,19 +105,20 @@ parseExists, parseForAll :: Parser QualT
 parseExists = reservedOps ["Exists", "exists", "∃"] >> return Exists
 parseForAll = reservedOps ["ForAll", "forall", "∀"] >> return ForAll
 
----------------------------
--- Parsing terms         --
----------------------------
+parseFunForm :: Parser (String, [Term String])
+parseFunForm = do
+  n <- identifier
+  reservedOp "("
+  ts <- commaSep parseTerm
+  reservedOp ")"
+  return (n, ts)
 
 parseTerm, parseVarCon, parseFunction :: Parser (Term String)
 parseTerm = try parseFunction <|> parseVarCon
 
 parseFunction = do
-  n <- identifier
-  reservedOp "("
-  ts <- commaSep parseTerm
-  reservedOp ")"
-  return (Function n ts)
+  args <- parseFunForm
+  return $ uncurry Function args
 
 parseVarCon = do
   n <- identifier

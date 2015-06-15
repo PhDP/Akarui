@@ -33,10 +33,8 @@ lexer = Tok.makeTokenParser langDef
 parens :: Parser a -> Parser a
 parens = Tok.parens lexer
 
-reserved :: String -> Parser ()
+reserved, reservedOp :: String -> Parser ()
 reserved = Tok.reserved lexer
-
-reservedOp :: String -> Parser ()
 reservedOp = Tok.reservedOp lexer
 
 identifier :: ParsecT String () Identity String
@@ -68,48 +66,31 @@ contents p = do
 parseFOL :: String -> Either ParseError (Formula (Predicate String))
 parseFOL = parse (contents parseAll) "<stdin>"
 
-parseAll :: Parser (Formula (Predicate String))
-parseAll = parseQual <|> parseSentence
+parseAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseQuals, parseNots :: Parser (Formula (Predicate String))
+parseAll = parseQuals <|> parseSentence
 
-parseQual :: Parser (Formula (Predicate String))
-parseQual = do
-  quals <- parseExists <|> parseForAll -- many1
-  v <- identifier
-  a <- parseSentence
-  return (Qualifier quals v a)
-
-parseSentence :: Parser (Formula (Predicate String))
 parseSentence = Ex.buildExpressionParser tbl (parseNots <|> parseAtoms)
 
-parseTop, parseBottom :: Parser (Formula (Predicate t))
 parseTop  = reserved "True" >> return Top
+
 parseBottom = reserved "False" >> return Bottom
 
-parseExists, parseForAll :: Parser QualT
-parseExists = reservedOps ["Exists", "exists", "∃"] >> return Exists
-parseForAll = reservedOps ["ForAll", "forall", "∀"] >> return ForAll
+parseQuals = do
+  qs <- many1 parseQual
+  a <- parseSentence
+  return (foldl' (\acc q -> q acc) a qs)
 
-parseNot :: Parser (Formula (Predicate String) -> Formula (Predicate String))
-parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
-
-parseNots :: Parser (Formula (Predicate String))
 parseNots = do
   nots <- many1 parseNot
   a <- parseAtoms
   return (foldl' (\acc n -> n acc) a nots)
 
-parseAtoms :: Parser (Formula (Predicate String))
 parseAtoms =
       parseTop
   <|> parseBottom
   <|> parsePredicate
   <|> parens parseAll
 
----------------------------
--- Parsing terms         --
----------------------------
-
-parsePredicate :: Parser (Formula (Predicate String))
 parsePredicate = do
   n <- identifier
   reservedOp "("
@@ -117,10 +98,24 @@ parsePredicate = do
   reservedOp ")"
   return (Atom (Predicate n ts))
 
-parseTerm :: Parser (Term String)
+parseNot, parseQual :: Parser (Formula (Predicate String) -> Formula (Predicate String))
+parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
+parseQual = do
+  quals <- parseExists <|> parseForAll -- many1
+  v <- identifier
+  return (Qualifier quals v)
+
+parseExists, parseForAll :: Parser QualT
+parseExists = reservedOps ["Exists", "exists", "∃"] >> return Exists
+parseForAll = reservedOps ["ForAll", "forall", "∀"] >> return ForAll
+
+---------------------------
+-- Parsing terms         --
+---------------------------
+
+parseTerm, parseVarCon, parseFunction :: Parser (Term String)
 parseTerm = try parseFunction <|> parseVarCon
 
-parseFunction :: Parser (Term String)
 parseFunction = do
   n <- identifier
   reservedOp "("
@@ -128,7 +123,6 @@ parseFunction = do
   reservedOp ")"
   return (Function n ts)
 
-parseVarCon :: Parser (Term String)
 parseVarCon = do
   n <- identifier
   return (if isLower $ head n then Variable n else Constant n)

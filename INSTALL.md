@@ -7,6 +7,8 @@ Sphinx should compile with the ghc compiler versions 7.6, 7.8, and 7.10.
 Unless your Linux distribution is really old, it should have a recent enough
 version of both the ghc compiler and cabal package management.
 
+ppa:hvr/ghc
+
 # Mac OSX
 
 # Windows

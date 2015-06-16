@@ -1,29 +1,64 @@
+-- | A generic formula used for various logics, most notably propositional logic
+-- and first-order logic (Sphinx.FOL module). The structure mostly follows
+-- Harrison (2009), however, binary connectives ('and', 'or', ...) are
+-- aggregated into a BinOp type.
+--
+-- References:
+--   John Harrison, Handbook of Practical Logic and Automated Reasoning.
+-- Cambridge University Press, 2009.
 module Sphinx.Formula where
 
 import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
+import Data.List (nub)
 import System.Random
 import Sphinx.Symbols
 import Sphinx.Text
 
--- Supported binary connectives (in order of precedence).
-data BinT = And | Or | Implies | Xor | Iff
+-- | Supported binary connectives (in order of precedence).
+data BinT =
+  -- | Conjunction. Returns true only if both sides are true.
+    And
+  -- | Disjunction. Returns true if at least one operand is true.
+  | Or
+  -- | Implication is... messed up. It returns true except if the
+  -- left operand is true and the right one is false, e.g. True implies False
+  -- is the only situation where implication returns false.
+  | Implies
+  -- | Exclusive disjunction. Returns true if one and only one operand is true.
+  | Xor
+  -- | Equivalence. Returns true is both operand have the same value, i.e. both
+  -- true or both are false.
+  | Iff
   deriving (Eq, Ord, Show)
 
--- Supported qualifiers.
-data QualT = ForAll | Exists
+-- | Supported qualifiers. They are only used in some logics, for example they
+-- make no sense in propositional logic.
+data QualT =
+  -- | Univeral qualifier.
+    ForAll
+  -- | Existential qualifier.
+  | Exists
   deriving (Eq, Ord, Show)
 
--- A formula.
+-- | A formula with generic atoms. Propositional logic can easily be described
+-- with Formula String, and first-order logic is defined in module Sphinx.FOL as
+-- Formula (Predicate t).
 data Formula a =
-    Top -- Another name for True to avoid confusion with Prelude.True.
-  | Bottom -- Another name for 'False'.
+  -- | Another name for 'True' to avoid confusion with Prelude.True.
+    Top
+  -- | Another name for 'False'.
+  | Bottom
+  -- | Generic atoms.
   | Atom a
+  -- | The unary negation type.
   | Not (Formula a)
+  -- | Binary connectives.
   | BinOp BinT (Formula a) (Formula a)
-  | Qualifier QualT String (Formula a)
+  -- | Qualifier apply to a string (following Harrison 2009).
+  | Qualifier QualT String (Formula a) -- Following Harris' here, but it might be smarter to put qualifiers in FOL only.
 
 instance Show a => Show (Formula a) where
   show = showFm long -- symbolic
@@ -44,6 +79,9 @@ instance Eq a => Eq (Formula a) where
 
 -- instance Ord a => Ord (Formula a) where
 
+-- | Prints the formula given a set of symbols ('Sphinx.Symbols.Symbols').
+-- This function is built to support printing in symbolic, LaTeX, and ASCII
+-- formats.
 showFm :: (Show a) => Symbols -> Formula a -> String
 showFm s = rmQuotes . buildStr (0 :: Int)
   where
@@ -74,28 +112,32 @@ showFm s = rmQuotes . buildStr (0 :: Int)
       Qualifier ForAll v x  -> symForall s ++ " " ++ v ++ " " ++ buildStr pr x
       Qualifier Exists v x  -> symExists s ++ " " ++ v ++ " " ++ buildStr pr x
 
--- Gathers all atoms in the formula.
+-- | Gathers all atoms in the formula.
 atoms :: (Ord a) => Formula a -> Set a
-atoms f = gat f Set.empty
+atoms = gat
   where
-    gat fm s = case fm of
+    gat = gat' Set.empty
+    gat' s fm = case fm of
       Atom z          -> Set.insert z s
-      Not x           -> Set.union (gat x Set.empty) s
-      BinOp _ x y     -> Set.unions [gat x Set.empty, gat y Set.empty, s]
-      Qualifier _ _ x -> Set.union (gat x Set.empty) s
+      Not x           -> Set.union (gat x) s
+      BinOp _ x y     -> Set.unions [gat x, gat y, s]
+      Qualifier _ _ x -> Set.union (gat x) s
       _               -> Set.empty
 
--- | Randomly assigns all element of the set to either True or False with equal
--- probability. It's a fair ass.
-randomFairAss :: (Ord a) => Int -> Set a -> Map a Bool
-randomFairAss seed s = Map.fromList $ zip (Set.toList s) rs
-  where rs = take (Set.size s) $ randoms (mkStdGen seed) :: [Bool]
+-- | Gathers all atoms in the formula in a list for atoms that do not support
+-- the Ord type class.
+atomsLs :: (Eq a) => Formula a -> [a]
+atomsLs = nub . gat
+  where
+    gat = gat' []
+    gat' l fm = case fm of
+      Atom z          -> z : l
+      Not x           -> l ++ gat x
+      BinOp _ x y     -> l ++ gat x ++ gat y
+      Qualifier _ _ x -> l ++ gat x
+      _               -> []
 
--- | Gathers and assigns all atoms to a boolean given a seed value.
-randomFairAssF :: (Ord a) => Int -> Formula a -> Map a Bool
-randomFairAssF seed f = randomFairAss seed $ atoms f
-
--- The unary negation operator.
+-- | The unary negation operator.
 lneg :: Formula a -> Formula a
 lneg f = case f of
   Top -> Bottom
@@ -103,7 +145,7 @@ lneg f = case f of
   Not x   -> x
   _       -> Not f
 
--- The 'and' (conjunction) binary operator.
+-- | he 'and' (conjunction) binary operator.
 land :: Formula a -> Formula a -> Formula a
 land f0 f1 = case (f0, f1) of
   (Top, Top)  -> Top
@@ -113,7 +155,7 @@ land f0 f1 = case (f0, f1) of
   (x, Top)    -> x
   (x, y)      -> BinOp And x y
 
--- The 'or' (inclusive disjunction) binary operator.
+-- | The 'or' (inclusive disjunction) binary operator.
 lor :: Formula a -> Formula a -> Formula a
 lor f0 f1 = case (f0, f1) of
   (Top, _)    -> Top
@@ -122,7 +164,7 @@ lor f0 f1 = case (f0, f1) of
   (x, Bottom) -> x
   (x, y)      -> BinOp Or x y
 
--- The 'exclusive or' (exclusive disjunction) binary operator.
+-- | The 'exclusive or' (exclusive disjunction) binary operator.
 lxor :: Formula a -> Formula a -> Formula a
 lxor f0 f1 = case (f0, f1) of
   (x, Bottom) -> x
@@ -131,7 +173,7 @@ lxor f0 f1 = case (f0, f1) of
   (Top, y)    -> lneg y
   (x, y)      -> BinOp Xor x y
 
--- The 'implies' (implication) binary operator.
+-- | The 'implies' (implication) binary operator.
 limplies :: Formula a -> Formula a -> Formula a
 limplies f0 f1 = case (f0, f1) of
   (Top, y)    -> y
@@ -140,7 +182,7 @@ limplies f0 f1 = case (f0, f1) of
   (_, Top)    -> Top
   (x, y)      -> BinOp Implies x y
 
--- The 'if and only if' (equivalence) binary operator.
+-- | The 'if and only if' (equivalence) binary operator.
 liff :: Formula a -> Formula a -> Formula a
 liff f0 f1 = case (f0, f1) of
   (Top, y)         -> y
@@ -150,7 +192,7 @@ liff f0 f1 = case (f0, f1) of
   (x, Top)         -> x
   (x, y)           -> BinOp Iff x y
 
--- | Dispatch binary operator to their resolution function.
+-- | Dispatch binary operators to their resolution function.
 binOperator :: Formula a -> Formula a
 binOperator b = case b of
   BinOp And x y     -> land x y
@@ -212,3 +254,13 @@ satisfiable ass f = case eval ass f of Top -> True; _ -> False
 -- evaluate to Top/Bottom.
 unsatisfiable :: (Ord a) => Map a Bool -> Formula a -> Bool
 unsatisfiable ass f = case eval ass f of Top -> False; _ -> True
+
+-- | Randomly assigns all element of the set to either True or False with equal
+-- probability. It's a fair ass.
+randomFairAss :: (Ord a) => Int -> Set a -> Map a Bool
+randomFairAss seed s = Map.fromList $ zip (Set.toList s) rs
+  where rs = take (Set.size s) $ randoms (mkStdGen seed) :: [Bool]
+
+-- | Gathers and assigns all atoms to a boolean given a seed value.
+randomFairAssF :: (Ord a) => Int -> Formula a -> Map a Bool
+randomFairAssF seed f = randomFairAss seed $ atoms f

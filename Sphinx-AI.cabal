@@ -1,0 +1,55 @@
+name:           Sphinx-AI
+version:        0.1.0.0
+synopsis:       Hybrid logic + probabilistic machine learning library
+license:        MIT
+license-file:   LICENSE.md
+author:         Philippe Desjardins-Proulx <philippe.d.proulx@gmail.com>
+maintainer:     Philippe Desjardins-Proulx philippe.d.proulx@gmail.com
+category:       AI, Machine Learning, Logic, Statistics
+build-type:     Simple
+cabal-version:  >= 1.10
+description:
+  ...
+
+library
+  default-language: Haskell2010
+  ghc-options: -O2 -Wall
+  exposed-modules:
+    Sphinx.Formula
+    Sphinx.FOL
+    Sphinx.Parser
+    Sphinx.MLN
+    Sphinx.MaxWalkSAT
+    Sphinx.Predicate
+    Sphinx.Term
+    Sphinx.Symbols
+  other-modules:
+    Sphinx.Text
+  build-depends:
+    base >= 4.6,
+    containers,
+    parsec,
+    text,
+    transformers,
+    random
+
+test-suite tests
+  default-language: Haskell2010
+  -- Supress orphan warnings to allow 'Arbitrary' instance def:
+  ghc-options: -Wall -fno-warn-orphans
+  hs-source-dirs: tests
+  type: exitcode-stdio-1.0
+  main-is: Properties.hs
+  other-modules:
+    PropLogic
+    TextGen
+  build-depends:
+    base >= 4.6,
+    containers,
+    QuickCheck >= 2.7,
+    test-framework-quickcheck2,
+    Sphinx-AI
+
+source-repository head
+  type:       git
+  location:   git://github.com/PhDP/Sphinx.git

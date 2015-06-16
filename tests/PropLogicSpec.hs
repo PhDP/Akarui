@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-} -- Investigate, perhaps a bad idea.
 
-module PropLogic where
+module PropLogicSpec where
 
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -12,7 +12,7 @@ import TextGen
 
 genProposition :: Gen (Formula String)
 genProposition = do
-  name <- genPascalString
+  name <- genLetterString
   return (Atom name)
 
 instance Arbitrary (Formula String) where

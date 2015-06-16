@@ -41,7 +41,8 @@ test-suite tests
   type: exitcode-stdio-1.0
   main-is: Properties.hs
   other-modules:
-    PropLogic
+    PropLogicSpec
+    FOLSpec
     TextGen
   build-depends:
     base >= 4.6,

@@ -193,38 +193,27 @@ liff f0 f1 = case (f0, f1) of
   (x, y)           -> BinOp Iff x y
 
 -- | Dispatch binary operators to their resolution function.
-binOperator :: Formula a -> Formula a
-binOperator b = case b of
-  BinOp And x y     -> land x y
-  BinOp Or x y      -> lor x y
-  BinOp Xor x y     -> lxor x y
-  BinOp Implies x y -> limplies x y
-  BinOp Iff x y     -> liff x y
-  _                 -> b
+binOperator :: BinT -> Formula a -> Formula a -> Formula a
+binOperator b x y = case b of
+  And     -> land x y
+  Or      -> lor x y
+  Xor     -> lxor x y
+  Implies -> limplies x y
+  Iff     -> liff x y
 
 -- | Simplify using Harris' algorithm.
 simplify :: Formula a -> Formula a
 simplify f = case f of
   Not x             -> lneg $ sim1 $ simplify x
-  BinOp And x y     -> land     (sim1 $ simplify x) (sim1 $ simplify y)
-  BinOp Or x y      -> lor      (sim1 $ simplify x) (sim1 $ simplify y)
-  BinOp Xor x y     -> lxor     (sim1 $ simplify x) (sim1 $ simplify y)
-  BinOp Implies x y -> limplies (sim1 $ simplify x) (sim1 $ simplify y)
-  BinOp Iff x y     -> liff     (sim1 $ simplify x) (sim1 $ simplify y)
+  BinOp b x y       -> binOperator b (sim1 $ simplify x) (sim1 $ simplify y)
   Qualifier q v x   -> Qualifier q v $ sim1 $ simplify x
   _                 -> f
   where
     sim1 f' = case f' of
-      Not x             -> lneg $ sim1 x
-      BinOp And x y     -> land     (sim1 x) (sim1 y)
-      BinOp Or x y      -> lor      (sim1 x) (sim1 y)
-      BinOp Xor x y     -> lxor     (sim1 x) (sim1 y)
-      BinOp Implies x y -> limplies (sim1 x) (sim1 y)
-      BinOp Iff x y     -> liff     (sim1 x) (sim1 y)
-      Qualifier q v x   -> Qualifier q v $ sim1 x
-      _                 -> f'
-
--- rmQualifiers
+      Not x           -> lneg $ sim1 x
+      BinOp b x y     -> binOperator b (sim1 x) (sim1 y)
+      Qualifier q v x -> Qualifier q v $ sim1 x
+      _               -> f'
 
 -- | Evaluates a formula given an assignment to atoms. If the assignment is
 -- incomplete, eval with evaluate as much as possible but might not reduce
@@ -232,7 +221,7 @@ simplify f = case f of
 -- functions that rely on qualifiers, see the Sphinx.FOL first-order logic
 -- module.
 eval :: (Ord a) => Map a Bool -> Formula a -> Formula a
-eval ass f = simplify $ eval' f
+eval ass = simplify . eval'
   where
     eval' f' = case f' of
       Atom a            -> case Map.lookup a ass of

@@ -26,7 +26,8 @@ library
     containers,
     parsec,
     text,
-    transformers
+    transformers,
+    random
 
 test-suite tests
   default-language: Haskell2010

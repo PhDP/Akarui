@@ -7,6 +7,7 @@ import Sphinx.Formula
 import Sphinx.Predicate
 import Sphinx.Term
 
+-- A first-order logic formula is simply a formula of predicates.
 type FOL t = Formula (Predicate t)
 
 -- Tests if the formula is 'grounded', i.e. if it has no variables.
@@ -47,14 +48,9 @@ hasFun f = case f of
 -- Show the internal structure of the first-order logic formula.
 showFOLStruct :: (Show a) => FOL a -> String
 showFOLStruct f = case f of
-  Atom a                -> showPreStruct a
-  Top                   -> "Top"
-  Bottom                -> "Bottom"
-  Not x                 -> "Not (" ++ showFOLStruct x ++ ")"
-  BinOp And x y         -> "And (" ++ showFOLStruct x ++ ") (" ++ showFOLStruct y ++ ")"
-  BinOp Or x y          -> "Or (" ++ showFOLStruct x ++ ") (" ++ showFOLStruct y ++ ")"
-  BinOp Implies x y     -> "Implies (" ++ showFOLStruct x ++ ") (" ++ showFOLStruct y ++ ")"
-  BinOp Xor x y         -> "Xor (" ++ showFOLStruct x ++ ") (" ++ showFOLStruct y ++ ")"
-  BinOp Iff x y         -> "Iff (" ++ showFOLStruct x ++ ") (" ++ showFOLStruct y ++ ")"
-  Qualifier ForAll v x  -> "ForAll " ++ v ++ "(" ++ showFOLStruct x ++ ")"
-  Qualifier Exists v x  -> "Exists " ++ v ++ "(" ++ showFOLStruct x ++ ")"
+  Atom a          -> showPreStruct a
+  Top             -> "Top"
+  Bottom          -> "Bottom"
+  Not x           -> "Not (" ++ showFOLStruct x ++ ")"
+  BinOp b x y     -> show b ++ " (" ++ showFOLStruct x ++ ") (" ++ showFOLStruct y ++ ")"
+  Qualifier q v x -> show q ++ " " ++ v ++ "(" ++ showFOLStruct x ++ ")"

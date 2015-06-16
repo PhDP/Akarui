@@ -10,9 +10,11 @@ instance (Show t) => Show (Predicate t) where
   show = showPredicate
 
 instance (Eq t) => Eq (Predicate t) where
-  (Predicate n0 ts0) == (Predicate n1 ts1) = n0 == n1 && all (uncurry (==)) (zip ts0 ts1)
+  (Predicate n0 ts0) == (Predicate n1 ts1) =
+    n0 == n1 && all (uncurry (==)) (zip ts0 ts1)
 
 instance (Ord t) => Ord (Predicate t) where
+  -- Should compare arguments when n0 == n1
   (Predicate n0 _) `compare` (Predicate n1 _) = n0 `compare` n1
 
 showPredicate :: (Show t) => Predicate t -> String

@@ -3,10 +3,9 @@ module Sphinx.Term where
 import Data.List (foldl')
 import Sphinx.Text
 
--- | A term represents objects. It is either a
--- constants, which represent an object, a variable
--- that ranges over objects, or a function of an
--- arbitrary number of objects to an object.
+-- | A term represents an object. It is either a constants, which represent an
+-- object, a variable that ranges over objects, or a function of an arbitrary
+-- number of objects to an object.
 data Term t =
     Variable t
   | Constant t

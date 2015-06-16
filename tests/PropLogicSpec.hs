@@ -12,7 +12,7 @@ import TextGen
 
 genProposition :: Gen (Formula String)
 genProposition = do
-  name <- genLetterString
+  name <- genPascalString
   return (Atom name)
 
 instance Arbitrary (Formula String) where

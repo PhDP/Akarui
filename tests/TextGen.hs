@@ -3,22 +3,26 @@ module TextGen where
 import Test.QuickCheck
 import Data.Char (isLower, isUpper)
 
-genLowerChar :: Gen Char
+genLowerChar, genUpperChar :: Gen Char
 genLowerChar = elements ['a'..'z']
-
-genUpperChar :: Gen Char
 genUpperChar = elements ['A'..'Z']
 
+-- A lower or upper-case character.
 genPascalChar :: Gen Char
 genPascalChar = oneof [genLowerChar, genUpperChar]
 
+-- A string of upper and lower-case characters.
 genLetterString :: Gen String
 genLetterString = listOf genPascalChar
 
--- A string of letters
-genPascalString :: Gen String
-genPascalString = suchThat genLetterString (isUpper . head)
+-- Generetate non-null strings with a restriction on the first letter.
+genStringFst :: (Char -> Bool) -> Gen String
+genStringFst f = suchThat genLetterString (\s -> not (null s) && f (head s))
 
--- A string of letters starting with a lowercase letters
+-- A string in Pascal format.
+genPascalString :: Gen String
+genPascalString = genStringFst isUpper
+
+-- A string in camel format.
 genCamelString :: Gen String
-genCamelString = suchThat genLetterString (isLower . head)
+genCamelString = genStringFst isLower

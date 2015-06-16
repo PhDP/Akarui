@@ -1,3 +1,4 @@
+-- | Type and functions for first-order predicate logic.
 module Sphinx.FOL where
 
 import qualified Data.Set as Set
@@ -7,10 +8,10 @@ import Sphinx.Formula
 import Sphinx.Predicate
 import Sphinx.Term
 
--- A first-order logic formula is simply a formula of predicates.
+-- | A first-order logic formula is simply a formula of predicates.
 type FOL t = Formula (Predicate t)
 
--- Tests if the formula is 'grounded', i.e. if it has no variables.
+-- | Tests if the formula is 'grounded', i.e. if it has no variables.
 groundFm :: FOL t -> Bool
 groundFm f = case f of
   Atom (Predicate _ ts) -> all groundTerm ts
@@ -18,7 +19,7 @@ groundFm f = case f of
   Qualifier _ _ x       -> groundFm x
   _                     -> False
 
--- Gathers all the variables in a first-order logic formula.
+-- | Gathers all the variables in a first-order logic formula.
 variables :: (Ord t) => FOL t -> Set t
 variables = gat Set.empty
   where
@@ -37,7 +38,7 @@ variables = gat Set.empty
     -- Gathers with an empty set
     gatE = gat Set.empty
 
--- Returns true if the formula has functions.
+-- | Returns true if the formula has functions.
 hasFun :: FOL t -> Bool
 hasFun f = case f of
   Atom (Predicate _ ts) -> any (\trm -> (numFuns trm :: Int) > 0) ts

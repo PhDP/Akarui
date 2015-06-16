@@ -5,4 +5,4 @@ data TypedObj = TypedObj
   , objType :: String}
 
 instance Show TypedObj where
-  show t = objName t ++ " -> " ++ objType t
+  show t = objName t ++ ": " ++ objType t

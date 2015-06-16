@@ -10,11 +10,11 @@ import Sphinx.Text
 
 -- Supported binary connectives (in order of precedence).
 data BinT = And | Or | Implies | Xor | Iff
-  deriving (Show)
+  deriving (Eq, Ord, Show)
 
 -- Supported qualifiers.
 data QualT = ForAll | Exists
-  deriving (Show)
+  deriving (Eq, Ord, Show)
 
 -- A formula.
 data Formula a =
@@ -26,7 +26,23 @@ data Formula a =
   | Qualifier QualT String (Formula a)
 
 instance Show a => Show (Formula a) where
-  show = showFm symbolic
+  show = showFm long -- symbolic
+
+instance Eq a => Eq (Formula a) where
+  f0 == f1 = f0 `sameAs` f1
+    where
+      sameAs a b = case (a, b) of
+        (Top, Top)          -> True
+        (Bottom, Bottom)    -> True
+        (Atom a0, Atom a1)  -> a0 == a1
+        (Not x0, Not x1)    -> x0 `sameAs` x1
+        (BinOp b0 x0 y0, BinOp b1 x1 y1) ->
+          b0 == b1 && x0 `sameAs` x1 && y0 `sameAs` y1
+        (Qualifier q0 v0 x0, Qualifier q1 v1 x1) ->
+          q0 == q1 && v0 == v1 && x0 `sameAs` x1
+        _ -> False
+
+-- instance Ord a => Ord (Formula a) where
 
 showFm :: (Show a) => Symbols -> Formula a -> String
 showFm s = rmQuotes . buildStr (0 :: Int)
@@ -75,7 +91,11 @@ randomFairAss :: (Ord a) => Int -> Set a -> Map a Bool
 randomFairAss seed s = Map.fromList $ zip (Set.toList s) rs
   where rs = take (Set.size s) $ randoms (mkStdGen seed) :: [Bool]
 
--- The unary negation operator
+-- | Gathers and assigns all atoms to a boolean given a seed value.
+randomFairAssF :: (Ord a) => Int -> Formula a -> Map a Bool
+randomFairAssF seed f = randomFairAss seed $ atoms f
+
+-- The unary negation operator.
 lneg :: Formula a -> Formula a
 lneg f = case f of
   Top -> Bottom
@@ -129,6 +149,16 @@ liff f0 f1 = case (f0, f1) of
   (x, Bottom)      -> lneg x
   (x, Top)         -> x
   (x, y)           -> BinOp Iff x y
+
+-- | Dispatch binary operator to their resolution function.
+binOperator :: Formula a -> Formula a
+binOperator b = case b of
+  BinOp And x y     -> land x y
+  BinOp Or x y      -> lor x y
+  BinOp Xor x y     -> lxor x y
+  BinOp Implies x y -> limplies x y
+  BinOp Iff x y     -> liff x y
+  _                 -> b
 
 -- | Simplify using Harris' algorithm.
 simplify :: Formula a -> Formula a

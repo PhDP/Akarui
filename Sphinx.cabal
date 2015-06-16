@@ -21,6 +21,8 @@ library
     Sphinx.MaxWalkSAT
     Sphinx.Predicate
     Sphinx.Term
+    Sphinx.Symbols
+    Sphinx.Text
   build-depends:
     base >= 4.6,
     containers,

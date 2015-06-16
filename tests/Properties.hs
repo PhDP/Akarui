@@ -1,37 +1,83 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleInstances #-} -- Investigate, perhaps a bad idea.
 
 import Test.QuickCheck
+import Test.QuickCheck.Test (isSuccess)
 import Control.Monad
+import System.Exit (exitFailure)
+
+--import Data.Char (isLower)
+--import Sphinx.FOL
 import Sphinx.Formula
-import Sphinx.FOL
+--import Sphinx.Predicate
 
---pre :: Gen (Predicate String)
+genLowerChar :: Gen Char
+genLowerChar = elements ['a'..'z']
 
-fol :: Gen (Formula (Predicate String))
-fol = sized fol'
-  where
-    fol' 0 = elements [Top, Bottom]
-    fol' n | n > 0 =
-      oneof
-        [ elements [Top, Bottom]
---        Predicate
-        , liftM Not subfol
-        , liftM2 (BinOp And) subfol subfol
-        , liftM2 (BinOp Or) subfol subfol
-        , liftM2 (BinOp Implies) subfol subfol
-        , liftM2 (BinOp Xor) subfol subfol
-        , liftM2 (BinOp Iff) subfol subfol]
-          where subfol = fol' (n `div` 2)
+genUpperChar :: Gen Char
+genUpperChar = elements ['A'..'Z']
 
-qsort :: Ord a => [a] -> [a]
-qsort [] = []
-qsort (x:xs) = qsort lhs ++ [x] ++ qsort rhs
-  where
-    lhs = filter (< x) xs
-    rhs = filter (>= x) xs
+genPascalChar :: Gen Char
+genPascalChar = oneof [genLowerChar, genUpperChar]
 
-prop_idempotent :: [Int] -> Bool
-prop_idempotent xs = qsort (qsort xs) == qsort xs
+genPascalString :: Gen String
+genPascalString = listOf genPascalChar
+
+-- For first-order logic (later):
+
+--genCamelString :: Gen String
+--genCamelString = suchThat genPascalString (isLower . head)
+--
+--genTerm :: Gen (Term String)
+--genTerm = oneof [genVar, genConst, genFun]
+--
+--genVar :: Gen (Term String)
+--genVar = do
+--  name <- genCamelString
+--  return (Variable name)
+--
+--genConst :: Gen (Term String)
+--genConst = do
+--  name <- genPascalString
+--  return (Constant name)
+--
+--genFun :: Gen (Term String)
+--genFun = do
+--  name <- genPascalString
+--  -- args <- list of terms
+--  return (Function name [])
+--
+--genPredicate :: Gen (FOL String)
+--genPredicate = do
+--  name <- genPascalString
+--  return (Atom (Predicate name []))
+--
+genProposition :: Gen (Formula String)
+genProposition = do
+  name <- genPascalString
+  return (Atom name)
+
+instance Arbitrary (Formula String) where
+  arbitrary = sized fol'
+    where
+      fol' 0 = elements [Top, Bottom]
+      fol' n | n > 0 =
+        oneof
+          [ elements [Top, Bottom]
+          , genProposition
+          , liftM Not sub
+          , liftM2 (BinOp And) sub sub
+          , liftM2 (BinOp Or) sub sub
+          , liftM2 (BinOp Implies) sub sub
+          , liftM2 (BinOp Xor) sub sub
+          , liftM2 (BinOp Iff) sub sub]
+            where sub = fol' (n `div` 2)
+
+prop_simplify_idempotent :: Formula String -> Bool
+prop_simplify_idempotent f = let f' = simplify f in f' == simplify f'
 
 main :: IO ()
-main = quickCheck prop_idempotent
+main = do
+  let tests = [ quickCheckResult prop_simplify_idempotent ]
+  success <- fmap (all isSuccess) . sequence $ tests
+  unless success exitFailure

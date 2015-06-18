@@ -1,16 +1,20 @@
 env:
- - CABAL=1.18 GHC=7.6.3
- - CABAL=1.18 GHC=7.8.4
- - CABAL=1.22 GHC=7.10.2
+  - CABAL=1.18 GHC=7.6.3
+  - CABAL=1.18 GHC=7.8.4
+  - CABAL=1.22 GHC=7.10.2
 
 before_install:
- - travis_retry sudo add-apt-repository -y ppa:hvr/ghc
- - travis_retry sudo apt-get update
- - travis_retry sudo apt-get install cabal-install-$CABAL ghc-$GHC # see note about happy/alex
- - export PATH=$HOME/.cabal/bin:/opt/ghc/$GHC/bin:/opt/cabal/$CABAL/bin:$PATH
+  - travis_retry sudo add-apt-repository -y ppa:hvr/ghc
+  - travis_retry sudo apt-get update
+  - travis_retry sudo apt-get install cabal-install-$CABAL ghc-$GHC # see note about happy/alex
+  - export PATH=$HOME/.cabal/bin:/opt/ghc/$GHC/bin:/opt/cabal/$CABAL/bin:$PATH
 
 install:
- - cabal --version
- - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
- - travis_retry cabal update
- - cabal install --only-dependencies --enable-tests --enable-benchmarks --force-reinstalls
+  - cabal --version
+  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
+  - travis_retry cabal update
+  - cabal install --only-dependencies --enable-tests --enable-benchmarks --force-reinstalls
+
+script:
+  - cabal configure --enable-tests && cabal build && cabal test
+

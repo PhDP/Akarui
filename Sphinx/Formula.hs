@@ -61,7 +61,7 @@ data Formula a =
   | Qualifier QualT String (Formula a) -- Following Harris' here, but it might be smarter to put qualifiers in FOL only.
 
 instance Show a => Show (Formula a) where
-  show = showFm long -- symbolic
+  show = prettyPrintFm long -- symbolic
 
 instance Eq a => Eq (Formula a) where
   f0 == f1 = f0 `sameAs` f1
@@ -82,8 +82,8 @@ instance Eq a => Eq (Formula a) where
 -- | Prints the formula given a set of symbols ('Sphinx.Symbols.Symbols').
 -- This function is built to support printing in symbolic, LaTeX, and ASCII
 -- formats.
-showFm :: (Show a) => Symbols -> Formula a -> String
-showFm s = rmQuotes . buildStr (0 :: Int)
+prettyPrintFm :: (Show a) => Symbols -> Formula a -> String
+prettyPrintFm s = rmQuotes . buildStr (0 :: Int)
   where
     --notSpace = " "
     --qualSpace = " "

@@ -43,6 +43,8 @@ test-suite tests
   other-modules:
     PropLogicSpec
     FOLSpec
+    TermSpec
+    PredicateSpec
     TextGen
   build-depends:
     base >= 4.6,

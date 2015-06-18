@@ -38,7 +38,8 @@ variables = gat Set.empty
     -- Gathers with an empty set
     gatE = gat Set.empty
 
--- | Returns true if the formula has functions.
+-- | Returns true if the formula has functions. This is often used in algorithms
+-- where we must ensure all functions have been resolved to an object.
 hasFun :: FOL t -> Bool
 hasFun f = case f of
   Atom (Predicate _ ts) -> any (\trm -> (numFuns trm :: Int) > 0) ts
@@ -46,7 +47,9 @@ hasFun f = case f of
   Qualifier _ _ x       -> hasFun x
   _                     -> False
 
--- Show the internal structure of the first-order logic formula.
+-- | Shows the internal structure of the first-order logic formula. This is
+-- mostly useful for testing and making sure the formula has the correct
+-- structure.
 showFOLStruct :: (Show a) => FOL a -> String
 showFOLStruct f = case f of
   Atom a          -> showPreStruct a

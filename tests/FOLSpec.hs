@@ -1,34 +1,32 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module FOLSpec where
 
 import Test.QuickCheck
+import Control.Monad
 import Sphinx.Formula
 import Sphinx.FOL
-import Sphinx.Predicate
-import Sphinx.Term
-import TextGen
+import PredicateSpec
 
-genTerm :: Gen (Term String)
-genTerm = oneof [genVar, genConst, genFun]
+genAtom :: Gen (FOL String)
+genAtom = do
+  p <- genPredicate
+  return $ Atom p
 
-genVar :: Gen (Term String)
-genVar = do
-  name <- genCamelString
-  return (Variable name)
-
-genConst :: Gen (Term String)
-genConst = do
-  name <- genPascalString
-  return (Constant name)
-
-genFun :: Gen (Term String)
-genFun = do
-  name <- genPascalString
-  -- args <- list of terms
-  return (Function name [])
-
-genPredicate :: Gen (FOL String)
-genPredicate = do
-  name <- genPascalString
-  return (Atom (Predicate name []))
+-- Missing: existential and universal qualifiers:
+instance Arbitrary (FOL String) where
+  arbitrary = sized fol'
+    where
+      fol' 0 = elements [Top, Bottom]
+      fol' n =
+        oneof
+          [ elements [Top, Bottom]
+          , genAtom
+          , liftM Not sub
+          , liftM2 (BinOp And) sub sub
+          , liftM2 (BinOp Or) sub sub
+          , liftM2 (BinOp Implies) sub sub
+          , liftM2 (BinOp Xor) sub sub
+          , liftM2 (BinOp Iff) sub sub]
+            where sub = fol' (n `div` 2)

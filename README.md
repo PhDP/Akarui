@@ -1,8 +1,9 @@
 # Sphinx
+[![Build status](https://travis-ci.org/PhDP/Sphinx-AI.svg?branch=master)](https://travis-ci.org/PhDP/Sphinx-AI)
 
 Hybrid logic/probabilistic machine learning library.
 
-It's a hybrid and it answers queries: it had to be named Sphinx.
+It's a hybrid and it answers queries: I **had** to name it *Sphinx*.
 
 ## How to...
 

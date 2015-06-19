@@ -93,9 +93,6 @@ prettyPrintFm s = rmQuotes . buildStr (0 :: Int)
     notSpace = if lowers (symNot s) == "not" then " " else ""
     qualSpace = if lowers (symForall s) == "forall" then " " else ""
 
-    -- Surrounds the strings if b is true:
-    surr b str = if b then "(" ++ str ++ ")" else str
-
     -- Format prefixes:
     showPrefix b pr sym p = surr b (sym ++ notSpace ++ buildStr (pr + 1) p)
 
@@ -199,12 +196,12 @@ liff f0 f1 = case (f0, f1) of
 
 -- | Dispatch binary operators to their resolution function.
 binOperator :: BinT -> Formula a -> Formula a -> Formula a
-binOperator b x y = case b of
-  And     -> land x y
-  Or      -> lor x y
-  Xor     -> lxor x y
-  Implies -> limplies x y
-  Iff     -> liff x y
+binOperator b = case b of
+  And     -> land
+  Or      -> lor
+  Xor     -> lxor
+  Implies -> limplies
+  Iff     -> liff
 
 -- | Simplify using Harris' algorithm.
 simplify :: Formula a -> Formula a

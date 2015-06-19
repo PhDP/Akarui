@@ -10,3 +10,7 @@ rmQuotes = filter (/= '\"')
 -- | Builds a string with ", " between all elements.
 mkString :: [String] -> String
 mkString = foldr1 (\x acc -> x ++ ", " ++ acc)
+
+-- | Surrounds the string if b is true (used to print formulas).
+surr :: Bool -> String -> String
+surr b str = if b then "(" ++ str ++ ")" else str

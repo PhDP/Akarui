@@ -17,6 +17,8 @@ showMLN :: (Show t) => MLN t -> String
 showMLN mln = foldl1 (\a b -> a ++ "\n" ++ b) lines'
   where lines' = map (\f -> show (snd f) ++ "   " ++ show (fst f)) mln
 
+-- | Tell
+
 -- | Adds a formula to the markov logic network with a string (and the parser).
 tellS :: String -> Double -> MLN String -> MLN String
 tellS s w mln = case parseFOL s of

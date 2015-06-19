@@ -48,7 +48,7 @@ commaSep :: ParsecT String () Identity a -> ParsecT String () Identity [a]
 commaSep = Tok.commaSep lexer
 
 reservedOps :: [String] -> ParsecT String () Identity ()
-reservedOps names = foldr1 (<|>) $ map reservedOp names
+reservedOps names = foldr1 (\x acc -> try x <|> acc) $ map reservedOp names
 
 -- Prefix operators
 tbl :: Ex.OperatorTable String () Identity (Formula a)
@@ -95,9 +95,9 @@ parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
 
 parseSentence = Ex.buildExpressionParser tbl (parseNots <|> parseAtoms)
 
-parseTop  = reservedOps ["T", "True", "true", "⊤"] >> return Top
+parseTop  = reservedOps ["True", "TRUE", "true", "T", "⊤"] >> return Top
 
-parseBottom = reservedOps ["F", "False", "false", "⊥"] >> return Bottom
+parseBottom = reservedOps ["False", "FALSE", "false", "F", "⊥"] >> return Bottom
 
 parseNQual = do
   nots <- many1 parseNot

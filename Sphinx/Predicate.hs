@@ -6,7 +6,9 @@ import Sphinx.Term
 
 -- | Predicates are atoms (thus they evaluate to true/false) mapping a list
 -- of terms (objects) to a truth value.
-data Predicate t = Predicate String [Term t]
+data Predicate t =
+  -- | Builds a predicate with a string and a list of terms.
+  Predicate String [Term t]
 
 instance (Eq t) => Eq (Predicate t) where
   (Predicate n0 ts0) == (Predicate n1 ts1) =
@@ -22,7 +24,7 @@ instance (Show t) => Show (Predicate t) where
         n ++ "(" ++ (if null ts then "" else terms) ++ ")"
         where terms = mkString $ map show ts
 
--- Show the internal structure of the predicate.
+-- | Shows the internal structure of the predicate.
 showPreStruct :: (Show a) => Predicate a -> String
 showPreStruct (Predicate n ts) =
   "Predicate " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"

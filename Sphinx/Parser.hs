@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+-- | Parsers for first-order logic and propositional logic.
 module Sphinx.Parser (
   parseFOL
 ) where
@@ -34,8 +37,8 @@ lexer = Tok.makeTokenParser langDef
 parens :: Parser a -> Parser a
 parens = Tok.parens lexer
 
-reserved, reservedOp :: String -> Parser ()
-reserved = Tok.reserved lexer
+reservedOp :: String -> Parser ()
+--reserved = Tok.reserved lexer
 reservedOp = Tok.reservedOp lexer
 
 identifier :: ParsecT String () Identity String
@@ -48,7 +51,7 @@ reservedOps :: [String] -> ParsecT String () Identity ()
 reservedOps names = foldr1 (<|>) $ map reservedOp names
 
 -- Prefix operators
-tbl :: Ex.OperatorTable String () Identity (FOL t)
+tbl :: Ex.OperatorTable String () Identity (Formula a)
 tbl =
   [ [binary ["And", "and", "AND", "∧"] (BinOp And) Ex.AssocRight]
   , [binary ["Or", "or", "OR", "∨", "v"] (BinOp Or) Ex.AssocRight]
@@ -64,30 +67,53 @@ contents p = do
   eof
   return r
 
-parseFOL :: String -> Either ParseError (FOL String)
-parseFOL = parse (contents parseAll) "<stdin>"
+parseQualForm :: Parser (QualT, String, FOL String)
+parseQualForm = do
+  q <- parseExists <|> parseForAll -- many1
+  v <- identifier
+  a <- parseFOLAll
+  return (q, v, a)
 
-parseAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseQual, parseNots :: Parser (FOL String)
-parseAll = parseQual <|> parseSentence
+parseFunForm :: Parser (String, [Term String])
+parseFunForm = do
+  n <- identifier
+  reservedOp "("
+  ts <- commaSep parseTerm
+  reservedOp ")"
+  return (n, ts)
+
+-- | Parser for first-order logic. The parser will read a string and output
+-- an either type with (hopefully) the formula on the right.
+--
+-- This parser makes the assumption that variables start with a lowercase
+-- character, while constants start with an uppercase character.
+parseFOL :: String -> Either ParseError (FOL String)
+parseFOL = parse (contents parseFOLAll) "<stdin>"
+
+parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseQual, parseNQual, parseNots :: Parser (FOL String)
+parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
 
 parseSentence = Ex.buildExpressionParser tbl (parseNots <|> parseAtoms)
 
-parseTop  = reserved "True" >> return Top
+parseTop  = reservedOps ["T", "True", "true", "⊤"] >> return Top
 
-parseBottom = reserved "False" >> return Bottom
+parseBottom = reservedOps ["F", "False", "false", "⊥"] >> return Bottom
+
+parseNQual = do
+  nots <- many1 parseNot
+  (q, v, a) <- parseQualForm
+  return $ foldr (\_ acc -> Not acc) (Qualifier q v a) nots
 
 parseQual = do
-  q <- parseExists <|> parseForAll -- many1
-  v <- identifier
-  a <- parseAll
+  (q, v, a) <- parseQualForm
   return $ Qualifier q v a
 
 parseNots = do
   nots <- many1 parseNot
   a <- parseAtoms
-  return $ if even $ length nots then Not a else a
+  return $ foldr (\_ acc -> Not acc) a nots
 
-parseAtoms = parseTop <|> parseBottom <|> parsePredicate <|> parens parseAll
+parseAtoms = try parsePredicate <|> parseTop <|> parseBottom <|> parens parseFOLAll
 
 parsePredicate = do
   args <- parseFunForm
@@ -99,14 +125,6 @@ parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
 parseExists, parseForAll :: Parser QualT
 parseExists = reservedOps ["Exists", "exists", "∃"] >> return Exists
 parseForAll = reservedOps ["ForAll", "forall", "∀"] >> return ForAll
-
-parseFunForm :: Parser (String, [Term String])
-parseFunForm = do
-  n <- identifier
-  reservedOp "("
-  ts <- commaSep parseTerm
-  reservedOp ")"
-  return (n, ts)
 
 parseTerm, parseVarCon, parseFunction :: Parser (Term String)
 parseTerm = try parseFunction <|> parseVarCon

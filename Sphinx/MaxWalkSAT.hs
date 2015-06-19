@@ -14,6 +14,7 @@ data Status = Success | Failure
 -- | The MaxWalkSAT algorithm with a max number of tries (mt), max number
 -- of flips (mt), a target cost, a probability of flipping, and a markov
 -- logic network of clauses.
+--
 -- Reference: ...
 maxWalkSAT :: Int -> Int -> Double -> Double -> MLN String -> (Status, Ass String)
 maxWalkSAT mt mf target p mln = step mt $ randomFairAss 42 vars

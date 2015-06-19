@@ -85,14 +85,14 @@ instance Eq a => Eq (Formula a) where
 prettyPrintFm :: (Show a) => Symbols -> Formula a -> String
 prettyPrintFm s = rmQuotes . buildStr (0 :: Int)
   where
-    --notSpace = " "
-    --qualSpace = " "
+    notSpace = " "
+    qualSpace = " "
 
     -- Surrouds the strings if b is true:
     surr b str = if b then "(" ++ str ++ ")" else str
 
     -- Format prefixes:
-    showPrefix b pr sym p = surr b (sym ++ buildStr (pr + 1) p)
+    showPrefix b pr sym p = surr b (sym ++ notSpace ++ buildStr (pr + 1) p)
 
     -- Format infix operators:
     showInfix b pr sym p q =

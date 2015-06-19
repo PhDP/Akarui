@@ -19,7 +19,7 @@ data Symbols = Symbols
 long, shouting, semisymbolic, symbolic, laTeX, ascii :: Symbols
 
 -- | A representation using words instead of symbols (blasphemy!).
-long = Symbols "and" "or" "xor" "implies" "iff" "not" "true" "false" "for all"
+long = Symbols "and" "or" "xor" "implies" "iff" "not" "true" "false" "forall"
   "exists" "!="
 
 -- | USING WORDS INSTEAD OF SYMBOLS AND BEING LOUD ABOUT IT!

@@ -7,7 +7,7 @@ author:         Philippe Desjardins-Proulx <philippe.d.proulx@gmail.com>
 maintainer:     Philippe Desjardins-Proulx philippe.d.proulx@gmail.com
 category:       AI, Machine Learning, Logic, Statistics
 build-type:     Simple
-cabal-version:  >= 1.10
+cabal-version:  >= 1.18
 description:
   A library for probabilistic logic ("statistical relational") learning
   algorithms.
@@ -18,11 +18,11 @@ library
   exposed-modules:
     Sphinx.Formula
     Sphinx.FOL
-    Sphinx.Parser
-    Sphinx.MLN
-    Sphinx.MaxWalkSAT
     Sphinx.Predicate
     Sphinx.Term
+    Sphinx.MLN
+--    Sphinx.MaxWalkSAT
+    Sphinx.Parser
     Sphinx.Symbols
   other-modules:
     Sphinx.Text

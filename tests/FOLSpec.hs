@@ -7,6 +7,7 @@ import Test.QuickCheck
 import Control.Monad
 import Sphinx.Formula
 import Sphinx.FOL
+import Sphinx.Parser
 import PredicateSpec
 
 genAtom :: Gen (FOL String)
@@ -30,3 +31,9 @@ instance Arbitrary (FOL String) where
           , liftM2 (BinOp Xor) sub sub
           , liftM2 (BinOp Iff) sub sub]
             where sub = fol' (n `div` 2)
+
+-- Tests if printing a formula and parsing the result yields back the original formula.
+prop_parsing_back :: FOL String -> Bool
+prop_parsing_back f = case parseFOL (show f) of
+  Left _   -> False
+  Right f' -> f == f'

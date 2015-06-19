@@ -7,6 +7,7 @@ import System.Exit (exitFailure)
 
 import PropLogicSpec
 import PredicateSpec
+import FOLSpec
 
 main :: IO ()
 main = do
@@ -17,6 +18,7 @@ main = do
       , quickCheckResult prop_eval_atoms
       , quickCheckResult prop_predicate_eq_itself
       , quickCheckResult prop_predicate_cmp_itself
-      , quickCheckResult prop_predicate_ord]
+      , quickCheckResult prop_predicate_ord
+      , quickCheckResult prop_parsing_back ]
   success <- fmap (all isSuccess) . sequence $ tests
   unless success exitFailure

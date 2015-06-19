@@ -89,10 +89,11 @@ prettyPrintFm :: (Show a) => Symbols -> Formula a -> String
 prettyPrintFm s = rmQuotes . buildStr (0 :: Int)
   where
     lowers = map toLower
+    -- For negation and qualifiers, add spaces after words but not symbols:
     notSpace = if lowers (symNot s) == "not" then " " else ""
     qualSpace = if lowers (symForall s) == "forall" then " " else ""
 
-    -- Surrouds the strings if b is true:
+    -- Surrounds the strings if b is true:
     surr b str = if b then "(" ++ str ++ ")" else str
 
     -- Format prefixes:

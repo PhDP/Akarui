@@ -34,7 +34,7 @@ instance Arbitrary (FOL String) where
             where sub = fol' (n `div` 2)
 
 instance Arbitrary Symbols where
-  arbitrary =  elements [long, shouting]
+  arbitrary =  elements [long, shouting, symbolic, semisymbolic]
 
 -- Tests if printing a formula and parsing the result yields back the original formula.
 prop_parsing_back :: Symbols -> FOL String -> Bool

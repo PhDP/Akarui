@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 -- | A generic formula used for various logics, most notably propositional logic
 -- and first-order logic (Sphinx.FOL module). The structure mostly follows
 -- Harrison (2009), however, binary connectives ('and', 'or', ...) are
@@ -13,6 +15,7 @@ import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (nub)
+import Data.Char (toLower)
 import System.Random
 import Sphinx.Symbols
 import Sphinx.Text
@@ -85,8 +88,9 @@ instance Eq a => Eq (Formula a) where
 prettyPrintFm :: (Show a) => Symbols -> Formula a -> String
 prettyPrintFm s = rmQuotes . buildStr (0 :: Int)
   where
-    notSpace = " "
-    qualSpace = " "
+    lowers = map toLower
+    notSpace = if lowers (symNot s) == "not" then " " else ""
+    qualSpace = if lowers (symForall s) == "forall" then " " else ""
 
     -- Surrouds the strings if b is true:
     surr b str = if b then "(" ++ str ++ ")" else str
@@ -109,8 +113,8 @@ prettyPrintFm s = rmQuotes . buildStr (0 :: Int)
       BinOp Implies x y     -> showInfix (pr > 6) 6 (symImplies s) x y
       BinOp Xor x y         -> showInfix (pr > 4) 4 (symXor s) x y
       BinOp Iff x y         -> showInfix (pr > 2) 2 (symIff s) x y
-      Qualifier ForAll v x  -> symForall s ++ " " ++ v ++ " " ++ buildStr pr x
-      Qualifier Exists v x  -> symExists s ++ " " ++ v ++ " " ++ buildStr pr x
+      Qualifier ForAll v x  -> symForall s ++ qualSpace ++ v ++ " " ++ buildStr pr x
+      Qualifier Exists v x  -> symExists s ++ qualSpace ++ v ++ " " ++ buildStr pr x
 
 -- | Gathers all atoms in the formula.
 atoms :: (Ord a) => Formula a -> Set a

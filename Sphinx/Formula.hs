@@ -94,11 +94,11 @@ prettyPrintFm s = rmQuotes . buildStr (0 :: Int)
     qualSpace = if lowers (symForall s) == "forall" then " " else ""
 
     -- Format prefixes:
-    showPrefix b pr sym p = surr b (sym ++ notSpace ++ buildStr (pr + 1) p)
+    showPrefix b pr sym p = surrIf b (sym ++ notSpace ++ buildStr (pr + 1) p)
 
     -- Format infix operators:
     showInfix b pr sym p q =
-      surr b (buildStr (pr + 1) p ++ " " ++ sym ++ " " ++ buildStr pr q)
+      surrIf b (buildStr (pr + 1) p ++ " " ++ sym ++ " " ++ buildStr pr q)
 
     -- Recursive function to build the string:
     buildStr pr fm = case fm of
@@ -116,14 +116,13 @@ prettyPrintFm s = rmQuotes . buildStr (0 :: Int)
 
 -- | Gathers all atoms in the formula.
 atoms :: (Ord a) => Formula a -> Set a
-atoms = gat
+atoms = gat Set.empty
   where
-    gat = gat' Set.empty
-    gat' s fm = case fm of
+    gat s fm = case fm of
       Atom z          -> Set.insert z s
-      Not x           -> Set.union (gat x) s
-      BinOp _ x y     -> Set.unions [gat x, gat y, s]
-      Qualifier _ _ x -> Set.union (gat x) s
+      Not x           -> Set.union (atoms x) s
+      BinOp _ x y     -> Set.unions [atoms x, atoms y, s]
+      Qualifier _ _ x -> Set.union (atoms x) s
       _               -> Set.empty
 
 -- | Gathers all atoms in the formula in a list for atoms that do not support

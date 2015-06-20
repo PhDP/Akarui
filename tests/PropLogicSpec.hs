@@ -6,6 +6,7 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Test.QuickCheck
 import Control.Monad
+import System.Random
 import Sphinx.Formula
 
 import TextGen
@@ -43,6 +44,6 @@ prop_eval_atoms f = case eval Map.empty f of
   _      -> Set.size (atoms f) > 0
 
 -- Simplification does not change evaluation.
-prop_eval_simplify :: Formula String -> Bool
-prop_eval_simplify f = eval ass f == eval ass (simplify f)
-  where ass = randomFairAssF 42 f
+prop_eval_simplify :: Int -> Formula String -> Bool
+prop_eval_simplify seed f = eval ass f == eval ass (simplify f)
+  where ass = randomFairAssF (mkStdGen seed) f

@@ -28,15 +28,22 @@ maxWalkSAT mt mf target p seed mln = step (mkStdGen seed) mt
 
     step _ 0 = Nothing
     step r n =
-      case flips r (randomFairAss (42 + n) vars) mf of
-        Just ass -> Just ass
-        Nothing  -> step r (n - 1) -- Try again...
+      let
+        (seed0, r') = random r :: (Int, StdGen)
+        (seed1, _)  = random r' :: (Int, StdGen)
+      in
+        case flips r (randomFairAss (mkStdGen seed0) vars) mf of
+          Just ass -> Just ass
+          Nothing  -> step (mkStdGen seed1) (n - 1) -- Try again...
 
-    -- To implement
-    deltaCost _ = 0.5 :: Double
+    -- Cost of flipping atom v
+    deltaCost cost s v = cost' - cost
+      where
+        unsatisfied' = filter (unsatisfiable (Map.adjust not v s) . fst) mln
+        cost' = foldl' (\acc f -> acc + snd f) 0.0 unsatisfied'
 
     -- The 'flip' steps takes a random number generator, a solution, and the flip number:
-    flips _ _    0   = Nothing
+    flips _ _ 0   = Nothing
     flips r s n = if cost <= target then Just s else flips r''' s' (n - 1)
       where
         -- List of unsatisfied formula under soln:
@@ -50,7 +57,7 @@ maxWalkSAT mt mf target p seed mln = step (mkStdGen seed) mt
 
         vs = atomsLs c
 
-        vlow = fst $ minimumBy (compare `on` snd) (map (\v' -> (v', deltaCost v')) vs)
+        vlow = fst $ minimumBy (compare `on` snd) (map (\v' -> (v', deltaCost cost s v')) vs)
 
         (flipTest, r'') = random r' :: (Double, StdGen)
         isFlipping = flipTest < p

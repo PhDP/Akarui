@@ -247,10 +247,10 @@ unsatisfiable ass f = case eval ass f of Top -> False; _ -> True
 
 -- | Randomly assigns all element of the set to either True or False with equal
 -- probability. It's a fair ass.
-randomFairAss :: (Ord a) => Int -> Set a -> Map a Bool
-randomFairAss seed s = Map.fromList $ zip (Set.toList s) rs
-  where rs = take (Set.size s) $ randoms (mkStdGen seed) :: [Bool]
+randomFairAss :: (Ord a) => StdGen -> Set a -> Map a Bool
+randomFairAss g s = Map.fromList $ zip (Set.toList s) rs
+  where rs = take (Set.size s) $ randoms g :: [Bool]
 
 -- | Gathers and assigns all atoms to a boolean given a seed value.
-randomFairAssF :: (Ord a) => Int -> Formula a -> Map a Bool
-randomFairAssF seed f = randomFairAss seed $ atoms f
+randomFairAssF :: (Ord a) => StdGen -> Formula a -> Map a Bool
+randomFairAssF g f = randomFairAss g $ atoms f

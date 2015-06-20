@@ -21,7 +21,7 @@ library
     Sphinx.Predicate
     Sphinx.Term
     Sphinx.MLN
---    Sphinx.MaxWalkSAT
+    Sphinx.MaxWalkSAT
     Sphinx.Parser
     Sphinx.Symbols
   other-modules:
@@ -52,7 +52,8 @@ test-suite tests
     containers,
     QuickCheck >= 2.7,
     test-framework-quickcheck2,
-    Sphinx-AI
+    Sphinx-AI,
+    random
 
 source-repository head
   type:       git

@@ -1,8 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
--- | Parsers for first-order logic and propositional logic.
+-- | Parsers for first-order logic and other important structures (e.g. Markov
+-- logic networks).
 module Sphinx.Parser (
-  parseFOL
+  parseFOL,
+  parseWFOL
 ) where
 
 import Data.Functor.Identity
@@ -40,6 +42,9 @@ parens = Tok.parens lexer
 reservedOp :: String -> Parser ()
 --reserved = Tok.reserved lexer
 reservedOp = Tok.reservedOp lexer
+
+float :: ParsecT String () Identity Double
+float = Tok.float lexer
 
 identifier :: ParsecT String () Identity String
 identifier = Tok.identifier lexer
@@ -81,6 +86,28 @@ parseFunForm = do
   ts <- commaSep parseTerm
   reservedOp ")"
   return (n, ts)
+
+-- Parse a weight and then a first-order logic formula
+parseLeftW :: Parser (FOL String, Double)
+parseLeftW = do
+  n <- float
+  f <- parseFOLAll
+  return (f, n)
+
+-- Parse a first-order logic formula and then a weight
+parseRightW :: Parser (FOL String, Double)
+parseRightW = do
+  f <- parseFOLAll
+  n <- float
+  return (f, n)
+
+parseWeighted :: Parser (FOL String, Double)
+parseWeighted = try parseLeftW <|> parseRightW
+
+-- | Parser for weighted first-order logic. Parses a double following by
+-- a formula (or a formula followed by a double).
+parseWFOL :: String -> Either ParseError (FOL String, Double)
+parseWFOL = parse (contents parseWeighted) "<stdin>"
 
 -- | Parser for first-order logic. The parser will read a string and output
 -- an either type with (hopefully) the formula on the right.

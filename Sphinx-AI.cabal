@@ -21,7 +21,7 @@ library
     Sphinx.Predicate
     Sphinx.Term
     Sphinx.MLN
-    Sphinx.MaxWalkSAT
+    Sphinx.WalkSAT
     Sphinx.Parser
     Sphinx.Symbols
   other-modules:

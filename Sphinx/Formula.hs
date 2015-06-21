@@ -80,7 +80,43 @@ instance Eq a => Eq (Formula a) where
           q0 == q1 && v0 == v1 && x0 `sameAs` x1
         _ -> False
 
--- instance Ord a => Ord (Formula a) where
+-- There's probably a way to make this less ugly
+instance Ord a => Ord (Formula a) where
+  Top `compare` Top = EQ
+  Top `compare` _ = GT
+  _ `compare` Top = LT
+  Bottom `compare` Bottom = EQ
+  Bottom `compare` _ = GT
+  _ `compare` Bottom = LT
+  Atom a0 `compare` Atom a1 = a0 `compare` a1
+  Atom _ `compare` _ = GT
+  _ `compare` Atom _ = LT
+  Not f0 `compare` Not f1 = f0 `compare` f1
+  Not _ `compare` _ = GT
+  _ `compare` Not _ = LT
+  -- There's a simpler way to do this:
+  BinOp b0 f00 f01 `compare` BinOp b1 f10 f11 = case b0 `compare` b1 of
+    EQ -> case f00 `compare` f10 of
+      EQ -> case f01 `compare` f11 of
+        EQ -> EQ
+        LT -> LT
+        GT -> GT
+      LT -> LT
+      GT -> GT
+    LT -> LT
+    GT -> GT
+  BinOp{} `compare` Qualifier{} = GT
+  Qualifier{} `compare` BinOp{} = LT
+  Qualifier q0 v0 f0 `compare` Qualifier q1 v1 f1 = case q0 `compare` q1 of
+    EQ -> case v0 `compare` v1 of
+      EQ -> case f0 `compare` f1 of
+        EQ -> EQ
+        LT -> LT
+        GT -> GT
+      LT -> LT
+      GT -> GT
+    LT -> LT
+    GT -> GT
 
 -- | Prints the formula given a set of symbols ('Sphinx.Symbols.Symbols').
 -- This function is built to support printing in symbolic, LaTeX, and ASCII

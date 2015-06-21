@@ -47,3 +47,9 @@ prop_eval_atoms f = case eval Map.empty f of
 prop_eval_simplify :: Int -> Formula String -> Bool
 prop_eval_simplify seed f = eval ass f == eval ass (simplify f)
   where ass = randomFairAssF (mkStdGen seed) f
+
+-- Make sure Ord and Eq fit together.
+prop_proplog_ord :: Formula String -> Formula String -> Bool
+prop_proplog_ord f0 f1 = case f0 `compare` f1 of
+  EQ -> f0 == f1
+  _  -> f0 /= f1

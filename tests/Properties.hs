@@ -19,6 +19,7 @@ main = do
       , quickCheckResult prop_predicate_eq_itself
       , quickCheckResult prop_predicate_cmp_itself
       , quickCheckResult prop_predicate_ord
-      , quickCheckResult prop_parsing_back ]
+      , quickCheckResult prop_parsing_back
+      , quickCheckResult prop_proplog_ord]
   success <- fmap (all isSuccess) . sequence $ tests
   unless success exitFailure

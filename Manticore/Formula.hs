@@ -16,6 +16,7 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (nub)
 import Data.Char (toLower)
+import Data.Monoid ((<>))
 import System.Random
 import Manticore.Symbols
 import Manticore.Text
@@ -94,29 +95,12 @@ instance Ord a => Ord (Formula a) where
   Not f0 `compare` Not f1 = f0 `compare` f1
   Not _ `compare` _ = GT
   _ `compare` Not _ = LT
-  -- There's a simpler way to do this:
-  BinOp b0 f00 f01 `compare` BinOp b1 f10 f11 = case b0 `compare` b1 of
-    EQ -> case f00 `compare` f10 of
-      EQ -> case f01 `compare` f11 of
-        EQ -> EQ
-        LT -> LT
-        GT -> GT
-      LT -> LT
-      GT -> GT
-    LT -> LT
-    GT -> GT
+  BinOp b0 f00 f01 `compare` BinOp b1 f10 f11 =
+    (b0 `compare` b1) <> (f00 `compare` f10) <> (f01 `compare` f11)
   BinOp{} `compare` Qualifier{} = GT
   Qualifier{} `compare` BinOp{} = LT
-  Qualifier q0 v0 f0 `compare` Qualifier q1 v1 f1 = case q0 `compare` q1 of
-    EQ -> case v0 `compare` v1 of
-      EQ -> case f0 `compare` f1 of
-        EQ -> EQ
-        LT -> LT
-        GT -> GT
-      LT -> LT
-      GT -> GT
-    LT -> LT
-    GT -> GT
+  Qualifier q0 v0 f0 `compare` Qualifier q1 v1 f1 =
+    (q0 `compare` q1) <> (v0 `compare` v1) <> (f1 `compare` f0)
 
 -- | Prints the formula given a set of symbols ('Manticore.Symbols.Symbols').
 -- This function is built to support printing in symbolic, LaTeX, and ASCII

@@ -24,6 +24,7 @@ library
     Manticore.WalkSAT
     Manticore.Parser
     Manticore.Symbols
+    Manticore.KB
   other-modules:
     Manticore.Text
   build-depends:

@@ -41,3 +41,9 @@ prop_parsing_back :: Symbols -> FOL String -> Bool
 prop_parsing_back s f = case parseFOL (prettyPrintFm s f) of
   Left _   -> False
   Right f' -> f == f'
+
+-- Make sure Ord and Eq fit together.
+prop_fol_ord :: FOL String -> FOL String -> Bool
+prop_fol_ord f0 f1 = case f0 `compare` f1 of
+  EQ -> f0 == f1
+  _  -> f0 /= f1

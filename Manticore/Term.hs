@@ -3,7 +3,7 @@ module Manticore.Term where
 
 import Data.List (foldl', find)
 import Data.Maybe (fromMaybe)
-import Data.Monoid ((<>))
+import Data.Monoid ((<>), mconcat)
 import Manticore.Text
 
 -- | A term represents an object. Terms are not atoms, they are found in
@@ -57,7 +57,7 @@ compareFun :: (Ord t) => String -> [Term t] -> String -> [Term t] -> Ordering
 compareFun n0 ts0 n1 ts1 =
      (n0 `compare` n1)
   <> (length ts0 `compare` length ts1)
-  <> fromMaybe EQ (find (/= EQ) (zipWith compare ts0 ts1)) -- To clean
+  <> mconcat (zipWith compare ts0 ts1)
 
 -- | Returns the number of variables in the term.
 numVars :: (Num n) => Term t -> n

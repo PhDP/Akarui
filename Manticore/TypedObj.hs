@@ -1,5 +1,5 @@
 -- | A module to support (in the future) typed first-order logic.
-module Sphinx.TypedObj where
+module Manticore.TypedObj where
 
 -- | An object with a type.
 data TypedObj = TypedObj

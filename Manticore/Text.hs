@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | Useful functions to handle text.
-module Sphinx.Text where
+module Manticore.Text where
 
 -- | Removes quotation marks from a string.
 rmQuotes :: String -> String

@@ -2,7 +2,7 @@
 
 -- | Parsers for first-order logic and other important structures (e.g. Markov
 -- logic networks).
-module Sphinx.Parser (
+module Manticore.Parser (
   parseFOL,
   parseWFOL
 ) where
@@ -13,10 +13,10 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr as Ex
 import qualified Text.Parsec.Token as Tok
-import Sphinx.Formula
-import Sphinx.FOL
-import Sphinx.Term
-import Sphinx.Predicate
+import Manticore.Formula
+import Manticore.FOL
+import Manticore.Term
+import Manticore.Predicate
 
 langDef :: Tok.LanguageDef ()
 langDef = Tok.LanguageDef {

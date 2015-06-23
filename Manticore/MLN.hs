@@ -1,17 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | Types and algorithms for Markov logic networks.
-module Sphinx.MLN where
+module Manticore.MLN where
 
 import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
-import Sphinx.FOL
-import Sphinx.Formula
-import Sphinx.Parser
-import Sphinx.Predicate
-import Sphinx.Symbols
+import Manticore.FOL
+import Manticore.Formula
+import Manticore.Parser
+import Manticore.Predicate
+import Manticore.Symbols
 
 -- | A Markov logic network is a set of first-order logical formulas associated
 -- with a weight.

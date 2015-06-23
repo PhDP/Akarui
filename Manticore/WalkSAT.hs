@@ -1,11 +1,11 @@
 -- | WalkSat algorithms to find the most likely assignments to atoms.
-module Sphinx.WalkSAT where
+module Manticore.WalkSAT where
 
 import Data.Map (Map)
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import System.Random
-import Sphinx.Formula
+import Manticore.Formula
 
 -- | The MaxWalkSAT algorithm with a max number of tries (mt), max number
 -- of flips (mt), a target cost, a probability of flipping, and a markov
@@ -62,5 +62,6 @@ maxWalkSAT mt mf target p seed fs = step (mkStdGen seed) mt
     -- Cost of flipping atom v
     deltaCost cost s v = cost' - cost
       where
-        unsatisfied' = Map.filterWithKey (\k _ -> unsatisfiable (Map.adjust not v s) k) fs
+        unsatisfied' = Map.filterWithKey
+          (\k _ -> unsatisfiable (Map.adjust not v s) k) fs
         cost' = Map.fold (+) 0.0 unsatisfied'

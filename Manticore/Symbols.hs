@@ -1,5 +1,5 @@
 -- | Different sets of symbols used to print logic formulas.
-module Sphinx.Symbols where
+module Manticore.Symbols where
 
 -- | Supported symbols
 data Symbols = Symbols

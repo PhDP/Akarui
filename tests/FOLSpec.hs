@@ -5,10 +5,10 @@ module FOLSpec where
 
 import Test.QuickCheck
 import Control.Monad
-import Sphinx.Formula
-import Sphinx.FOL
-import Sphinx.Parser
-import Sphinx.Symbols
+import Manticore.Formula
+import Manticore.FOL
+import Manticore.Parser
+import Manticore.Symbols
 import PredicateSpec
 
 genAtom :: Gen (FOL String)

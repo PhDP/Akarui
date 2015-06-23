@@ -1,9 +1,9 @@
 -- | Type and functions for terms: the objects of first-order logic.
-module Sphinx.Term where
+module Manticore.Term where
 
 import Data.List (foldl', find)
 import Data.Maybe (fromMaybe)
-import Sphinx.Text
+import Manticore.Text
 
 -- | A term represents an object. Terms are not atoms, they are found in
 -- predicates in first-order logic.

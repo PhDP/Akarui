@@ -1,8 +1,8 @@
 -- | Type and functions for predicates: the atoms of first-order logic.
-module Sphinx.Predicate where
+module Manticore.Predicate where
 
-import Sphinx.Text
-import Sphinx.Term
+import Manticore.Text
+import Manticore.Term
 
 -- | Predicates are atoms (thus they evaluate to true/false) mapping a list
 -- of terms (objects) to a truth value.

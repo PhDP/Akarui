@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | A generic formula used for various logics, most notably propositional logic
--- and first-order logic (Sphinx.FOL module). The structure mostly follows
+-- and first-order logic (Manticore.FOL module). The structure mostly follows
 -- Harrison (2009), however, binary connectives ('and', 'or', ...) are
 -- aggregated into a BinOp type.
 --
 -- References:
 --   John Harrison, Handbook of Practical Logic and Automated Reasoning.
 -- Cambridge University Press, 2009.
-module Sphinx.Formula where
+module Manticore.Formula where
 
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -17,8 +17,8 @@ import Data.Set (Set)
 import Data.List (nub)
 import Data.Char (toLower)
 import System.Random
-import Sphinx.Symbols
-import Sphinx.Text
+import Manticore.Symbols
+import Manticore.Text
 
 -- | Supported binary connectives (in order of precedence).
 data BinT =
@@ -47,7 +47,7 @@ data QualT =
   deriving (Eq, Ord, Show)
 
 -- | A formula with generic atoms. Propositional logic can easily be described
--- with Formula String, and first-order logic is defined in module Sphinx.FOL as
+-- with Formula String, and first-order logic is defined in module Manticore.FOL as
 -- Formula (Predicate t).
 data Formula a =
   -- | Another name for 'True' to avoid confusion with Prelude.True.
@@ -118,7 +118,7 @@ instance Ord a => Ord (Formula a) where
     LT -> LT
     GT -> GT
 
--- | Prints the formula given a set of symbols ('Sphinx.Symbols.Symbols').
+-- | Prints the formula given a set of symbols ('Manticore.Symbols.Symbols').
 -- This function is built to support printing in symbolic, LaTeX, and ASCII
 -- formats.
 prettyPrintFm :: (Show a) => Symbols -> Formula a -> String
@@ -255,7 +255,7 @@ simplify f = case f of
 -- | Evaluates a formula given an assignment to atoms. If the assignment is
 -- incomplete, eval with evaluate as much as possible but might not reduce
 -- formula to Top/Bottom. This function completely ignores qualifiers. For
--- functions that rely on qualifiers, see the Sphinx.FOL first-order logic
+-- functions that rely on qualifiers, see the Manticore.FOL first-order logic
 -- module.
 eval :: (Ord a) => Map a Bool -> Formula a -> Formula a
 eval ass = simplify . eval'

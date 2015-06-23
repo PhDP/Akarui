@@ -7,9 +7,7 @@ import qualified Data.Set as Set
 import Data.List (minimumBy)
 import Data.Function (on)
 import System.Random
-import Sphinx.Predicate
 import Sphinx.Formula
-import Sphinx.FOL
 
 -- | The MaxWalkSAT algorithm with a max number of tries (mt), max number
 -- of flips (mt), a target cost, a probability of flipping, and a markov
@@ -19,7 +17,7 @@ import Sphinx.FOL
 --   P Domingos and D Lowd, Markov Logic: An Interface Layer for Artificial
 -- Intelligence, 2009, Morgan & Claypool. p. 24.
 -- WalkSAT :: (Ord a) => Int -> Int -> Double -> Double -> Int -> [(Formula a, Double)] -> Maybe (Map a Bool)
-maxWalkSAT :: Int -> Int -> Double -> Double -> Int -> Map (FOL String) Double -> Maybe (Map (Predicate String) Bool)
+maxWalkSAT :: Ord a => Int -> Int -> Double -> Double -> Int -> Map (Formula a) Double -> Maybe (Map a Bool)
 maxWalkSAT mt mf target p seed fs = step (mkStdGen seed) mt
   where
     -- Set of atoms (predicates) in the MLN:

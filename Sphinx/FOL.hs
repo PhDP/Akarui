@@ -52,7 +52,7 @@ hasFun f = case f of
 -- structure.
 showFOLStruct :: (Show a) => FOL a -> String
 showFOLStruct f = case f of
-  Atom a          -> showPreStruct a
+  Atom a          -> showPredStruct a
   Top             -> "Top"
   Bottom          -> "Bottom"
   Not x           -> "Not (" ++ showFOLStruct x ++ ")"

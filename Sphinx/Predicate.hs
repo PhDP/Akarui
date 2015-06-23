@@ -25,7 +25,13 @@ instance (Show t) => Show (Predicate t) where
         where terms = mkString $ map show ts
 
 -- | Shows the internal structure of the predicate.
-showPreStruct :: (Show a) => Predicate a -> String
-showPreStruct (Predicate n ts) =
+showPredStruct :: (Show a) => Predicate a -> String
+showPredStruct (Predicate n ts) =
   "Predicate " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"
   where terms = mkString (map showTermStruct ts)
+
+-- 'ground' typeclass?
+
+-- | Tests if the term is 'grounded', i.e. if it has no variables.
+groundPred :: Predicate t -> Bool
+groundPred (Predicate _ ts) = all groundTerm ts

@@ -32,12 +32,6 @@ maxWalkSAT mt mf target p seed fs = step (mkStdGen seed) mt
           Just ass -> Just ass
           Nothing  -> step (mkStdGen seed1) (n - 1) -- Try again...
 
-    -- Cost of flipping atom v
-    deltaCost cost s v = cost' - cost
-      where
-        unsatisfied' = Map.filterWithKey (\k _ -> unsatisfiable (Map.adjust not v s) k) fs
-        cost' = Map.fold (+) 0.0 unsatisfied'
-
     -- The 'flips' steps take a rng, a solution, and the number of flips left:
     flipStep _ _ 0   = Nothing
     flipStep r s n = if cost <= target then Just s else flipStep r''' s' (n - 1)
@@ -64,3 +58,9 @@ maxWalkSAT mt mf target p seed fs = step (mkStdGen seed) mt
 
         -- Solution with vf flipped
         s' = Map.adjust not a' s
+
+    -- Cost of flipping atom v
+    deltaCost cost s v = cost' - cost
+      where
+        unsatisfied' = Map.filterWithKey (\k _ -> unsatisfiable (Map.adjust not v s) k) fs
+        cost' = Map.fold (+) 0.0 unsatisfied'

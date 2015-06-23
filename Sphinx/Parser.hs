@@ -120,7 +120,7 @@ parseFOL = parse (contents parseFOLAll) "<stdin>"
 parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseQual, parseNQual, parseNots :: Parser (FOL String)
 parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
 
-parseSentence = Ex.buildExpressionParser tbl (parseNots <|> parseAtoms)
+parseSentence = Ex.buildExpressionParser tbl (parseAtoms <|> parseNots)
 
 parseTop  = reservedOps ["True", "TRUE", "true", "T", "⊤"] >> return Top
 

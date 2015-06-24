@@ -117,7 +117,7 @@ parseWFOL = parse (contents parseWeighted) "<stdin>"
 parseFOL :: String -> Either ParseError (FOL String)
 parseFOL = parse (contents parseFOLAll) "<stdin>"
 
-parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseQual, parseNQual, parseNots :: Parser (FOL String)
+parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseIdentity, parseQual, parseNQual, parseNots :: Parser (FOL String)
 parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
 
 parseSentence = Ex.buildExpressionParser tbl (parseAtoms <|> parseNots)
@@ -140,11 +140,22 @@ parseNots = do
   a <- parseAtoms
   return $ foldr (\_ acc -> Not acc) a nots
 
-parseAtoms = try parsePredicate <|> parseTop <|> parseBottom <|> parens parseFOLAll
+parseAtoms =
+      try parseIdentity
+  <|> try parsePredicate
+  <|> parseTop
+  <|> parseBottom
+  <|> parens parseFOLAll
 
 parsePredicate = do
   args <- parseFunForm
   return $ Atom $ uncurry Predicate args
+
+parseIdentity = do
+  left <- parseTerm
+  reservedOp "="
+  right <- parseTerm
+  return $ Atom $ Predicate "Equals" [left, right]
 
 parseNot :: Parser (FOL String -> FOL String)
 parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not

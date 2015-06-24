@@ -47,6 +47,16 @@ hasFun f = case f of
   Qualifier _ _ x       -> hasFun x
   _                     -> False
 
+-- | Substitute a term in the formula.
+substitute :: (Eq a) => Term a -> Term a -> FOL a -> FOL a
+substitute old new f = case f of
+  Atom (Predicate n ts)
+    -> Atom (Predicate n (map (subTerm old new) ts))
+  Not x           -> Not $ substitute old new x
+  BinOp b x y     -> BinOp b (substitute old new x) (substitute old new y)
+  Qualifier q v x -> Qualifier q v (substitute old new x)
+  _               -> f -- Top / Bottom
+
 -- | Shows the internal structure of the first-order logic formula. This is
 -- mostly useful for testing and making sure the formula has the correct
 -- structure.

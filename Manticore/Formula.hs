@@ -68,18 +68,15 @@ instance Show a => Show (Formula a) where
   show = prettyPrintFm long -- symbolic
 
 instance Eq a => Eq (Formula a) where
-  f0 == f1 = f0 `sameAs` f1
-    where
-      sameAs a b = case (a, b) of
-        (Top, Top)          -> True
-        (Bottom, Bottom)    -> True
-        (Atom a0, Atom a1)  -> a0 == a1
-        (Not x0, Not x1)    -> x0 `sameAs` x1
-        (BinOp b0 x0 y0, BinOp b1 x1 y1) ->
-          b0 == b1 && x0 `sameAs` x1 && y0 `sameAs` y1
-        (Qualifier q0 v0 x0, Qualifier q1 v1 x1) ->
-          q0 == q1 && v0 == v1 && x0 `sameAs` x1
-        _ -> False
+  Top == Top          = True
+  Bottom == Bottom    = True
+  Atom a0 == Atom a1  = a0 == a1
+  Not x0 == Not x1    = x0 == x1
+  BinOp b0 x0 y0 == BinOp b1 x1 y1 =
+    b0 == b1 && x0 == x1 && y0 == y1
+  Qualifier q0 v0 x0 == Qualifier q1 v1 x1 =
+    q0 == q1 && v0 == v1 && x0 == x1
+  _ == _              = False
 
 -- There's probably a way to make this less ugly
 instance Ord a => Ord (Formula a) where

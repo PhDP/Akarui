@@ -47,3 +47,8 @@ prop_fol_ord :: FOL String -> FOL String -> Bool
 prop_fol_ord f0 f1 = case f0 `compare` f1 of
   EQ -> f0 == f1
   _  -> f0 /= f1
+
+-- Equal to self.
+prop_fol_self_eq :: FOL String -> Bool
+prop_fol_self_eq f = f `compare` f == EQ && f == f
+

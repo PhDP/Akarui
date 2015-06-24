@@ -86,6 +86,13 @@ groundTerm t = case t of
   Constant _    -> True
   Function _ ts -> all groundTerm ts
 
+-- | Substitute a term for another.
+subTerm :: (Eq t) => Term t -> Term t -> Term t -> Term t
+subTerm old new (Function n ts) =
+  if old == Function n ts then new
+  else Function n $ map (subTerm old new) ts
+subTerm old new t0 = if t0 == old then new else t0
+
 -- | Shows the internal structure of the term. This is particularly useful
 -- to distinguish variables from constants in Term String, where otherwise
 -- it would be impossible to tell them apart.

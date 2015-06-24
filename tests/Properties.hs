@@ -23,6 +23,7 @@ main = do
       , quickCheckResult prop_parsing_back
       , quickCheckResult prop_proplog_ord
       , quickCheckResult prop_w_parsing_back
-      , quickCheckResult prop_fol_ord]
+      , quickCheckResult prop_fol_ord
+      , quickCheckResult prop_fol_self_eq]
   success <- fmap (all isSuccess) . sequence $ tests
   unless success exitFailure

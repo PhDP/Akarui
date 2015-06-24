@@ -16,21 +16,24 @@ genProposition = do
   name <- genPascalString
   return (Atom name)
 
+genPropFormula :: Gen (Formula String)
+genPropFormula = sized fol'
+  where
+    fol' 0 = elements [Top, Bottom]
+    fol' n =
+      oneof
+        [ elements [Top, Bottom]
+        , genProposition
+        , liftM Not sub
+        , liftM2 (BinOp And) sub sub
+        , liftM2 (BinOp Or) sub sub
+        , liftM2 (BinOp Implies) sub sub
+        , liftM2 (BinOp Xor) sub sub
+        , liftM2 (BinOp Iff) sub sub]
+          where sub = fol' (n `div` 2)
+
 instance Arbitrary (Formula String) where
-  arbitrary = sized fol'
-    where
-      fol' 0 = elements [Top, Bottom]
-      fol' n =
-        oneof
-          [ elements [Top, Bottom]
-          , genProposition
-          , liftM Not sub
-          , liftM2 (BinOp And) sub sub
-          , liftM2 (BinOp Or) sub sub
-          , liftM2 (BinOp Implies) sub sub
-          , liftM2 (BinOp Xor) sub sub
-          , liftM2 (BinOp Iff) sub sub]
-            where sub = fol' (n `div` 2)
+  arbitrary = genPropFormula
 
 -- Simplification is idempotent.
 prop_simplify_idempotent :: Formula String -> Bool

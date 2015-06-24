@@ -1,20 +1,19 @@
 # Installing
 
-Manticore should compile with the ghc compiler versions 7.6, 7.8, and 7.10.
-
-# Linux
-
-Unless your Linux distribution is really old, it should have a recent enough
-version of both the ghc compiler and cabal package management.
-
-# Mac OSX
-
-# Windows
+Manticore is tested with continuous integratation for the ghc compiler versions
+7.6, 7.8, and 7.10, along with cabal 1.18, 1.20, and 1.22. Manticore has few
+dependencies and they should all compile on major platforms (at the very least
+Linux, Windows, and Mac OSX)
 
 The [Haskell platform](https://www.haskell.org/platform/) contains all the
-necessary tools to compile Manticore. Simply open a command prompt and type
+necessary tools to compile Manticore. Most Linux distributions have recent
+enough versions for ghc and cabal directly in their package manager. You can
+install the Haskell platform from [chocolatey](https://chocolatey.org/) for
+Windows and [brew](http://brew.sh/) for Mac OSX.
 
-    cabal install
+Once you have ghc and cabal installed, use the following commands at the
+root of the code to compile Manticore:
 
-...and the root of Manticore's source.
-
+    cabal install --only-dependencies --enable-tests
+    cabal configure --enable-tests
+    cabal build

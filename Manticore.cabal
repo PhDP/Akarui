@@ -48,6 +48,7 @@ test-suite tests
     TermSpec
     PredicateSpec
     MLNSpec
+    KBSpec
     TextGen
   build-depends:
     base >= 4.6,

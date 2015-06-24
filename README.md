@@ -4,8 +4,9 @@
 Hybrid logic/probabilistic machine learning library.
 
 It's a hybrid and it answers queries: it **had** to be named *Sphinx*... but
-there's already a package with this name in hackage, so . It's a hybrid and it
-rhymes with 'multicore'.
+there's already a package with this name in hackage, so another mythological
+creature, the manticore, would have to do. It's a hybrid and it rhymes with
+'multicore'.
 
 ## How to...
 

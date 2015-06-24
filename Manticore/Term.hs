@@ -1,8 +1,7 @@
 -- | Type and functions for terms: the objects of first-order logic.
 module Manticore.Term where
 
-import Data.List (foldl', find)
-import Data.Maybe (fromMaybe)
+import Data.List (foldl')
 import Data.Monoid ((<>), mconcat)
 import Manticore.Text
 

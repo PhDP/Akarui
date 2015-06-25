@@ -24,7 +24,7 @@ langDef = Tok.LanguageDef {
   , Tok.commentEnd      = "*/"
   , Tok.commentLine     = "//"
   , Tok.nestedComments  = False
-  , Tok.identStart      = letter
+  , Tok.identStart      = alphaNum
   , Tok.identLetter     = alphaNum <|> oneOf "_'"
   , Tok.opStart         = oneOf ":!#$%&*+./<=>?@\\^|-~"
   , Tok.opLetter        = oneOf ":!#$%&*+./<=>?@\\^|-~"

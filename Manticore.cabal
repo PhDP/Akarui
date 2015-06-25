@@ -25,6 +25,7 @@ library
     Manticore.Parser
     Manticore.Symbols
     Manticore.KB
+    Manticore.Network
   other-modules:
     Manticore.Text
   build-depends:

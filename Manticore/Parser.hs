@@ -117,7 +117,7 @@ parseWFOL = parse (contents parseWeighted) "<stdin>"
 parseFOL :: String -> Either ParseError (FOL String)
 parseFOL = parse (contents parseFOLAll) "<stdin>"
 
-parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseIdentity, parseQual, parseNQual, parseNots :: Parser (FOL String)
+parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNots :: Parser (FOL String)
 parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
 
 parseSentence = Ex.buildExpressionParser tbl (parseAtoms <|> parseNots)
@@ -142,6 +142,7 @@ parseNots = do
 
 parseAtoms =
       try parseIdentity
+  <|> try parseNIdentity
   <|> try parsePredicate
   <|> parseTop
   <|> parseBottom
@@ -153,9 +154,15 @@ parsePredicate = do
 
 parseIdentity = do
   left <- parseTerm
-  reservedOp "="
+  reservedOps ["=", "=="]
   right <- parseTerm
-  return $ Atom $ Predicate "Equals" [left, right]
+  return $ Atom $ Predicate "Identity" [left, right]
+
+parseNIdentity = do
+  left <- parseTerm
+  reservedOps ["!=", "/=", "\\neq"]
+  right <- parseTerm
+  return $ Not $ Atom $ Predicate "Identity" [left, right]
 
 parseNot :: Parser (FOL String -> FOL String)
 parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
@@ -173,4 +180,4 @@ parseFunction = do
 
 parseVarCon = do
   n <- identifier
-  return (if isLower $ head n then Variable n else Constant n)
+  return $ if isLower $ head n then Variable n else Constant n

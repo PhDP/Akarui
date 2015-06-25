@@ -1,5 +1,6 @@
 # Manticore
 [![Build status](https://travis-ci.org/PhDP/Manticore.svg?branch=master)](https://travis-ci.org/PhDP/Manticore)
+[![Build status](https://ci.appveyor.com/api/projects/status/2g9tn9oprxm58gc6/branch/master?svg=true)](https://ci.appveyor.com/project/PhilippeDesjardinsProulx/manticore/branch/master)
 
 Hybrid logic/probabilistic machine learning library.
 

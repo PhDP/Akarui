@@ -169,8 +169,8 @@ parseNot :: Parser (FOL String -> FOL String)
 parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
 
 parseExists, parseForAll :: Parser QualT
-parseExists = reservedOps ["Exists", "exists", "∃"] >> return Exists
-parseForAll = reservedOps ["ForAll", "forall", "∀"] >> return ForAll
+parseExists = reservedOps ["E.", "Exists", "exists", "∃"] >> return Exists
+parseForAll = reservedOps ["A.", "ForAll", "forall", "∀"] >> return ForAll
 
 parseTerm, parseVarCon, parseFunction :: Parser (Term String)
 parseTerm = try parseFunction <|> parseVarCon

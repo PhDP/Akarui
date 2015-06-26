@@ -72,10 +72,10 @@ contents p = do
   eof
   return r
 
-parseQualForm :: Parser (QualT, String, FOL String)
+parseQualForm :: Parser (QualT, [String], FOL String)
 parseQualForm = do
   q <- parseExists <|> parseForAll -- many1
-  v <- identifier
+  v <- commaSep identifier
   a <- parseFOLAll
   return (q, v, a)
 
@@ -114,6 +114,14 @@ parseWFOL = parse (contents parseWeighted) "<stdin>"
 --
 -- This parser makes the assumption that variables start with a lowercase
 -- character, while constants start with an uppercase character.
+--
+-- Some examples of valid strings for the parser:
+--
+-- @
+--    parseFOL "A.x, y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
+--    parseFOL "A.x,y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
+--    parseFOL "∀ x Add(x, 0) = x"
+-- @
 parseFOL :: String -> Either ParseError (FOL String)
 parseFOL = parse (contents parseFOLAll) "<stdin>"
 
@@ -128,12 +136,12 @@ parseBottom = reservedOps ["False", "FALSE", "false", "F", "⊥"] >> return Bott
 
 parseNQual = do
   nots <- many1 parseNot
-  (q, v, a) <- parseQualForm
-  return $ foldr (\_ acc -> Not acc) (Qualifier q v a) nots
+  (q, vs, a) <- parseQualForm
+  return $ foldr (\_ acc -> Not acc) (foldr (Qualifier q) a vs) nots
 
 parseQual = do
-  (q, v, a) <- parseQualForm
-  return $ Qualifier q v a
+  (q, vs, a) <- parseQualForm
+  return $ foldr (Qualifier q) a vs
 
 parseNegation = do
   n <- parseNot

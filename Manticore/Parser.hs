@@ -117,10 +117,10 @@ parseWFOL = parse (contents parseWeighted) "<stdin>"
 parseFOL :: String -> Either ParseError (FOL String)
 parseFOL = parse (contents parseFOLAll) "<stdin>"
 
-parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNots :: Parser (FOL String)
+parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNegation :: Parser (FOL String)
 parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
 
-parseSentence = Ex.buildExpressionParser tbl (parseAtoms <|> parseNots)
+parseSentence = Ex.buildExpressionParser tbl parseAtoms
 
 parseTop  = reservedOps ["True", "TRUE", "true", "T", "⊤"] >> return Top
 
@@ -135,15 +135,16 @@ parseQual = do
   (q, v, a) <- parseQualForm
   return $ Qualifier q v a
 
-parseNots = do
-  nots <- many1 parseNot
+parseNegation = do
+  n <- parseNot
   a <- parseAtoms
-  return $ foldr (\_ acc -> Not acc) a nots
+  return $ n a
 
 parseAtoms =
       try parseIdentity
   <|> try parseNIdentity
   <|> try parsePredicate
+  <|> parseNegation
   <|> parseTop
   <|> parseBottom
   <|> parens parseFOLAll

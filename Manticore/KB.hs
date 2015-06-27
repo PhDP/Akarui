@@ -6,6 +6,7 @@ module Manticore.KB where
 
 import qualified Data.Set as Set
 import Data.Set (Set)
+import qualified Data.Map as Map
 import Data.Map (Map)
 import Manticore.Formula
 import Manticore.FOL
@@ -28,6 +29,10 @@ allAtoms = Set.foldl' (\acc k -> Set.union acc (atoms k)) Set.empty
 allGroundings :: Map (String, [Term String]) (Term String) -> [Term String] -> KB (Predicate String) -> KB (Predicate String)
 allGroundings m ts =
   Set.foldr' (\gs acc -> Set.union (groundings m ts gs) acc) Set.empty
+
+-- | Gathers all the predicates of a markov logic network in a set.
+allPredicates :: (Ord t) => KB (Predicate t) -> Set (Predicate t)
+allPredicates = Set.foldr' (\k acc -> Set.union (atoms k) acc) Set.empty
 
 -- | Builds a knowledge base from a list of strings. If the parser fails
 -- to parse a formula, it is ignored.

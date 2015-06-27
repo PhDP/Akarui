@@ -10,6 +10,12 @@ import Data.Maybe
 -- | A network maps some keys to other keys with an edge (the value 'v').
 type Network k v = Map k (Map k v)
 
+showNetwork :: (Show k, Show v, Ord k) => Network k v -> String
+showNetwork = Map.foldWithKey vertices ""
+  where
+    vertices k v acc = show k ++ " -> " ++ edges v ++ "\n" ++ acc
+    edges = Map.foldrWithKey (\k v acc -> "(" ++ show k ++ ", " ++ show v ++ "), " ++ acc) ""
+
 -- | Second order lookup function.
 lookup2 :: (Ord k0, Ord k1) => k0 -> k1 -> Map k0 (Map k1 v) -> Maybe v
 lookup2 key0 key1 m = Map.lookup key0 m >>= Map.lookup key1
@@ -20,11 +26,11 @@ getVal = lookup2
 
 -- | Tests for the presence of a vertex.
 hasVertex :: (Ord k) => k -> Network k v -> Bool
-hasVertex v n = Map.member v n
+hasVertex = Map.member
 
 -- | Tests for the presence of a list of vertices.
 hasVertices :: (Ord k) => [k] -> Network k v -> Bool
-hasVertices vs m = all (\v -> hasVertex v m) vs
+hasVertices vs m = all (`hasVertex` m) vs
 
 -- | Tests for the presence of an edge.
 hasEdge :: (Ord k) => (k, k) -> Network k v -> Bool
@@ -35,7 +41,7 @@ hasEdge (t, h) n =
 
 -- | Tests for the presense of a list of edges.
 hasEdges :: (Ord k) => [(k, k)] -> Network k v -> Bool
-hasEdges es n = all (\e -> hasEdge e n) es
+hasEdges es n = all (`hasEdge` n) es
 
 -- | Returns the outgoing edges for a given vertex.
 outEdges :: (Ord k) => k -> Network k v -> Map k v
@@ -89,5 +95,4 @@ connected v n = connectsTo v n == Map.keysSet n
 
 -- | Returns true if there is a path between all pairs of vertices.
 stronglyConnected :: (Ord k) => Network k v -> Bool
-stronglyConnected n = all (\v -> connected v n) $ Map.keys n
-
+stronglyConnected n = all (`connected` n) $ Map.keys n

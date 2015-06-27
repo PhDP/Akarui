@@ -271,3 +271,15 @@ randomFairAss g s = Map.fromList $ zip (Set.toList s) rs
 -- | Gathers and assigns all atoms to a boolean given a seed value.
 randomFairAssF :: (Ord a) => StdGen -> Formula a -> Map a Bool
 randomFairAssF g f = randomFairAss g $ atoms f
+
+-- | Returns universally qualified variables.
+uniQualVars :: Formula a -> Set String
+uniQualVars = gat'
+  where
+    gat' = gat Set.empty
+    gat s f' = case f' of
+      Not x                 -> Set.union s (gat' x)
+      BinOp _ x y           -> Set.unions [s, gat' x, gat' y]
+      Qualifier ForAll v x  -> Set.union (Set.insert v s) (gat' x)
+      Qualifier Exists _ x  -> Set.union s (gat' x)
+      _                     -> Set.empty

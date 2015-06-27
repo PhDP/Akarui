@@ -1,8 +1,11 @@
 -- | Type and functions for terms: the objects of first-order logic.
 module Manticore.Term where
 
+import qualified Data.Map as Map
+import Data.Map (Map)
 import Data.List (foldl')
 import Data.Monoid ((<>), mconcat)
+import Data.Maybe (fromMaybe)
 import Manticore.Text
 
 -- | A term represents an object. Terms are not atoms, they are found in
@@ -79,13 +82,6 @@ numFuns t = case t of
   Constant _    -> 0
   Function _ ts -> 1 + foldl' (\acc trm -> acc + numFuns trm) 0 ts
 
--- | Tests if the term is 'grounded', i.e. if it has no variables.
-groundTerm :: Term t -> Bool
-groundTerm t = case t of
-  Variable _    -> False
-  Constant _    -> True
-  Function _ ts -> all groundTerm ts
-
 -- | Substitute a term for another.
 subTerm :: (Eq t) => Term t -> Term t -> Term t -> Term t
 subTerm old new (Function n ts) =
@@ -103,3 +99,25 @@ showTermStruct t = case t of
   Function n ts ->
     "Function " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"
     where terms = mkString (map showTermStruct ts)
+
+-- Unify these functions under some type class for FOL, Predicate, and Term?
+
+-- | Tests if the term is 'grounded', i.e. if it has no variables.
+groundTerm :: Term t -> Bool
+groundTerm t = case t of
+  Variable _    -> False
+  Constant _    -> True
+  Function _ ts -> all groundTerm ts
+
+-- | Tests if the term has a specific variable.
+termHasVar :: (Eq a) => a -> Term a -> Bool
+termHasVar v t = case t of
+  Variable x    -> v == x
+  Constant _    -> False
+  Function _ ts -> any (termHasVar v) ts
+
+-- | Resolve
+termResolveFun :: (Ord a) => Map (String, [Term a]) (Term a) -> Term a -> Term a
+termResolveFun m t = case t of
+  Function n ts -> fromMaybe t $ Map.lookup (n, map (termResolveFun m) ts) m
+  _             -> t

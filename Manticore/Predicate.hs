@@ -30,8 +30,14 @@ showPredStruct (Predicate n ts) =
   "Predicate " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"
   where terms = mkString (map showTermStruct ts)
 
--- 'ground' typeclass?
-
 -- | Tests if the term is 'grounded', i.e. if it has no variables.
 groundPred :: Predicate t -> Bool
 groundPred (Predicate _ ts) = all groundTerm ts
+
+-- | Tests if the predicate has a certain variable.
+predHasVar :: (Eq a) => a -> Predicate a -> Bool
+predHasVar v (Predicate _ ts) = any (termHasVar v) ts
+
+-- | Replace a term with another
+subsPre :: (Eq a) => Term a -> Term a -> Predicate a -> Predicate a
+subsPre t0 t1 (Predicate n ts) = Predicate n $ map (subTerm t0 t1) ts

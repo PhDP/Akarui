@@ -21,7 +21,7 @@ type MLN t = Map (FOL t) Double
 
 -- | Print MLN.
 showMLN :: (Show t) => Symbols -> MLN t -> String
-showMLN s = Map.foldWithKey (\k v acc -> acc ++ "\n" ++ showWFormula s k v) ""
+showMLN s = Map.foldrWithKey (\k v acc -> acc ++ "\n" ++ showWFormula s k v) ""
 
 -- | Helper to print weighted formulas.
 showWFormula :: (Show t) => Symbols -> FOL t -> Double -> String
@@ -41,13 +41,12 @@ predicates :: (Ord t) => MLN t -> Set (Predicate t)
 predicates = Map.foldWithKey (\k _ acc -> Set.union (atoms k) acc) Set.empty
 
 -- | Build ground network for Markov logic.
-buildGroundNetwork :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (FOL String) (Set (Predicate String))
-buildGroundNetwork m ts mln = Set.foldr' (\g acc -> Map.insert g (neighbours g) acc) Map.empty gs
+buildGroundNetwork :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (Predicate String) (Set (Predicate String))
+buildGroundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (neighbours p) acc) Map.empty ps
   where
     gs = Set.foldr' (\g acc -> Set.union (groundings m ts g) acc) Set.empty (Map.keysSet mln)
-    neighbours g = case g of
-      Atom p -> Set.delete p $ allPredicates $ Set.filter (hasPred p) (Map.keysSet mln)
-      _      -> Set.empty
+    ps = allPredicates gs
+    neighbours p = Set.delete p $ allPredicates $ Set.filter (hasPred p) gs
 
 -- | Builds a weighted knowledge base from a list of strings. If the parser
 -- fails to parse a formula, it is ignored.

@@ -83,41 +83,41 @@ numFuns t = case t of
   Function _ ts -> 1 + foldl' (\acc trm -> acc + numFuns trm) 0 ts
 
 -- | Substitute a term for another.
-subTerm :: (Eq t) => Term t -> Term t -> Term t -> Term t
-subTerm old new (Function n ts) =
+substitute :: (Eq t) => Term t -> Term t -> Term t -> Term t
+substitute old new (Function n ts) =
   if old == Function n ts then new
-  else Function n $ map (subTerm old new) ts
-subTerm old new t0 = if t0 == old then new else t0
+  else Function n $ map (substitute old new) ts
+substitute old new t0 = if t0 == old then new else t0
 
 -- | Shows the internal structure of the term. This is particularly useful
 -- to distinguish variables from constants in Term String, where otherwise
 -- it would be impossible to tell them apart.
-showTermStruct :: (Show a) => Term a -> String
-showTermStruct t = case t of
+showStruct :: (Show a) => Term a -> String
+showStruct t = case t of
   Variable x    -> "Variable (" ++ show x ++ ")"
   Constant x    -> "Constant (" ++ show x ++ ")"
   Function n ts ->
     "Function " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"
-    where terms = mkString (map showTermStruct ts)
+    where terms = mkString (map showStruct ts)
 
 -- Unify these functions under some type class for FOL, Predicate, and Term?
 
 -- | Tests if the term is 'grounded', i.e. if it has no variables.
-groundTerm :: Term t -> Bool
-groundTerm t = case t of
+ground :: Term t -> Bool
+ground t = case t of
   Variable _    -> False
   Constant _    -> True
-  Function _ ts -> all groundTerm ts
+  Function _ ts -> all ground ts
 
 -- | Tests if the term has a specific variable.
-termHasVar :: (Eq a) => a -> Term a -> Bool
-termHasVar v t = case t of
+hasVar :: (Eq a) => a -> Term a -> Bool
+hasVar v t = case t of
   Variable x    -> v == x
   Constant _    -> False
-  Function _ ts -> any (termHasVar v) ts
+  Function _ ts -> any (hasVar v) ts
 
--- | Resolve
-termResolveFun :: (Ord a) => Map (String, [Term a]) (Term a) -> Term a -> Term a
-termResolveFun m t = case t of
-  Function n ts -> fromMaybe t $ Map.lookup (n, map (termResolveFun m) ts) m
+-- | Resolve functions with a map from function names & args to a term.
+resolveFun :: (Ord a) => Map (String, [Term a]) (Term a) -> Term a -> Term a
+resolveFun m t = case t of
+  Function n ts -> fromMaybe t $ Map.lookup (n, map (resolveFun m) ts) m
   _             -> t

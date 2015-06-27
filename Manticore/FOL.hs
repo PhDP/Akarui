@@ -7,18 +7,20 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
 import Manticore.Formula
-import Manticore.Predicate
-import Manticore.Term
+import Manticore.Predicate (Predicate (Predicate))
+import qualified Manticore.Predicate as Pred
+import Manticore.Term (Term (Constant, Variable, Function))
+import qualified Manticore.Term as Term
 
 -- | A first-order logic formula is simply a formula of predicates.
 type FOL t = Formula (Predicate t)
 
 -- | Tests if the formula is 'grounded', i.e. if it has no variables.
-groundFm :: FOL t -> Bool
-groundFm f = case f of
-  Atom (Predicate _ ts) -> all groundTerm ts
-  BinOp _ x y           -> groundFm x || groundFm y
-  Qualifier _ _ x       -> groundFm x
+ground :: FOL t -> Bool
+ground f = case f of
+  Atom (Predicate _ ts) -> all Term.ground ts
+  BinOp _ x y           -> ground x || ground y
+  Qualifier _ _ x       -> ground x
   _                     -> False
 
 -- | Gathers all the variables in a first-order logic formula.
@@ -52,7 +54,7 @@ hasPred p f = case f of
 -- where we must ensure all functions have been resolved to an object.
 hasFun :: FOL t -> Bool
 hasFun f = case f of
-  Atom (Predicate _ ts) -> any (\trm -> (numFuns trm :: Int) > 0) ts
+  Atom (Predicate _ ts) -> any (\trm -> (Term.numFuns trm :: Int) > 0) ts
   BinOp _ x y           -> hasFun x || hasFun y
   Qualifier _ _ x       -> hasFun x
   _                     -> False
@@ -61,7 +63,7 @@ hasFun f = case f of
 substitute :: (Eq a) => Term a -> Term a -> FOL a -> FOL a
 substitute old new f = case f of
   Atom (Predicate n ts)
-    -> Atom $ Predicate n $ map (subTerm old new) ts
+    -> Atom $ Predicate n $ map (Term.substitute old new) ts
   Not x           -> Not $ substitute old new x
   BinOp b x y     -> BinOp b (substitute old new x) (substitute old new y)
   Qualifier q v x -> Qualifier q v (substitute old new x)
@@ -72,7 +74,7 @@ substitute old new f = case f of
 -- structure.
 showFOLStruct :: (Show a) => FOL a -> String
 showFOLStruct f = case f of
-  Atom a          -> showPredStruct a
+  Atom a          -> Pred.showStruct a
   Top             -> "Top"
   Bottom          -> "Bottom"
   Not x           -> "Not (" ++ showFOLStruct x ++ ")"
@@ -83,7 +85,7 @@ showFOLStruct f = case f of
 resolveFun :: (Ord a) => Map (String, [Term a]) (Term a) -> FOL a -> FOL a
 resolveFun m f = case f of
   Atom (Predicate n ts) ->
-    Atom $ Predicate n $ map (termResolveFun m) ts
+    Atom $ Predicate n $ map (Term.resolveFun m) ts
   Not x             -> Not (resolveFun m x)
   BinOp b x y       -> BinOp b (resolveFun m x) (resolveFun m y)
   Qualifier q v x   -> Qualifier q v (resolveFun m x)
@@ -124,8 +126,8 @@ groundings m cs f = loopV
   where
     groundSub v f' = case f' of
       Atom p ->
-        if predHasVar v p then
-          let as = map (\c -> Atom $ subsPre (Variable v) c p) cs in
+        if Pred.hasVar v p then
+          let as = map (\c -> Atom $ Pred.substitute (Variable v) c p) cs in
           foldr1 (BinOp Or) as
         else
           f'

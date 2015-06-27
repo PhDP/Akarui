@@ -35,8 +35,8 @@ allPredicates = Set.foldr' (\k acc -> Set.union (atoms k) acc) Set.empty
 
 -- | Builds a knowledge base from a list of strings. If the parser fails
 -- to parse a formula, it is ignored.
-kbFromStrings :: [String] -> KB (Predicate String)
-kbFromStrings = foldr
+fromStrings :: [String] -> KB (Predicate String)
+fromStrings = foldr
   (\k acc ->
     case parseFOL k of
       Left _  -> acc

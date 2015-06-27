@@ -78,7 +78,6 @@ instance Eq a => Eq (Formula a) where
     q0 == q1 && v0 == v1 && x0 == x1
   _ == _              = False
 
--- There's probably a way to make this less ugly
 instance Ord a => Ord (Formula a) where
   Top `compare` Top = EQ
   Top `compare` _ = GT

@@ -7,13 +7,6 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Maybe
 
-showUNet :: (Ord k, Ord v, Show k, Show v) => Map k (Set v) -> String
-showUNet = Map.foldWithKey (\k v acc -> show k ++ " -> " ++ showSet v ++ "\n" ++ acc) ""
-  where
-    showSet v =
-      let s = Set.foldr' (\v' acc -> show v' ++ ", " ++ acc) "" v in
-      take (length s - 2) s
-
 -- | A network maps some keys to other keys with an edge (the value 'v').
 type Network k v = Map k (Map k v)
 

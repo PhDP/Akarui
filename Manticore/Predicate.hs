@@ -2,7 +2,8 @@
 module Manticore.Predicate where
 
 import Manticore.Text
-import Manticore.Term
+import Manticore.Term (Term)
+import qualified Manticore.Term as Term
 
 -- | Predicates are atoms (thus they evaluate to true/false) mapping a list
 -- of terms (objects) to a truth value.
@@ -15,7 +16,7 @@ instance (Eq t) => Eq (Predicate t) where
     n0 == n1 && all (uncurry (==)) (zip ts0 ts1)
 
 instance (Ord t) => Ord (Predicate t) where
-  (Predicate n0 ts0) `compare` (Predicate n1 ts1) = compareFun n0 ts0 n1 ts1
+  (Predicate n0 ts0) `compare` (Predicate n1 ts1) = Term.compareFun n0 ts0 n1 ts1
 
 instance (Show t) => Show (Predicate t) where
   show = rmQuotes . showPredicate
@@ -25,19 +26,19 @@ instance (Show t) => Show (Predicate t) where
         where terms = mkString $ map show ts
 
 -- | Shows the internal structure of the predicate.
-showPredStruct :: (Show a) => Predicate a -> String
-showPredStruct (Predicate n ts) =
+showStruct :: (Show a) => Predicate a -> String
+showStruct (Predicate n ts) =
   "Predicate " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"
-  where terms = mkString (map showTermStruct ts)
+  where terms = mkString (map Term.showStruct ts)
 
 -- | Tests if the term is 'grounded', i.e. if it has no variables.
-groundPred :: Predicate t -> Bool
-groundPred (Predicate _ ts) = all groundTerm ts
+ground :: Predicate t -> Bool
+ground (Predicate _ ts) = all Term.ground ts
 
 -- | Tests if the predicate has a certain variable.
-predHasVar :: (Eq a) => a -> Predicate a -> Bool
-predHasVar v (Predicate _ ts) = any (termHasVar v) ts
+hasVar :: (Eq a) => a -> Predicate a -> Bool
+hasVar v (Predicate _ ts) = any (Term.hasVar v) ts
 
--- | Replace a term with another
-subsPre :: (Eq a) => Term a -> Term a -> Predicate a -> Predicate a
-subsPre t0 t1 (Predicate n ts) = Predicate n $ map (subTerm t0 t1) ts
+-- | Replace a term with another.
+substitute :: (Eq a) => Term a -> Term a -> Predicate a -> Predicate a
+substitute t0 t1 (Predicate n ts) = Predicate n $ map (Term.substitute t0 t1) ts

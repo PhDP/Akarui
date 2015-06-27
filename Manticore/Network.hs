@@ -10,6 +10,7 @@ import Data.Maybe
 -- | A network maps some keys to other keys with an edge (the value 'v').
 type Network k v = Map k (Map k v)
 
+-- | Prints the network.
 showNetwork :: (Show k, Show v, Ord k) => Network k v -> String
 showNetwork = Map.foldWithKey vertices ""
   where

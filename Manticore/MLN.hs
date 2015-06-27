@@ -9,9 +9,11 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Manticore.FOL
 import Manticore.Formula
-import Manticore.Parser
 import Manticore.Predicate
+import Manticore.Term
+import Manticore.Parser
 import Manticore.Symbols
+import Manticore.KB
 
 -- | A Markov logic network is a set of first-order logical formulas associated
 -- with a weight.
@@ -37,3 +39,22 @@ tellS s w mln = case parseFOL s of
 -- | Gathers all the predicates of a markov logic network in a set.
 predicates :: (Ord t) => MLN t -> Set (Predicate t)
 predicates = Map.foldWithKey (\k _ acc -> Set.union (atoms k) acc) Set.empty
+
+-- | Build ground network for Markov logic.
+buildGroundNetwork :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (FOL String) (Set (Predicate String))
+buildGroundNetwork m ts mln = Set.foldr' (\g acc -> Map.insert g (neighbours g) acc) Map.empty gs
+  where
+    gs = Set.foldr' (\g acc -> Set.union (groundings m ts g) acc) Set.empty (Map.keysSet mln)
+    neighbours g = case g of
+      Atom p -> Set.delete p $ allPredicates $ Set.filter (hasPred p) (Map.keysSet mln)
+      _      -> Set.empty
+
+-- | Builds a weighted knowledge base from a list of strings. If the parser
+-- fails to parse a formula, it is ignored.
+mlnFromStrings :: [String] -> MLN String
+mlnFromStrings = foldr
+  (\k acc ->
+    case parseWFOL k of
+      Left _        -> acc
+      Right (f, w)  -> Map.insert f w acc)
+  Map.empty

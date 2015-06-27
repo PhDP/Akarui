@@ -6,7 +6,6 @@ module Manticore.KB where
 
 import qualified Data.Set as Set
 import Data.Set (Set)
-import qualified Data.Map as Map
 import Data.Map (Map)
 import Manticore.Formula
 import Manticore.FOL
@@ -36,8 +35,8 @@ allPredicates = Set.foldr' (\k acc -> Set.union (atoms k) acc) Set.empty
 
 -- | Builds a knowledge base from a list of strings. If the parser fails
 -- to parse a formula, it is ignored.
-fromStrings :: [String] -> KB (Predicate String)
-fromStrings = foldr
+kbFromStrings :: [String] -> KB (Predicate String)
+kbFromStrings = foldr
   (\k acc ->
     case parseFOL k of
       Left _  -> acc

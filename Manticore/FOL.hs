@@ -40,6 +40,14 @@ variables = gat Set.empty
     -- Gathers with an empty set
     gatE = gat Set.empty
 
+-- | Test for the presence of a predicate in the formula.
+hasPred :: (Eq t) => Predicate t -> FOL t -> Bool
+hasPred p f = case f of
+  Atom p'         -> p == p'
+  BinOp _ x y     -> hasPred p x || hasPred p y
+  Qualifier _ _ x -> hasPred p x
+  _               -> False
+
 -- | Returns true if the formula has functions. This is often used in algorithms
 -- where we must ensure all functions have been resolved to an object.
 hasFun :: FOL t -> Bool

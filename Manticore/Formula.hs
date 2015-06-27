@@ -5,7 +5,7 @@
 -- Harrison (2009), however, binary connectives ('and', 'or', ...) are
 -- aggregated into a BinOp type.
 --
--- References:
+-- Reference:
 --   John Harrison, Handbook of Practical Logic and Automated Reasoning.
 -- Cambridge University Press, 2009.
 module Manticore.Formula where

@@ -111,8 +111,8 @@ resolveForAll v t f = case f of
 -- Reference:
 --   P Domingos and D Lowd, Markov Logic: An Interface Layer for Artificial
 -- Intelligence, 2009, Morgan & Claypool. p. 14.
-groundings :: FOL String -> Map (String, [Term String]) (Term String) -> [Term String]-> Set (FOL String)
-groundings f m cs = loopV
+groundings :: Map (String, [Term String]) (Term String) -> [Term String] -> FOL String -> Set (FOL String)
+groundings m cs f = loopV
   where
     groundSub v f' = case f' of
       Atom p ->

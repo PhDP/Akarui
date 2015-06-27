@@ -107,8 +107,12 @@ resolveForAll v t f = case f of
 
 -- | Takes a formula, a map between functions and constants, and a list of
 -- constants to produce a set of groundings.
+--
+-- Reference:
+--   P Domingos and D Lowd, Markov Logic: An Interface Layer for Artificial
+-- Intelligence, 2009, Morgan & Claypool. p. 14.
 groundings :: FOL String -> Map (String, [Term String]) (Term String) -> [Term String]-> Set (FOL String)
-groundings f m cs = gs
+groundings f m cs = loopV
   where
     groundSub v f' = case f' of
       Atom p ->
@@ -132,11 +136,9 @@ groundings f m cs = gs
     f0 = existsVar f
     g0 = Set.fromList [f0]
     vs = uniQualVars f0
-    gs = Set.foldr'
-      (\v g -> Set.foldr'
-        (\f'' acc ->
-          Set.union (Set.delete f'' acc)
-          (Set.fromList
-            (map (\c -> simplify $ resolveFun m $ resolveForAll v c f) cs)))
-        Set.empty g)
-      g0 vs
+
+    loopV = Set.foldr' loopG g0 vs
+    loopG v g = Set.foldr (\x a -> Set.union a (Set.fromList x)) Set.empty (gr v g)
+      where
+        gr v' =
+          Set.map (\fm -> map (\c -> simplify $ resolveFun m $ resolveForAll v' c fm) cs)

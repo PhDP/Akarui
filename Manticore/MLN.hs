@@ -41,8 +41,8 @@ allPredicates :: (Ord t) => MLN t -> Set (Predicate t)
 allPredicates = Map.foldWithKey (\k _ acc -> Set.union (atoms k) acc) Set.empty
 
 -- | Build ground network for Markov logic.
-buildGroundNetwork :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (Predicate String) (Set (Predicate String))
-buildGroundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (neighbours p) acc) Map.empty ps
+groundNetwork :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (Predicate String) (Set (Predicate String))
+groundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (neighbours p) acc) Map.empty ps
   where
     gs = Set.foldr' (\g acc -> Set.union (groundings m ts g) acc) Set.empty (Map.keysSet mln)
     ps = KB.allPredicates gs

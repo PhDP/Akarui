@@ -14,6 +14,7 @@ import Manticore.Term
 import Manticore.Parser
 import Manticore.Symbols
 import qualified Manticore.KB as KB
+import Manticore.KB (KB)
 
 -- | A Markov logic network is a set of first-order logical formulas associated
 -- with a weight.
@@ -40,7 +41,7 @@ tellS s w mln = case parseFOL s of
 allPredicates :: (Ord t) => MLN t -> Set (Predicate t)
 allPredicates = Map.foldWithKey (\k _ acc -> Set.union (atoms k) acc) Set.empty
 
--- | Build ground network for Markov logic.
+-- | Builds a ground network for Markov logic.
 groundNetwork :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (Predicate String) (Set (Predicate String))
 groundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (neighbours p) acc) Map.empty ps
   where
@@ -57,3 +58,7 @@ fromStrings = foldr
       Left _        -> acc
       Right (f, w)  -> Map.insert f w acc)
   Map.empty
+
+-- | Converts a markov logic network to an unweighted knowledge base.
+toKB :: (Ord t) => MLN t -> KB (Predicate t)
+toKB = Map.keysSet

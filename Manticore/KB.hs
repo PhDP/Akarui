@@ -42,3 +42,6 @@ fromStrings = foldr
       Left _  -> acc
       Right f -> Set.insert f acc)
   Set.empty
+
+-- | Entailment
+--(|=)

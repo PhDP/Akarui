@@ -56,3 +56,12 @@ prop_proplog_ord :: Formula String -> Formula String -> Bool
 prop_proplog_ord f0 f1 = case f0 `compare` f1 of
   EQ -> f0 == f1
   _  -> f0 /= f1
+
+-- CoreOp is idempotent.
+prop_coreOp_idempotent :: Formula String -> Bool
+prop_coreOp_idempotent f = let f' = coreOp f in f' == coreOp f'
+
+-- CoreOp does not change evaluation.
+prop_eval_coreOp :: Int -> Formula String -> Bool
+prop_eval_coreOp seed f = eval ass f == eval ass (coreOp f)
+  where ass = randomFairAssF (mkStdGen seed) f

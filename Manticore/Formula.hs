@@ -271,14 +271,47 @@ randomFairAss g s = Map.fromList $ zip (Set.toList s) rs
 randomFairAssF :: (Ord a) => StdGen -> Formula a -> Map a Bool
 randomFairAssF g f = randomFairAss g $ atoms f
 
--- | Returns universally qualified variables.
-uniQualVars :: Formula a -> Set String
-uniQualVars = gat'
+-- | Gathers the variables inside some type of qualifier.
+qualVars :: QualT -> Formula a -> Set String
+qualVars q = gat'
   where
     gat' = gat Set.empty
     gat s f' = case f' of
-      Not x                 -> Set.union s (gat' x)
-      BinOp _ x y           -> Set.unions [s, gat' x, gat' y]
-      Qualifier ForAll v x  -> Set.union (Set.insert v s) (gat' x)
-      Qualifier Exists _ x  -> Set.union s (gat' x)
-      _                     -> Set.empty
+      Not x            -> Set.union s (gat' x)
+      BinOp _ x y      -> Set.unions [s, gat' x, gat' y]
+      Qualifier q' v x  ->
+        if q == q' then Set.union (Set.insert v s) (gat' x)
+        else Set.union s (gat' x)
+      _                -> Set.empty
+
+-- | Returns existentially qualified variables.
+exiQualVars :: Formula a -> Set String
+exiQualVars = qualVars Exists
+
+-- | Returns universally qualified variables.
+uniQualVars :: Formula a -> Set String
+uniQualVars = qualVars ForAll
+
+-- | Removes implications, equivalences, and exclusive disjunctions.
+coreOp :: Formula a -> Formula a
+coreOp f = case f of
+  Not x             -> lneg $ coreOp x
+  BinOp And x y     -> land (coreOp x) (coreOp y)
+  BinOp Or x y      -> lor (coreOp x) (coreOp y)
+  BinOp Xor x y     -> lor (land (coreOp x) (lneg $ coreOp y)) (land (lneg $ coreOp x) (coreOp y))
+  BinOp Implies x y -> lor (lneg $ coreOp x) (coreOp y)
+  BinOp Iff x y     -> lor (land (coreOp x) (coreOp y)) (land (lneg $ coreOp x) (lneg $ coreOp y))
+  Qualifier q v x   -> Qualifier q v (coreOp x)
+  _ -> f
+
+-- | Returns all possible valuations of a formula.
+valuations :: (Ord a) => Formula a -> [Map a Bool]
+valuations f = if null as then [] else ms (head as) (tail as)
+  where
+    as = atomsLs f
+    ms atm s =
+      if null s then
+        [Map.fromList [(atm, True)], Map.fromList [(atm, False)]]
+      else
+        map (Map.insert atm True) (ms (head s) (tail s)) ++
+         map (Map.insert atm False) (ms (head s) (tail s))

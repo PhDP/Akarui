@@ -26,6 +26,7 @@ library
     Manticore.Symbols
     Manticore.KB
     Manticore.Network
+    Manticore.Fmt
   other-modules:
     Manticore.Text
   build-depends:

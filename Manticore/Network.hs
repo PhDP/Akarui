@@ -10,6 +10,9 @@ import Data.Maybe
 -- | A network maps some keys to other keys with an edge (the value 'v').
 type Network k v = Map k (Map k v)
 
+-- | An undirected network maps keys to sets of keys.
+type UNetwork k = Map k (Set k)
+
 -- | Second order lookup function.
 lookup2 :: (Ord k0, Ord k1) => k0 -> k1 -> Map k0 (Map k1 v) -> Maybe v
 lookup2 key0 key1 m = Map.lookup key0 m >>= Map.lookup key1

@@ -13,6 +13,7 @@ import Manticore.Predicate
 import Manticore.Term
 import Manticore.Parser
 import Manticore.Symbols
+import Manticore.Network
 import qualified Manticore.KB as KB
 import Manticore.KB (KB)
 
@@ -20,18 +21,19 @@ import Manticore.KB (KB)
 -- with a weight.
 type MLN t = Map (FOL t) Double
 
--- | Print MLN.
+-- | Prints a Markov logic network.
 showMLN :: (Show t) => Symbols -> MLN t -> String
 showMLN s = Map.foldrWithKey (\k v acc -> showWFormula s k v ++ "\n" ++ acc) ""
 
--- | Helper to print weighted formulas.
+-- | Prints a weighted formula.
 showWFormula :: (Show t) => Symbols -> FOL t -> Double -> String
 showWFormula s f w = showW ++ replicate nSpaces ' ' ++ prettyPrintFm s f
   where
     showW = show w
     nSpaces = 24 - length showW
 
--- | Adds a formula to the markov logic network with a string (and the parser).
+-- | Adds a formula to the markov logic network using the parser. If the parser
+-- fails, the function returns the MLN unmodified.
 tellS :: String -> Double -> MLN String -> MLN String
 tellS s w mln = case parseFOL s of
   Left _  -> mln
@@ -42,12 +44,15 @@ allPredicates :: (Ord t) => MLN t -> Set (Predicate t)
 allPredicates = Map.foldWithKey (\k _ acc -> Set.union (atoms k) acc) Set.empty
 
 -- | Builds a ground network for Markov logic.
-groundNetwork :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (Predicate String) (Set (Predicate String))
-groundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (neighbours p) acc) Map.empty ps
+groundNetwork :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> UNetwork (Predicate String)
+groundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (mb p) acc) Map.empty ps
   where
+    -- All groundings from all formulas in the knowledge base:
     gs = Set.foldr' (\g acc -> Set.union (groundings m ts g) acc) Set.empty (Map.keysSet mln)
+    -- All the predicates:
     ps = KB.allPredicates gs
-    neighbours p = Set.delete p $ KB.allPredicates $ Set.filter (hasPred p) gs
+    -- The Markov blanket of predicate 'p', that is: all its neighbours.
+    mb p = Set.delete p $ KB.allPredicates $ Set.filter (hasPred p) gs
 
 -- | Builds a weighted knowledge base from a list of strings. If the parser
 -- fails to parse a formula, it is ignored.

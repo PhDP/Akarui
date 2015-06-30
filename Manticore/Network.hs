@@ -10,21 +10,6 @@ import Data.Maybe
 -- | A network maps some keys to other keys with an edge (the value 'v').
 type Network k v = Map k (Map k v)
 
--- | Prints an undirected network.
-showUNetwork :: (Show k0, Show k1, Ord k0, Ord k1) => Map k0 (Set k1) -> String
-showUNetwork = Map.foldWithKey vertices ""
-  where
-    vertices k v acc = show k ++ " -> " ++ edges v ++ "\n" ++ acc
-    edges e = let s = Set.foldr (\k acc -> show k ++ ", " ++ acc) "" e in
-              take (length s - 2) s -- There must be a more elegant solution...
-
--- | Prints the network.
-showNetwork :: (Show k, Show v, Ord k) => Network k v -> String
-showNetwork = Map.foldWithKey vertices ""
-  where
-    vertices k v acc = show k ++ " -> " ++ edges v ++ "\n" ++ acc
-    edges = Map.foldrWithKey (\k v acc -> "(" ++ show k ++ ", " ++ show v ++ "), " ++ acc) ""
-
 -- | Second order lookup function.
 lookup2 :: (Ord k0, Ord k1) => k0 -> k1 -> Map k0 (Map k1 v) -> Maybe v
 lookup2 key0 key1 m = Map.lookup key0 m >>= Map.lookup key1

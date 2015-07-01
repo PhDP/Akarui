@@ -58,6 +58,34 @@ groundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (mb p) acc) Map.empt
     -- The Markov blanket of predicate 'p', that is: all its neighbours.
     mb p = Set.delete p $ KB.allPredicates $ Set.filter (hasPred p) gs
 
+-- | Algorithm to construct a network for Markov logic network inference.
+--
+-- Reference:
+--   P Domingos and D Lowd, Markov Logic: An Interface Layer for Artificial
+-- Intelligence, 2009, Morgan & Claypool. p. 26.
+constructNetwork :: Set (Predicate String) -> [Predicate String] -> [Term String] -> MLN String -> UNetwork (Predicate String)
+constructNetwork query evidence ts mln = Set.foldr' (\p acc -> Map.insert p (mb p) acc) Map.empty ps
+  where
+    -- All groundings from all formulas in the knowledge base:
+    gs = Set.foldr' (\g acc -> Set.union (groundings Map.empty ts g) acc) Set.empty (Map.keysSet mln)
+    -- Predicates in the network
+    ps = step query query
+    -- The Markov blanket of predicate 'p', that is: all its neighbours.
+    mb p = Set.delete p $ KB.allPredicates $ Set.filter (hasPred p) gs
+    -- One step of the algorithm
+    step f g
+      | Set.null f = g
+      | Set.findMin f `elem` evidence = step (Set.deleteMin f) g
+      | otherwise =
+        let mbq = mb $ Set.findMin f in
+        step
+          (Set.union (Set.deleteMin f) (Set.intersection mbq g))
+          (Set.union g mbq)
+
+-- ask
+
+-- gibbs
+
 -- | Builds a weighted knowledge base from a list of strings. If the parser
 -- fails to parse a formula, it is ignored.
 fromStrings :: [String] -> MLN String

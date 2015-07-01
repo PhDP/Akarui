@@ -71,3 +71,8 @@ fromStrings = foldr
 -- | Converts a markov logic network to an unweighted knowledge base.
 toKB :: (Ord t) => MLN t -> KB (Predicate t)
 toKB = Map.keysSet
+
+-- | Builds a Markov logic network with a first-order logic knowledge base
+-- and a function mapping formulas to weights.
+fromKB :: (Ord t) => (Formula (Predicate t) -> Double) -> KB (Predicate t) -> MLN t
+fromKB w = Set.foldl' (\acc x -> Map.insert x (w x) acc) Map.empty

@@ -43,6 +43,10 @@ tellS s w mln = case parseFOL s of
 allPredicates :: (Ord t) => MLN t -> Set (Predicate t)
 allPredicates = Map.foldWithKey (\k _ acc -> Set.union (atoms k) acc) Set.empty
 
+-- | Get all groundings from a Markov logic network.
+allGroundings :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> KB (Predicate String)
+allGroundings m ts mln = KB.allGroundings m ts (toKB mln)
+
 -- | Builds a ground network for Markov logic.
 groundNetwork :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> UNetwork (Predicate String)
 groundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (mb p) acc) Map.empty ps

@@ -4,7 +4,8 @@
 -- logic networks).
 module Manticore.Parser (
   parseFOL,
-  parseWFOL
+  parseWFOL,
+  parseCondQuery
 ) where
 
 import Data.Functor.Identity
@@ -13,6 +14,8 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr as Ex
 import qualified Text.Parsec.Token as Tok
+import qualified Data.Map as Map
+import Data.Map (Map)
 import Manticore.Formula
 import Manticore.FOL
 import Manticore.Term
@@ -106,6 +109,14 @@ parseWeighted = try parseLeftW <|> parseRightW
 
 -- | Parser for weighted first-order logic. Parses a double following by
 -- a formula (or a formula followed by a double).
+--
+-- The /smoking/ example for Markov logic:
+--
+-- @
+--    ∀x∀y∀z Fr(x, y) ∧ Fr(y, z) ⇒ Fr(x, z) 0.7
+--    ∀x Sm(x) ⇒ Ca(x) 1.5
+--    1.1 ∀x∀y Fr(x, y) ∧ Sm(x) ⇒ Sm(y)
+-- @
 parseWFOL :: String -> Either ParseError (FOL String, Double)
 parseWFOL = parse (contents parseWeighted) "<stdin>"
 
@@ -118,12 +129,44 @@ parseWFOL = parse (contents parseWeighted) "<stdin>"
 -- Some examples of valid strings for the parser:
 --
 -- @
---    parseFOL "A.x, y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
+--    parseFOL "ForAll .x, y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
 --    parseFOL "A.x,y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
 --    parseFOL "∀ x Add(x, 0) = x"
 -- @
 parseFOL :: String -> Either ParseError (FOL String)
 parseFOL = parse (contents parseFOLAll) "<stdin>"
+
+-- Parse conditionals P(f1 | f2 -> true, f3 -> False, f4 -> T).
+parseQ :: Parser (FOL String, Map (FOL String) Bool)
+parseQ = do
+  reservedOps ["P(", "p(", "Probability(", "probability("]
+  query <- parseFOLAll
+  reservedOps ["|", "\\mid", "given"]
+  conds <- commaSep parseAssFOL
+  reservedOp ")"
+  return (query, Map.fromList conds)
+
+-- | Parser for conditional queries of the form
+-- P(f | f0 -> v0, f1 -> v1, f2 -> v2, ...), where f, f0, f1, f2 are formulas
+-- in first-order logic, and v0, v1, v3 are boolean values (True, False, T, F).
+--
+-- The parser is fairly flexible (see examples), but it won't allow the equal
+-- sign to attribute truth values to formula since it conflicts with the first-
+-- order logic parser.
+--
+-- @
+--    P(Predators(Wolf, Rabbit) | SameLocation(Wolf, Rabbit) -> False)
+--    Probability(Smoking(Bob) given Smoking(Anna) is true, Friend(Anna, Bob) is false)
+-- @
+parseCondQuery :: String -> Either ParseError (FOL String, Map (FOL String) Bool)
+parseCondQuery = parse (contents parseQ) "<stdin>"
+
+parseAssFOL :: Parser (FOL String, Bool)
+parseAssFOL = do
+  f <- parseFOLAll
+  reservedOps ["->", ":", "is"]
+  v <- parseTop <|> parseBottom
+  return (f, v == Top)
 
 parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNegation :: Parser (FOL String)
 parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
@@ -178,7 +221,7 @@ parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
 
 parseExists, parseForAll :: Parser QualT
 parseExists = reservedOps ["E.", "Exists", "exists", "∃"] >> return Exists
-parseForAll = reservedOps ["A.", "ForAll", "forall", "∀"] >> return ForAll
+parseForAll = reservedOps ["A.", "ForAll", "Forall", "forall", "∀"] >> return ForAll
 
 parseTerm, parseVarCon, parseFunction :: Parser (Term String)
 parseTerm = try parseFunction <|> parseVarCon

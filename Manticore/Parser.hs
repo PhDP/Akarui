@@ -151,7 +151,7 @@ parseQ = do
 -- in first-order logic, and v0, v1, v3 are boolean values (True, False, T, F).
 --
 -- The parser is fairly flexible (see examples), but it won't allow the equal
--- sign to attribute truth values to formula since it conflicts with the first-
+-- sign to attribute truth values to formulas since it conflicts with the first-
 -- order logic parser.
 --
 -- @

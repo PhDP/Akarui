@@ -33,7 +33,7 @@ semisymbolic = Symbols "∧" "∨" "⊕" "⇒" "⇔" "¬" "T" "F" "∀" "∃" "!
 symbolic = Symbols "∧" "∨" "⊕" "⇒" "⇔" "¬" "⊤" "⊥" "∀" "∃" "!="
 
 -- | LaTeX codes for logic symbols.
-laTeX = Symbols "\\land" "\\lor" "\\oplus" "\\Rightarrow" "\\iff" "\\lneg" "T"
+laTeX = Symbols "\\land" "\\lor" "\\oplus" "\\Rightarrow" "\\iff" "\\lnot" "T"
   "F" "\\forall" "\\exists" "\\neq"
 
 -- | An ASCII representation inspired by Harris' automated reasoning book.

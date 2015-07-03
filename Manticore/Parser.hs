@@ -6,7 +6,8 @@ module Manticore.Parser (
   parseFOL,
   parseWFOL,
   parseCondQuery,
-  parsePredicate
+  parsePredicate,
+  parsePredicateAss
 ) where
 
 import Data.Functor.Identity
@@ -21,6 +22,72 @@ import Manticore.Formula
 import Manticore.FOL
 import Manticore.Term
 import Manticore.Predicate
+
+-- | Parser for weighted first-order logic. Parses a double following by
+-- a formula (or a formula followed by a double).
+--
+-- The /smoking/ example for Markov logic:
+--
+-- @
+--    ∀x∀y∀z Fr(x, y) ∧ Fr(y, z) ⇒ Fr(x, z) 0.7
+--    ∀x Sm(x) ⇒ Ca(x) 1.5
+--    1.1 ∀x∀y Fr(x, y) ∧ Sm(x) ⇒ Sm(y)
+-- @
+parseWFOL :: String -> Either ParseError (FOL String, Double)
+parseWFOL = parse (contents parseWeighted) "<stdin>"
+
+-- | Parser for first-order logic. The parser will read a string and output
+-- an either type with (hopefully) the formula on the right.
+--
+-- This parser makes the assumption that variables start with a lowercase
+-- character, while constants start with an uppercase character.
+--
+-- Some examples of valid strings for the parser:
+--
+-- @
+--    parseFOL "ForAll .x, y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
+--    parseFOL "A.x,y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
+--    parseFOL "∀ x Add(x, 0) = x"
+-- @
+parseFOL :: String -> Either ParseError (FOL String)
+parseFOL = parse (contents parseFOLAll) "<stdin>"
+
+-- | Parser for conditional queries of the form
+-- P(f | f0 -> v0, f1 -> v1, f2 -> v2, ...), where f, f0, f1, f2 are formulas
+-- in first-order logic, and v0, v1, v3 are optional boolean values (True,
+-- False, T, F).
+--
+-- The parser is fairly flexible (see examples), but it won't allow the equal
+-- sign to attribute truth values to formulas since it conflicts with the first-
+-- order logic parser.
+--
+-- @
+--    P(Predators(Wolf, Rabbit) | SameLocation(Wolf, Rabbit), Juicy(Rabbit))
+--    Probability(Smoking(Bob) given Smoking(Anna) -> true, Friend(Anna, Bob) is false)
+-- @
+parseCondQuery :: String -> Either ParseError (Map (FOL String) Bool, Map (FOL String) Bool)
+parseCondQuery = parse (contents parseQ) "<stdin>"
+
+-- | Parser for predicates.
+--
+-- @
+--    Predators(Wolf, Rabbit)
+--    GreaterThan(Add(1, x), 0)
+-- @
+parsePredicate :: String -> Either ParseError (Predicate String)
+parsePredicate = parse (contents parsePredOnly) "<stdin>"
+
+-- | Parser for predicates assigned to a truth value. If a truth value is not
+-- included, the parser assumes it is true.
+--
+-- @
+--    Predators(Wolf, Rabbit) = False
+--    GreaterThan(Add(1, x), 0)
+--    Equals(2, 2) is true
+--    Foo(bar, baz) == F
+-- @
+parsePredicateAss :: String -> Either ParseError (Predicate String, Bool)
+parsePredicateAss = parse (contents parsePredTruth) "<stdin>"
 
 langDef :: Tok.LanguageDef ()
 langDef = Tok.LanguageDef {
@@ -108,34 +175,22 @@ parseRightW = do
 parseWeighted :: Parser (FOL String, Double)
 parseWeighted = try parseLeftW <|> parseRightW
 
--- | Parser for weighted first-order logic. Parses a double following by
--- a formula (or a formula followed by a double).
---
--- The /smoking/ example for Markov logic:
---
--- @
---    ∀x∀y∀z Fr(x, y) ∧ Fr(y, z) ⇒ Fr(x, z) 0.7
---    ∀x Sm(x) ⇒ Ca(x) 1.5
---    1.1 ∀x∀y Fr(x, y) ∧ Sm(x) ⇒ Sm(y)
--- @
-parseWFOL :: String -> Either ParseError (FOL String, Double)
-parseWFOL = parse (contents parseWeighted) "<stdin>"
+parsePredTruth :: Parser (Predicate String, Bool)
+parsePredTruth =
+      try parsePredAss
+  <|> do { p <- parsePredOnly; return (p, True) }
 
--- | Parser for first-order logic. The parser will read a string and output
--- an either type with (hopefully) the formula on the right.
---
--- This parser makes the assumption that variables start with a lowercase
--- character, while constants start with an uppercase character.
---
--- Some examples of valid strings for the parser:
---
--- @
---    parseFOL "ForAll .x, y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
---    parseFOL "A.x,y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
---    parseFOL "∀ x Add(x, 0) = x"
--- @
-parseFOL :: String -> Either ParseError (FOL String)
-parseFOL = parse (contents parseFOLAll) "<stdin>"
+parsePredOnly :: Parser (Predicate String)
+parsePredOnly = do
+  f <- parsePred
+  return $ case f of Atom p -> p; _ -> Predicate "" []
+
+parsePredAss :: Parser (Predicate String, Bool)
+parsePredAss = do
+  p <- parsePredOnly
+  reservedOps ["->", "=", "==", ":=", "is"]
+  t <- parseTop <|> parseBottom
+  return (p, t == Top)
 
 -- Parse conditionals P(f1 | f2 -> true, f3 -> False, f4 -> T).
 parseQ :: Parser (Map (FOL String) Bool, Map (FOL String) Bool)
@@ -146,35 +201,6 @@ parseQ = do
   conds <- commaSep (try parseAssFOL <|> do { f <- parseFOLAll; return (f, True) })
   reservedOp ")"
   return (Map.fromList query, Map.fromList conds)
-
--- | Parser for conditional queries of the form
--- P(f | f0 -> v0, f1 -> v1, f2 -> v2, ...), where f, f0, f1, f2 are formulas
--- in first-order logic, and v0, v1, v3 are optional boolean values (True,
--- False, T, F).
---
--- The parser is fairly flexible (see examples), but it won't allow the equal
--- sign to attribute truth values to formulas since it conflicts with the first-
--- order logic parser.
---
--- @
---    P(Predators(Wolf, Rabbit) | SameLocation(Wolf, Rabbit), Juicy(Rabbit))
---    Probability(Smoking(Bob) given Smoking(Anna) -> true, Friend(Anna, Bob) is false)
--- @
-parseCondQuery :: String -> Either ParseError (Map (FOL String) Bool, Map (FOL String) Bool)
-parseCondQuery = parse (contents parseQ) "<stdin>"
-
--- | Parser for predicate (and identities)
---
--- @
---    Predators(Wolf, Rabbit)
---    GreaterThan(Add(1, x), 0)
---    Add(2, 2) = 4
--- @
-parsePredicate :: String -> Either ParseError (Predicate String)
-parsePredicate s = case parse (contents (try parseIdentity <|> parsePred)) "<stdin>" s of
-  Left x -> Left x
-  Right (Atom p) -> Right p
-  Right _ -> Right $ Predicate "" []
 
 parseAssFOL :: Parser (FOL String, Bool)
 parseAssFOL = do

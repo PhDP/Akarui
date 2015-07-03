@@ -60,6 +60,17 @@ groundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (mb p) acc) Map.empt
     -- The Markov blanket of predicate 'p', that is: all its neighbours.
     mb p = Set.delete p $ KB.allPredicates $ Set.filter (hasPred p) gs
 
+-- | Returns all the factors in the MLN. Instead of mappings sets of predicates
+-- to weights, this function maps them to the formula (the MLN provides the
+-- weight).
+factors :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (Set (Predicate String)) (FOL String)
+factors m ts mln = fs
+  where
+    -- All groundings mapped to their original formula
+    gs = Set.foldr' (\k a -> Set.foldr' (`Map.insert` k) a (groundings m ts k)) Map.empty (Map.keysSet mln)
+    -- Separate the formula in sets of predicates:
+    fs = Map.foldrWithKey (\k v a -> Map.insert (atoms k) v a) Map.empty gs
+
 -- | Algorithm to construct a network for Markov logic network inference.
 --
 -- Reference:

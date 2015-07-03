@@ -16,6 +16,10 @@ fmtSet s = addBrackets $ drop 2 $ Set.foldl' (\acc k -> acc ++ ", " ++ show k) "
 fmtMap :: (Show k, Show v, Ord k) => Map k v -> String
 fmtMap = Map.foldWithKey (\k v acc -> show k ++ " -> " ++ show v ++ "\n" ++ acc) ""
 
+-- | Formats a map of sets to something
+fmtMapOfSet :: (Show k, Show v, Ord k) => Map (Set k) v -> String
+fmtMapOfSet = Map.foldWithKey (\k v acc -> fmtSet k ++ " -> " ++ show v ++ "\n" ++ acc) ""
+
 -- | Formats a map of sets (often used to represent undirected networks).
 fmtMapSet :: (Show k0, Show k1, Ord k0, Ord k1) => Map k0 (Set k1) -> String
 fmtMapSet = Map.foldWithKey (\k v acc -> show k ++ " -> " ++ fmtSet v ++ "\n" ++ acc) ""

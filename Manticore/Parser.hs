@@ -5,7 +5,8 @@
 module Manticore.Parser (
   parseFOL,
   parseWFOL,
-  parseCondQuery
+  parseCondQuery,
+  parsePredicate
 ) where
 
 import Data.Functor.Identity
@@ -162,6 +163,19 @@ parseQ = do
 parseCondQuery :: String -> Either ParseError (Map (FOL String) Bool, Map (FOL String) Bool)
 parseCondQuery = parse (contents parseQ) "<stdin>"
 
+-- | Parser for predicate (and identities)
+--
+-- @
+--    Predators(Wolf, Rabbit)
+--    GreaterThan(Add(1, x), 0)
+--    Add(2, 2) = 4
+-- @
+parsePredicate :: String -> Either ParseError (Predicate String)
+parsePredicate s = case parse (contents (try parseIdentity <|> parsePred)) "<stdin>" s of
+  Left x -> Left x
+  Right (Atom p) -> Right p
+  Right _ -> Right $ Predicate "" []
+
 parseAssFOL :: Parser (FOL String, Bool)
 parseAssFOL = do
   f <- parseFOLAll
@@ -169,7 +183,7 @@ parseAssFOL = do
   v <- parseTop <|> parseBottom
   return (f, v == Top)
 
-parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePredicate, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNegation :: Parser (FOL String)
+parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePred, parsePredLike, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNegation :: Parser (FOL String)
 parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
 
 parseSentence = Ex.buildExpressionParser tbl parseAtoms
@@ -192,16 +206,16 @@ parseNegation = do
   a <- parseAtoms
   return $ n a
 
+parsePredLike = try parseIdentity <|> try parseNIdentity <|> parsePred
+
 parseAtoms =
-      try parseIdentity
-  <|> try parseNIdentity
-  <|> try parsePredicate
+      try parsePredLike
   <|> parseNegation
   <|> parseTop
   <|> parseBottom
   <|> parens parseFOLAll
 
-parsePredicate = do
+parsePred = do
   args <- parseFunForm
   return $ Atom $ uncurry Predicate args
 

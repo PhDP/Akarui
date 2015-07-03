@@ -65,7 +65,7 @@ data Formula a =
   | Qualifier QualT String (Formula a) -- Following Harris' here, but it might be smarter to put qualifiers in FOL only.
 
 instance Show a => Show (Formula a) where
-  show = prettyPrintFm long -- symbolic
+  show = prettyPrintFm symbolic
 
 instance Eq a => Eq (Formula a) where
   Top == Top          = True

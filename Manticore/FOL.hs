@@ -15,6 +15,11 @@ import qualified Manticore.Term as Term
 -- | A first-order logic formula is simply a formula of predicates.
 type FOL t = Formula (Predicate t)
 
+-- | Extracts predicates from a list of formulas. If a formula is not an atom,
+-- it will be ignored.
+toPredicates :: (Ord t) => [FOL t] -> [Predicate t]
+toPredicates = foldl' (\acc f -> case f of Atom p -> p : acc; _ -> acc) []
+
 -- | Tests if the formula is 'grounded', i.e. if it has no variables.
 ground :: FOL t -> Bool
 ground f = case f of
@@ -48,6 +53,15 @@ hasPred p f = case f of
   Atom p'         -> p == p'
   BinOp _ x y     -> hasPred p x || hasPred p y
   Qualifier _ _ x -> hasPred p x
+  _               -> False
+
+-- | Test for the presence of a predicate in the formula using only the name
+-- of the predicate.
+hasPredName :: (Eq t) => FOL t -> String -> Bool
+hasPredName f n = case f of
+  Atom (Predicate n' _) -> n == n'
+  BinOp _ x y     -> hasPredName x n || hasPredName y n
+  Qualifier _ _ x -> hasPredName x n
   _               -> False
 
 -- | Returns true if the formula has functions. This is often used in algorithms

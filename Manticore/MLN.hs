@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
--- | Types and algorithms for Markov logic networks.
+-- | Types and algorithms for Markov logic networks. The module has quite a
+-- few 'fromStrings' methods that take strings and parse them into data
+-- structure to make it easier to play with Markov logic in the repl.
 module Manticore.MLN where
 
 import qualified Data.Map as Map
@@ -82,10 +84,14 @@ constructNetwork query evidence ts mln = Set.foldr' (\p acc -> Map.insert p (mb 
           (Set.union (Set.deleteMin f) (Set.intersection mbq g))
           (Set.union g mbq)
 
-ask :: String -> String -> [String] -> Double
-ask query terms mln = 0.5
-
--- gibbs
+constructNetworkFromStrings :: String -> [String] -> [String] -> UNetwork (Predicate String)
+constructNetworkFromStrings query ts mln = constructNetwork q e t m
+  where
+    (q, e) = case parseCondQuery query of
+      Left _ -> (Set.empty, [])
+      Right (q', e') -> (Set.fromList $ toPredicates $ Set.toList $ Map.keysSet q', toPredicates $ Set.toList $ Map.keysSet e')
+    t = map Constant ts
+    m = fromStrings mln
 
 -- | Builds a weighted knowledge base from a list of strings. If the parser
 -- fails to parse a formula, it is ignored.

@@ -137,14 +137,14 @@ parseFOL :: String -> Either ParseError (FOL String)
 parseFOL = parse (contents parseFOLAll) "<stdin>"
 
 -- Parse conditionals P(f1 | f2 -> true, f3 -> False, f4 -> T).
-parseQ :: Parser (FOL String, Map (FOL String) Bool)
+parseQ :: Parser (Map (FOL String) Bool, Map (FOL String) Bool)
 parseQ = do
   reservedOps ["P(", "p(", "Probability(", "probability("]
-  query <- parseFOLAll
+  query <- commaSep (try parseAssFOL <|> do { f <- parseFOLAll; return (f, True) })
   reservedOps ["|", "\\mid", "given"]
   conds <- commaSep (try parseAssFOL <|> do { f <- parseFOLAll; return (f, True) })
   reservedOp ")"
-  return (query, Map.fromList conds)
+  return (Map.fromList query, Map.fromList conds)
 
 -- | Parser for conditional queries of the form
 -- P(f | f0 -> v0, f1 -> v1, f2 -> v2, ...), where f, f0, f1, f2 are formulas
@@ -159,7 +159,7 @@ parseQ = do
 --    P(Predators(Wolf, Rabbit) | SameLocation(Wolf, Rabbit), Juicy(Rabbit))
 --    Probability(Smoking(Bob) given Smoking(Anna) -> true, Friend(Anna, Bob) is false)
 -- @
-parseCondQuery :: String -> Either ParseError (FOL String, Map (FOL String) Bool)
+parseCondQuery :: String -> Either ParseError (Map (FOL String) Bool, Map (FOL String) Bool)
 parseCondQuery = parse (contents parseQ) "<stdin>"
 
 parseAssFOL :: Parser (FOL String, Bool)

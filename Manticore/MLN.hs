@@ -82,7 +82,8 @@ constructNetwork query evidence ts mln = Set.foldr' (\p acc -> Map.insert p (mb 
           (Set.union (Set.deleteMin f) (Set.intersection mbq g))
           (Set.union g mbq)
 
--- ask
+ask :: String -> String -> [String] -> Double
+ask query terms mln = 0.5
 
 -- gibbs
 

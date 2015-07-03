@@ -3,6 +3,9 @@ module Manticore.Predicate where
 
 import Manticore.Text
 import Manticore.Term (Term)
+import Data.List (foldl')
+import Data.Set (Set)
+import qualified Data.Set as Set
 import qualified Manticore.Term as Term
 
 -- | Predicates are atoms (thus they evaluate to true/false) mapping a list
@@ -24,6 +27,10 @@ instance (Show t) => Show (Predicate t) where
       showPredicate (Predicate n ts) =
         n ++ "(" ++ (if null ts then "" else terms) ++ ")"
         where terms = mkString $ map show ts
+
+-- | Gathers the constants in a predicate.
+constants :: (Ord a) => Predicate a -> Set a
+constants (Predicate _ ts) = foldl' (\a t -> Set.union (Term.constants t) a) Set.empty ts
 
 -- | Shows the internal structure of the predicate.
 showStruct :: (Show a) => Predicate a -> String

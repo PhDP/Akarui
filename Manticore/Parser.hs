@@ -177,8 +177,15 @@ parseWeighted = try parseLeftW <|> parseRightW
 
 parsePredTruth :: Parser (Predicate String, Bool)
 parsePredTruth =
-      try parsePredAss
+      try parseNegPred
+  <|> try parsePredAss
   <|> do { p <- parsePredOnly; return (p, True) }
+
+parseNegPred :: Parser (Predicate String, Bool)
+parseNegPred = do
+  reservedOps ["!", "~"]
+  p <- parsePredOnly
+  return (p, False)
 
 parsePredOnly :: Parser (Predicate String)
 parsePredOnly = do

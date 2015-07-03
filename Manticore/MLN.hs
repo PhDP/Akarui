@@ -71,6 +71,10 @@ factors m ts mln = fs
     -- Separate the formula in sets of predicates:
     fs = Map.foldrWithKey (\k v a -> Map.insert (atoms k) v a) Map.empty gs
 
+--fullAss
+--  where
+--    fs = factors m ts mln
+
 -- | Algorithm to construct a network for Markov logic network inference.
 --
 -- Reference:

@@ -3,6 +3,8 @@ module Manticore.Term where
 
 import qualified Data.Map as Map
 import Data.Map (Map)
+import qualified Data.Set as Set
+import Data.Set (Set)
 import Data.List (foldl')
 import Data.Monoid ((<>), mconcat)
 import Data.Maybe (fromMaybe)
@@ -100,7 +102,15 @@ showStruct t = case t of
     "Function " ++ n ++ " [" ++ (if null ts then "" else terms) ++ "]"
     where terms = mkString (map showStruct ts)
 
--- Unify these functions under some type class for FOL, Predicate, and Term?
+-- | Get all the constants from a term.
+constants :: (Ord a) => Term a -> Set a
+constants = gat
+  where
+    gat = gather Set.empty
+    gather s t' = case t' of
+      Variable _    -> s
+      Constant t''  -> Set.insert t'' s
+      Function _ ts -> foldl' (\a t'' -> Set.union (gat t'') a) s ts
 
 -- | Tests if the term is 'grounded', i.e. if it has no variables.
 ground :: Term t -> Bool

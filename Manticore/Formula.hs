@@ -14,7 +14,7 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
-import Data.List (nub)
+import Data.List (nub, foldl')
 import Data.Char (toLower)
 import Data.Monoid ((<>))
 import System.Random
@@ -304,14 +304,26 @@ coreOp f = case f of
   Qualifier q v x   -> Qualifier q v (coreOp x)
   _ -> f
 
--- | Returns all possible valuations of a formula.
-valuations :: (Ord a) => Formula a -> [Map a Bool]
-valuations f = if null as then [] else ms (head as) (tail as)
+-- | Returns all possible valuations of a set of formula.
+allAss :: (Ord a) => Set (Formula a) -> [Map a Bool]
+allAss fs = if null as then [] else ms (head as) (tail as)
   where
-    as = atomsLs f
+    as = Set.toList $ Set.foldr Set.union Set.empty $ Set.map atoms fs
     ms atm s =
       if null s then
         [Map.fromList [(atm, True)], Map.fromList [(atm, False)]]
       else
         map (Map.insert atm True) (ms (head s) (tail s)) ++
          map (Map.insert atm False) (ms (head s) (tail s))
+
+-- | Takes a formula, a list of assignments, and returns how many were true,
+-- false, or undefined (could not be reduced to either Top or Bottom).
+numTrueFalse :: (Integral n, Ord a) => Formula a -> [Map a Bool] -> (n, n, n)
+numTrueFalse f =
+  foldl'
+    (\(t, b, u) ass ->
+      let v = eval ass f in
+        if v == Top then (t + 1, b, u)
+        else if v == Bottom then (t, b + 1, u)
+        else (t, b, u + 1))
+    (0, 0, 0)

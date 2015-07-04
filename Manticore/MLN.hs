@@ -9,6 +9,7 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
+import Data.List (foldl')
 import Manticore.FOL
 import Manticore.Formula
 import Manticore.Predicate
@@ -77,9 +78,20 @@ factors m ts mln = fs
     -- Separate the formula in sets of predicates:
     fs = Map.foldrWithKey (\k v a -> Map.insert (atoms k) v a) Map.empty gs
 
---fullAss
---  where
---    fs = factors m ts mln
+-- | Query the network with a full assignment to predicates.
+fullAss :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (Predicate String) Bool -> Double
+fullAss m ts mln ass =  evalNet ass / z
+  where
+    -- The formula (the factors) to evaluate
+    fs = allWGroundings m ts mln
+    -- Value of the network for a given assignment.
+    evalNet ass' = Map.foldrWithKey (\f w a -> val f w ass' * a) 1.0 fs
+    -- Values of a factor
+    val f w ass' = if eval ass' f == Top then exp w else 1.0
+    -- All the possible assignments of the predicates
+    allass = allAss $ Map.keysSet mln
+    -- This is inneficient since most groundings have the exact same profile.
+    z = foldl' (\a ass' -> evalNet ass' + a) 1.0 allass
 
 -- | Algorithm to construct a network for Markov logic network inference.
 --
@@ -105,6 +117,8 @@ constructNetwork query evidence ts mln = Set.foldr' (\p acc -> Map.insert p (mb 
           (Set.union (Set.deleteMin f) (Set.intersection mbq g))
           (Set.union g mbq)
 
+-- | Algorithm to construct a network for Markov logic network inference. This
+-- helper takes strings to make it easier to use in the console.
 constructNetworkFromStrings :: String -> [String] -> [String] -> UNetwork (Predicate String)
 constructNetworkFromStrings query ts mln = constructNetwork q e t m
   where

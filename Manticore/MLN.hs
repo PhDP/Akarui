@@ -49,13 +49,19 @@ allPredicates = Map.foldWithKey (\k _ acc -> Set.union (atoms k) acc) Set.empty
 allGroundings :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> KB (Predicate String)
 allGroundings m ts mln = KB.allGroundings m ts (toKB mln)
 
+-- | Get all groundings from a Markov logic network, keeping the weights
+-- assigned to the original formula in the Markov logic network.
+allWGroundings :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> MLN String
+allWGroundings m ts =
+  Map.foldrWithKey (\k v a -> Set.foldr' (\k' a' -> Map.insert k' v a') a (groundings m ts k)) Map.empty
+
 -- | Builds a ground network for Markov logic.
 groundNetwork :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> UNetwork (Predicate String)
 groundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (mb p) acc) Map.empty ps
   where
     -- All groundings from all formulas in the knowledge base:
     gs = Set.foldr' (\g acc -> Set.union (groundings m ts g) acc) Set.empty (Map.keysSet mln)
-    -- All the predicates:
+    -- All the predicates:ngmgmngmngkedlfjnsp;fjdplfjned'djf;ojsdfl;kjkllkgo'jwegpo'jeglkmsdfvk;mlfepojewkj[o\]
     ps = KB.allPredicates gs
     -- The Markov blanket of predicate 'p', that is: all its neighbours.
     mb p = Set.delete p $ KB.allPredicates $ Set.filter (hasPred p) gs

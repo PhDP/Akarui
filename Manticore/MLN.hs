@@ -104,7 +104,7 @@ constructNetworkFromStrings query ts mln = constructNetwork q e t m
   where
     (q, e) = case parseCondQuery query of
       Left _ -> (Set.empty, [])
-      Right (q', e') -> (Set.fromList $ toPredicates $ Set.toList $ Map.keysSet q', toPredicates $ Set.toList $ Map.keysSet e')
+      Right (q', e') -> (Map.keysSet q', Set.toList $ Map.keysSet e')
     t = map Constant ts
     m = fromStrings mln
 

@@ -7,7 +7,9 @@ module Manticore.Parser (
   parseWFOL,
   parseCondQuery,
   parsePredicate,
-  parsePredicateAss
+  parsePredicateAss,
+  parseEvidenceList,
+  parseEvidenceLines
 ) where
 
 import Data.Functor.Identity
@@ -65,7 +67,7 @@ parseFOL = parse (contents parseFOLAll) "<stdin>"
 --    P(Predators(Wolf, Rabbit) | SameLocation(Wolf, Rabbit), Juicy(Rabbit))
 --    Probability(Smoking(Bob) given Smoking(Anna) -> true, Friend(Anna, Bob) is false)
 -- @
-parseCondQuery :: String -> Either ParseError (Map (FOL String) Bool, Map (FOL String) Bool)
+parseCondQuery :: String -> Either ParseError (Map (Predicate String) Bool, Map (Predicate String) Bool)
 parseCondQuery = parse (contents parseQ) "<stdin>"
 
 -- | Parser for predicates.
@@ -88,6 +90,20 @@ parsePredicate = parse (contents parsePredOnly) "<stdin>"
 -- @
 parsePredicateAss :: String -> Either ParseError (Predicate String, Bool)
 parsePredicateAss = parse (contents parsePredTruth) "<stdin>"
+
+-- | Parse a list of evidence
+--
+-- @
+--    Predators(Wolf, Rabbit) = False, GreaterThan(Add(1, x), 0)
+--    Equals(2, 2) is true
+--    Foo(bar, baz) == F, Grrr()
+-- @
+parseEvidenceList :: String -> Either ParseError [(Predicate String, Bool)]
+parseEvidenceList = parse (contents parseEviList) "<stdin>"
+
+-- | Parse a list of evidence separated by spaces (of newline characters).
+parseEvidenceLines :: String -> Either ParseError [(Predicate String, Bool)]
+parseEvidenceLines = parse (contents parseEviLines) "<stdin>"
 
 langDef :: Tok.LanguageDef ()
 langDef = Tok.LanguageDef {
@@ -113,6 +129,9 @@ parens = Tok.parens lexer
 reservedOp :: String -> Parser ()
 --reserved = Tok.reserved lexer
 reservedOp = Tok.reservedOp lexer
+
+symbol :: String -> Parser String
+symbol = Tok.symbol lexer
 
 float :: ParsecT String () Identity Double
 float = Tok.float lexer
@@ -142,6 +161,12 @@ contents p = do
   r <- p
   eof
   return r
+
+parseEviList :: Parser [(Predicate String, Bool)]
+parseEviList = parsePredTruth `sepBy` (symbol "," <|> symbol ";")
+
+parseEviLines :: Parser [(Predicate String, Bool)]
+parseEviLines = many1 parsePredTruth
 
 parseQualForm :: Parser (QualT, [String], FOL String)
 parseQualForm = do
@@ -200,21 +225,14 @@ parsePredAss = do
   return (p, t == Top)
 
 -- Parse conditionals P(f1 | f2 -> true, f3 -> False, f4 -> T).
-parseQ :: Parser (Map (FOL String) Bool, Map (FOL String) Bool)
+parseQ :: Parser (Map (Predicate String) Bool, Map (Predicate String) Bool)
 parseQ = do
   reservedOps ["P(", "p(", "Probability(", "probability("]
-  query <- commaSep (try parseAssFOL <|> do { f <- parseFOLAll; return (f, True) })
+  query <- parseEviList
   reservedOps ["|", "\\mid", "given"]
-  conds <- commaSep (try parseAssFOL <|> do { f <- parseFOLAll; return (f, True) })
+  conds <- parseEviList
   reservedOp ")"
   return (Map.fromList query, Map.fromList conds)
-
-parseAssFOL :: Parser (FOL String, Bool)
-parseAssFOL = do
-  f <- parseFOLAll
-  reservedOps ["->", ":", "is"]
-  v <- parseTop <|> parseBottom
-  return (f, v == Top)
 
 parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePred, parsePredLike, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNegation :: Parser (FOL String)
 parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence

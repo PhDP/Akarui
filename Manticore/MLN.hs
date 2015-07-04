@@ -61,7 +61,7 @@ groundNetwork m ts mln = Set.foldr' (\p acc -> Map.insert p (mb p) acc) Map.empt
   where
     -- All groundings from all formulas in the knowledge base:
     gs = Set.foldr' (\g acc -> Set.union (groundings m ts g) acc) Set.empty (Map.keysSet mln)
-    -- All the predicates:ngmgmngmngkedlfjnsp;fjdplfjned'djf;ojsdfl;kjkllkgo'jwegpo'jeglkmsdfvk;mlfepojewkj[o\]
+    -- All the predicates
     ps = KB.allPredicates gs
     -- The Markov blanket of predicate 'p', that is: all its neighbours.
     mb p = Set.delete p $ KB.allPredicates $ Set.filter (hasPred p) gs

@@ -11,7 +11,8 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
 import Manticore.FOL
-import Manticore.Formula
+import qualified Manticore.Formula as F
+import Manticore.Formula (Formula (Top, Bottom))
 import Manticore.Predicate
 import Manticore.Term
 import Manticore.Parser
@@ -30,7 +31,7 @@ showMLN s = Map.foldrWithKey (\k v acc -> showWFormula s k v ++ "\n" ++ acc) ""
 
 -- | Prints a weighted formula.
 showWFormula :: (Show t) => Symbols -> FOL t -> Double -> String
-showWFormula s f w = showW ++ replicate nSpaces ' ' ++ prettyPrintFm s f
+showWFormula s f w = showW ++ replicate nSpaces ' ' ++ F.prettyPrintFm s f
   where
     showW = show w
     nSpaces = 24 - length showW
@@ -44,7 +45,7 @@ tellS s w mln = case parseFOL s of
 
 -- | Gathers all the predicates of a markov logic network in a set.
 allPredicates :: (Ord t) => MLN t -> Set (Predicate t)
-allPredicates = Map.foldWithKey (\k _ acc -> Set.union (atoms k) acc) Set.empty
+allPredicates = Map.foldWithKey (\k _ acc -> Set.union (F.atoms k) acc) Set.empty
 
 -- | Get all groundings from a Markov logic network.
 allGroundings :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> KB (Predicate String)
@@ -76,7 +77,13 @@ factors m ts mln = fs
     -- All groundings mapped to their original formula
     gs = Set.foldr' (\k a -> Set.foldr' (`Map.insert` k) a (groundings m ts k)) Map.empty (Map.keysSet mln)
     -- Separate the formula in sets of predicates:
-    fs = Map.foldrWithKey (\k v a -> Map.insert (atoms k) v a) Map.empty gs
+    fs = Map.foldrWithKey (\k v a -> Map.insert (F.atoms k) v a) Map.empty gs
+
+queryAllAss m ts mln = map (fullAss m ts mln) (allAss mln)
+
+-- | All possible assignments to the predicates in the network.
+allAss :: (Ord a) => MLN a -> [Map (Predicate a) Bool]
+allAss = F.allAss . Map.keysSet
 
 -- | Query the network with a full assignment to predicates.
 fullAss :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (Predicate String) Bool -> Double
@@ -85,13 +92,11 @@ fullAss m ts mln ass =  evalNet ass / z
     -- The formula (the factors) to evaluate
     fs = allWGroundings m ts mln
     -- Value of the network for a given assignment.
-    evalNet ass' = Map.foldrWithKey (\f w a -> val f w ass' * a) 1.0 fs
+    evalNet ass' = exp $ Map.foldrWithKey (\f w a -> val f w ass' + a) 0.0 fs
     -- Values of a factor
-    val f w ass' = if eval ass' f == Top then exp w else 1.0
-    -- All the possible assignments of the predicates
-    allass = allAss $ Map.keysSet mln
+    val f w ass' = case F.eval ass' f of Top -> w; Bottom -> 0.0; _ -> error "Evaluation failed."
     -- This is inneficient since most groundings have the exact same profile.
-    z = foldl' (\a ass' -> evalNet ass' + a) 1.0 allass
+    z = foldl' (\a ass' -> evalNet ass' + a) 0.0 (allAss fs)
 
 -- | Algorithm to construct a network for Markov logic network inference.
 --

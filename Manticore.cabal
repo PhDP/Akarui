@@ -20,7 +20,7 @@ library
     Manticore.FOL
     Manticore.Predicate
     Manticore.Term
-    Manticore.MLN
+    Manticore.MarkovLogic
     Manticore.WalkSAT
     Manticore.Parser
     Manticore.Symbols

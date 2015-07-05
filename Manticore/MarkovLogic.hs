@@ -1,7 +1,7 @@
 -- | Types and algorithms for Markov logic networks. The module has quite a
 -- few 'fromStrings' methods that take strings and parse them into data
 -- structure to make it easier to play with Markov logic in the repl.
-module Manticore.MLN where
+module Manticore.MarkovLogic where
 
 import qualified Data.Map as Map
 import Data.Map (Map)

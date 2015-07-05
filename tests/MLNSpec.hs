@@ -2,7 +2,7 @@
 
 module MLNSpec where
 
-import Manticore.MLN
+import Manticore.MarkovLogic
 import Manticore.FOL
 import Manticore.Parser
 import Manticore.Symbols

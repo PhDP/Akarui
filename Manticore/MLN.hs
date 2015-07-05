@@ -79,24 +79,49 @@ factors m ts mln = fs
     -- Separate the formula in sets of predicates:
     fs = Map.foldrWithKey (\k v a -> Map.insert (F.atoms k) v a) Map.empty gs
 
-queryAllAss m ts mln = map (fullAss m ts mln) (allAss mln)
+-- | Returns all the marginals for all complete assignments to the variables
+-- of the network.
+queryAllAss ::
+  Map (String, [Term String]) (Term String) ->
+  [Term String] ->
+  MLN String ->
+  [Either (Set (Predicate String)) Double]
+queryAllAss m ts mln = map (marginal m ts mln) (allAss m ts mln)
 
 -- | All possible assignments to the predicates in the network.
-allAss :: (Ord a) => MLN a -> [Map (Predicate a) Bool]
-allAss = F.allAss . Map.keysSet
+allAss ::
+  Map (String, [Term String]) (Term String) ->
+  [Term String] ->
+  MLN String ->
+  [Map (Predicate String) Bool]
+allAss m ts mln = F.allAss $ allGroundings m ts mln
 
--- | Query the network with a full assignment to predicates.
-fullAss :: Map (String, [Term String]) (Term String) -> [Term String] -> MLN String -> Map (Predicate String) Bool -> Double
-fullAss m ts mln ass =  evalNet ass / z
+-- | Query the marginal probability of all the variables in the network.
+marginal ::
+  Map (String, [Term String]) (Term String) ->
+  [Term String] ->
+  MLN String ->
+  Map (Predicate String) Bool ->
+  Either (Set (Predicate String)) Double
+marginal m ts mln ass = if Set.null delta then Right $ evalNet ass / z
+                       else Left delta
   where
+    -- All predicates
+    ps = Set.foldr Set.union Set.empty $ Set.map F.atoms $ Map.keysSet fs
+    -- Remove the predicate in the assignment provided to ps
+    delta = Set.difference ps (Map.keysSet ass)
     -- The formula (the factors) to evaluate
     fs = allWGroundings m ts mln
     -- Value of the network for a given assignment.
     evalNet ass' = exp $ Map.foldrWithKey (\f w a -> val f w ass' + a) 0.0 fs
     -- Values of a factor
-    val f w ass' = case F.eval ass' f of Top -> w; Bottom -> 0.0; _ -> error "Evaluation failed."
-    -- This is inneficient since most groundings have the exact same profile.
-    z = foldl' (\a ass' -> evalNet ass' + a) 0.0 (allAss fs)
+    val f w ass' = let v = F.eval ass' f in case v of
+      Top     -> w
+      Bottom  -> 0.0
+      _       -> error ("Evaluation failed for " ++ show v ++ " given " ++ show ass')
+    -- The normalizing factor. This code is inneficient since most groundings
+    -- have the exact same profile.
+    z = foldl' (\a ass' -> evalNet ass' + a) 0.0 (allAss m ts fs)
 
 -- | Algorithm to construct a network for Markov logic network inference.
 --

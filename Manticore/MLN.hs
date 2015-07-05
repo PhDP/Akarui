@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 -- | Types and algorithms for Markov logic networks. The module has quite a
 -- few 'fromStrings' methods that take strings and parse them into data
 -- structure to make it easier to play with Markov logic in the repl.
@@ -86,7 +84,7 @@ queryAllAss ::
   [Term String] ->
   MLN String ->
   [Either (Set (Predicate String)) Double]
-queryAllAss m ts mln = map (marginal m ts mln) (allAss m ts mln)
+queryAllAss m ts mln = map (jointProbability m ts mln) (allAss m ts mln)
 
 -- | All possible assignments to the predicates in the network.
 allAss ::
@@ -96,15 +94,17 @@ allAss ::
   [Map (Predicate String) Bool]
 allAss m ts mln = F.allAss $ allGroundings m ts mln
 
--- | Query the marginal probability of all the variables in the network.
-marginal ::
-  Map (String, [Term String]) (Term String) ->
-  [Term String] ->
-  MLN String ->
-  Map (Predicate String) Bool ->
-  Either (Set (Predicate String)) Double
-marginal m ts mln ass = if Set.null delta then Right $ evalNet ass / z
-                        else Left delta
+-- | Query the joint distribution of the Markov network given a list of
+-- constants to instantiate the network, and a set of assignments to all the
+-- predicates in the resulting ground network. You can also use this function
+-- to get the set of predicates in the network by suppling an empty assignment.
+jointProbability :: Map (String, [Term String]) (Term String) -- ^ Resolve functions in predicates. If the predicates have no functions in them, provide Data.Map.empty.
+  -> [Term String] -- ^ List of constants to ground the Markov logic network.
+  -> MLN String -- ^ The Markov logic network.
+  -> Map (Predicate String) Bool -- ^ An assignment to all predicates in the Markov logic network.
+  -> Either (Set (Predicate String)) Double -- ^ Either a set of missing predicates or a probability.
+jointProbability m ts mln ass =
+  if Set.null delta then Right $ evalNet ass / z else Left delta
   where
     -- All predicates
     ps = Set.foldr Set.union Set.empty $ Set.map F.atoms $ Map.keysSet fs
@@ -119,7 +119,7 @@ marginal m ts mln ass = if Set.null delta then Right $ evalNet ass / z
       Top    -> w
       Bottom -> 0.0
       _      -> error ("Eval failed for " ++ show v ++ " given " ++ show ass')
-    -- The normalizing factor
+    -- The normalization factor
     z = foldl' (\a ass' -> evalNet ass' + a) 0.0 $ allAss m ts fs
 
 -- | Algorithm to construct a network for Markov logic network inference.

@@ -104,24 +104,23 @@ marginal ::
   Map (Predicate String) Bool ->
   Either (Set (Predicate String)) Double
 marginal m ts mln ass = if Set.null delta then Right $ evalNet ass / z
-                       else Left delta
+                        else Left delta
   where
     -- All predicates
     ps = Set.foldr Set.union Set.empty $ Set.map F.atoms $ Map.keysSet fs
     -- Remove the predicate in the assignment provided to ps
-    delta = Set.difference ps (Map.keysSet ass)
+    delta = Set.difference ps $ Map.keysSet ass
     -- The formula (the factors) to evaluate
     fs = allWGroundings m ts mln
     -- Value of the network for a given assignment.
     evalNet ass' = exp $ Map.foldrWithKey (\f w a -> val f w ass' + a) 0.0 fs
     -- Values of a factor
     val f w ass' = let v = F.eval ass' f in case v of
-      Top     -> w
-      Bottom  -> 0.0
-      _       -> error ("Evaluation failed for " ++ show v ++ " given " ++ show ass')
-    -- The normalizing factor. This code is inneficient since most groundings
-    -- have the exact same profile.
-    z = foldl' (\a ass' -> evalNet ass' + a) 0.0 (allAss m ts fs)
+      Top    -> w
+      Bottom -> 0.0
+      _      -> error ("Eval failed for " ++ show v ++ " given " ++ show ass')
+    -- The normalizing factor
+    z = foldl' (\a ass' -> evalNet ass' + a) 0.0 $ allAss m ts fs
 
 -- | Algorithm to construct a network for Markov logic network inference.
 --

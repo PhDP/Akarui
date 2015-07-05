@@ -118,7 +118,7 @@ langDef = Tok.LanguageDef {
   , Tok.identStart      = alphaNum
   , Tok.identLetter     = alphaNum <|> oneOf "_'"
   , Tok.opStart         = oneOf ":!#$%&*+./<=>?@\\^|-~"
-  , Tok.opLetter        = oneOf ":!#$%&*+./<=>?@\\^|-~"
+  , Tok.opLetter        = oneOf ":#$%&*+./<=>?@\\^|-"
   , Tok.reservedNames   = []
   , Tok.reservedOpNames = []
   , Tok.caseSensitive   = True

@@ -11,7 +11,7 @@ import Manticore.Symbols
 -- the original formula and weight. It should fail for negative numbers since
 -- they don't make sense in this context.
 prop_w_parsing_back :: Symbols -> FOL String -> Double -> Bool
-prop_w_parsing_back s f w = case parseWFOL (showWFormula s f w) of
+prop_w_parsing_back s f w = case parseWFOL (fmtWFormula s f w) of
   Left _         -> w < 0.0
   Right (f', w') -> f == f' && feq w w'
   where

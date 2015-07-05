@@ -85,6 +85,19 @@ allAss ::
   [Map (Predicate String) Bool]
 allAss m ts mln = F.allAss $ allGroundings m ts mln
 
+ask :: String -> [String] -> MLN String -> Maybe Double
+ask query terms mln =
+  case pq of
+    Left _       ->
+      case pj of
+        Left _ -> Nothing
+        Right q -> Just $ joint Map.empty ts mln q
+    Right (q, c) -> Just $ conditional Map.empty ts mln q c
+  where
+    ts = map Constant terms
+    pq = parseCondQuery query
+    pj = parseJointQuery query
+
 -- | Query the joint distribution of the Markov network given a list of
 -- constants to instantiate the network, and a set of assignments to all the
 -- predicates in the resulting ground network. You can also use this function

@@ -167,7 +167,7 @@ contents p = do
   return r
 
 parseEviList :: Parser [(Predicate String, Bool)]
-parseEviList = parsePredTruth `sepBy` (symbol "," <|> symbol ";")
+parseEviList = parsePredTruth `sepBy` (symbol "," <|> symbol ";" <|> symbol "and" <|> symbol "∩")
 
 parseEviLines :: Parser [(Predicate String, Bool)]
 parseEviLines = many1 parsePredTruth

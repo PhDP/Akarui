@@ -16,7 +16,7 @@ data Predicate t =
 
 instance (Eq t) => Eq (Predicate t) where
   (Predicate n0 ts0) == (Predicate n1 ts1) =
-    n0 == n1 && all (uncurry (==)) (zip ts0 ts1)
+    n0 == n1 && length ts0 == length ts1 && all (uncurry (==)) (zip ts0 ts1)
 
 instance (Ord t) => Ord (Predicate t) where
   (Predicate n0 ts0) `compare` (Predicate n1 ts1) = Term.compareFun n0 ts0 n1 ts1

@@ -85,7 +85,11 @@ allAss ::
   [Map (Predicate String) Bool]
 allAss m ts mln = F.allAss $ allGroundings m ts mln
 
-ask :: String -> [String] -> MLN String -> Maybe Double
+-- | Helper function to facilitate answering conditional & joint probability queries from the console.
+ask :: String -- ^ A query to be parsed by Manticore.Parser.parseCondQuery or Manticore.Parser.parseJointQuery.
+  -> [String] -- ^ A list of constants to ground the Markov logic network.
+  -> MLN String -- ^ A Markov logic network.
+  -> Maybe Double -- ^ Either a double in [0.0, 1.0] or Nothing if the parsers fail.
 ask query terms mln =
   case pq of
     Left _       ->

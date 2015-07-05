@@ -56,21 +56,31 @@ parseFOL :: String -> Either ParseError (FOL String)
 parseFOL = parse (contents parseFOLAll) "<stdin>"
 
 -- | Parser for conditional queries of the form
--- P(f | f0 -> v0, f1 -> v1, f2 -> v2, ...), where f, f0, f1, f2 are formulas
--- in first-order logic, and v0, v1, v3 are optional boolean values (True,
--- False, T, F).
---
--- The parser is fairly flexible (see examples), but it won't allow the equal
--- sign to attribute truth values to formulas since it conflicts with the first-
--- order logic parser.
+-- P(f0 = v0, f1 = v1 | f2 = v2, f3 = v3, ...), where f, f0, f1, f2 are
+-- first-order logic predicates and v0, v1, v3 are optional boolean values
+-- (True, False, T, F). The parser is fairly flexible (see examples), allowing
+-- you to omit the assignment (in which case it is assumed to be true) and
+-- use various symbols for joint probabilities:
 --
 -- @
 --    P(Predators(Wolf, Rabbit) | SameLocation(Wolf, Rabbit), Juicy(Rabbit))
+--    P(!Predators(Rabbit, Wolf) | EatLettuce(Rabbit) ∩ EatLettuce(Wolf) = False)
 --    Probability(Smoking(Bob) given Smoking(Anna) -> true, Friend(Anna, Bob) is false)
 -- @
 parseCondQuery :: String -> Either ParseError (Map (Predicate String) Bool, Map (Predicate String) Bool)
 parseCondQuery = parse (contents parseQ) "<stdin>"
 
+-- | Parser for joint probabilitye queries of the form
+-- P(f0 = v0, f1 = v1, ...), where f0, f1 et al. are first-order logic
+-- predicates formulas, and v0, v1, ...are optional boolean values (True,
+-- False, T, F).
+--
+-- The parser is fairly flexible (see examples).
+--
+-- @
+--    Probability(FluInfection(Dan) ∩ StarLord(Dan) ∩ ElvisLivesIn(Sherbrooke))
+--    P(Cancer(Charlotte), Cancer(Anna))
+-- @
 parseJointQuery :: String -> Either ParseError (Map (Predicate String) Bool)
 parseJointQuery = parse (contents parseJ) "<stdin>"
 

@@ -5,6 +5,7 @@
 module Manticore.Parser (
   parseFOL,
   parseWFOL,
+  parseJointQuery,
   parseCondQuery,
   parsePredicate,
   parsePredicateAss,
@@ -69,6 +70,9 @@ parseFOL = parse (contents parseFOLAll) "<stdin>"
 -- @
 parseCondQuery :: String -> Either ParseError (Map (Predicate String) Bool, Map (Predicate String) Bool)
 parseCondQuery = parse (contents parseQ) "<stdin>"
+
+parseJointQuery :: String -> Either ParseError (Map (Predicate String) Bool)
+parseJointQuery = parse (contents parseJ) "<stdin>"
 
 -- | Parser for predicates.
 --
@@ -223,6 +227,13 @@ parsePredAss = do
   reservedOps ["->", "=", "==", ":=", "is"]
   t <- parseTop <|> parseBottom
   return (p, t == Top)
+
+parseJ :: Parser (Map (Predicate String) Bool)
+parseJ = do
+  reservedOps ["P(", "p(", "Probability(", "probability("]
+  query <- parseEviList
+  reservedOp ")"
+  return (Map.fromList query)
 
 -- Parse conditionals P(f1 | f2 -> true, f3 -> False, f4 -> T).
 parseQ :: Parser (Map (Predicate String) Bool, Map (Predicate String) Bool)

@@ -24,12 +24,12 @@ import Manticore.KB (KB)
 type MLN t = Map (FOL t) Double
 
 -- | Prints a Markov logic network.
-showMLN :: (Show t) => Symbols -> MLN t -> String
-showMLN s = Map.foldrWithKey (\k v acc -> showWFormula s k v ++ "\n" ++ acc) ""
+fmtMLN :: (Show t) => MLN t -> String
+fmtMLN = Map.foldrWithKey (\k v acc -> fmtWFormula symbolic k v ++ "\n" ++ acc) ""
 
 -- | Prints a weighted formula.
-showWFormula :: (Show t) => Symbols -> FOL t -> Double -> String
-showWFormula s f w = showW ++ replicate nSpaces ' ' ++ F.prettyPrintFm s f
+fmtWFormula :: (Show t) => Symbols -> FOL t -> Double -> String
+fmtWFormula s f w = showW ++ replicate nSpaces ' ' ++ F.prettyPrintFm s f
   where
     showW = show w
     nSpaces = 24 - length showW
@@ -77,15 +77,6 @@ factors m ts mln = fs
     -- Separate the formula in sets of predicates:
     fs = Map.foldrWithKey (\k v a -> Map.insert (F.atoms k) v a) Map.empty gs
 
--- | Returns all the marginals for all complete assignments to the variables
--- of the network.
-queryAllAss ::
-  Map (String, [Term String]) (Term String) ->
-  [Term String] ->
-  MLN String ->
-  [Either (Set (Predicate String)) Double]
-queryAllAss m ts mln = map (jointProbability m ts mln) (allAss m ts mln)
-
 -- | All possible assignments to the predicates in the network.
 allAss ::
   Map (String, [Term String]) (Term String) ->
@@ -98,18 +89,19 @@ allAss m ts mln = F.allAss $ allGroundings m ts mln
 -- constants to instantiate the network, and a set of assignments to all the
 -- predicates in the resulting ground network. You can also use this function
 -- to get the set of predicates in the network by suppling an empty assignment.
-jointProbability :: Map (String, [Term String]) (Term String) -- ^ Resolve functions in predicates. If the predicates have no functions in them, provide Data.Map.empty.
+joint :: Map (String, [Term String]) (Term String) -- ^ Resolve functions in predicates. If the predicates have no functions in them, provide Data.Map.empty.
   -> [Term String] -- ^ List of constants to ground the Markov logic network.
   -> MLN String -- ^ The Markov logic network.
-  -> Map (Predicate String) Bool -- ^ An assignment to all predicates in the Markov logic network.
-  -> Either (Set (Predicate String)) Double -- ^ Either a set of missing predicates or a probability.
-jointProbability m ts mln ass =
-  if Set.null delta then Right $ evalNet ass / z else Left delta
+  -> Map (Predicate String) Bool -- ^ An set of assignments.
+  -> Double -- ^ A probability in [0.0, 1.0]
+joint m ts mln query = sum (map evalNet toEval) / z
   where
-    -- All predicates
-    ps = Set.foldr Set.union Set.empty $ Set.map F.atoms $ Map.keysSet fs
-    -- Remove the predicate in the assignment provided to ps
-    delta = Set.difference ps $ Map.keysSet ass
+    -- All possible assignments
+    allass = allAss m ts fs
+    -- Assignments to evaluate:
+    toEval = filter valid allass
+    -- Check if an assignment fits the query:
+    valid ass = Map.foldrWithKey (\k v acc -> acc && case Map.lookup k ass of Just b -> v == b; _ -> False) True query
     -- The formula (the factors) to evaluate
     fs = allWGroundings m ts mln
     -- Value of the network for a given assignment.
@@ -120,7 +112,26 @@ jointProbability m ts mln ass =
       Bottom -> 0.0
       _      -> error ("Eval failed for " ++ show v ++ " given " ++ show ass')
     -- The normalization factor
-    z = foldl' (\a ass' -> evalNet ass' + a) 0.0 $ allAss m ts fs
+    z = foldl' (\a ass' -> evalNet ass' + a) 0.0 allass
+
+-- | Query the marginal probability of a ground predicate and a valuation.
+marginal :: Map (String, [Term String]) (Term String) -- ^ Resolve functions in predicates. If the predicates have no functions in them, provide Data.Map.empty.
+  -> [Term String] -- ^ List of constants to ground the Markov logic network.
+  -> MLN String -- ^ The Markov logic network.
+  -> Predicate String -- ^ An assignment to all predicates in the Markov logic network.
+  -> Bool
+  -> Double -- ^ A probability in [0.0, 1.0]
+marginal m ts mln p b = joint m ts mln $ Map.fromList [(p, b)]
+
+-- | Conditional probabilities.
+conditional :: Map (String, [Term String]) (Term String) -- ^ Resolve functions in predicates. If the predicates have no functions in them, provide Data.Map.empty.
+  -> [Term String] -- ^ List of constants to ground the Markov logic network.
+  -> MLN String -- ^ The Markov logic network.
+  -> Map (Predicate String) Bool -- ^ An set of assignments for the query.
+  -> Map (Predicate String) Bool -- ^ Conditions.
+  -> Double -- ^ A probability in [0.0, 1.0]
+conditional m ts mln query cond = joint' (Map.union query cond) / joint' cond
+  where joint' = joint m ts mln
 
 -- | Algorithm to construct a network for Markov logic network inference.
 --

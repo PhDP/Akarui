@@ -8,6 +8,7 @@ import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
+import Control.Applicative ((<|>))
 import Manticore.FOL
 import qualified Manticore.Formula as F
 import Manticore.Formula (Formula (..))
@@ -94,17 +95,13 @@ ask
   -> [String] -- ^ A list of constants to ground the Markov logic network.
   -> String -- ^ A query to be parsed by 'Manticore.Parser.parseCondQuery' or 'Manticore.Parser.parseJointQuery'.
   -> Maybe Double -- ^ Either a double in [0.0, 1.0] or Nothing if the parsers fail.
-ask mln terms query =
-  case pq of
-    Left _       ->
-      case pj of
-        Left _ -> Nothing
-        Right q -> Just $ joint Map.empty mln ts q
-    Right (q, c) -> Just $ conditional Map.empty mln ts q c
+ask mln terms query = pq <|> pj
   where
     ts = map Constant terms
-    pq = parseCondQuery query
-    pj = parseJointQuery query
+    pq = case parseCondQuery query of
+      Left _ -> Nothing; Right (q, c) -> Just $ conditional Map.empty mln ts q c
+    pj = case parseJointQuery query of
+      Left _ -> Nothing; Right q -> Just $ joint Map.empty mln ts q
 
 -- | Direct method of computing joint probabilities for Markov logic (does not
 -- scale!).
@@ -192,9 +189,11 @@ constructNetworkFromStrings query ts mln = constructNetwork q e t m
     t = map Constant ts
     m = fromStrings mln
 
--- | Builds a weighted knowledge base from a list of strings. If the parser
--- fails to parse a formula, it is ignored.
-fromStrings :: [String] -> MLN String
+-- | Builds a weighted knowledge base from a list of strings. If
+-- 'Manticore.Parser.parseWFOL' fails to parse a formula, it is ignored.
+fromStrings
+  :: [String]   -- ^ A set of string, each of which is a first-order logic formula with a weight. Is being parsed by 'Manticore.Parser.parseWFOL'.
+  -> MLN String -- ^ A Markov logic network.
 fromStrings = foldr
   (\k acc ->
     case parseWFOL k of

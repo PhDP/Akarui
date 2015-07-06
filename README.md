@@ -65,11 +65,11 @@ are true if they are not assigned to a value. If we can to say something is
 false, say: Anna is not smoking, we could write "Smoking(Anna) = False" or
 the shorter "!Smoking(Anna)".
 
-  >>> ask "P(Cancer(Anna) | !Smoking(Anna), Smoking(Bob), Friend(Bob, Anna))"
-  Just 0.49999999999999994
+    >>> ask "P(Cancer(Anna) | !Smoking(Anna), Smoking(Bob), Friend(Bob, Anna))"
+    Just 0.49999999999999994
 
-  >>> ask "P(Cancer(Anna) | !Smoking(Anna), !Smoking(Bob), !Friend(Bob, Anna))"
-  Just 0.5000000000000002
+    >>> ask "P(Cancer(Anna) | !Smoking(Anna), !Smoking(Bob), !Friend(Bob, Anna))"
+    Just 0.5000000000000002
 
 The code is fully documented, type 'cabal haddock' to generate a local copy of
 the documentation.

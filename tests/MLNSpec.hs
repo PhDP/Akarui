@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module MLNSpec where
 
 import Manticore.MarkovLogic

@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 -- | Parsers for first-order logic and other important structures (e.g. Markov
 -- logic networks).
 module Manticore.Parser (
@@ -32,9 +30,9 @@ import Manticore.Predicate
 -- The /smoking/ example for Markov logic:
 --
 -- @
---    ∀x∀y∀z Fr(x, y) ∧ Fr(y, z) ⇒ Fr(x, z) 0.7
---    ∀x Sm(x) ⇒ Ca(x) 1.5
---    1.1 ∀x∀y Fr(x, y) ∧ Sm(x) ⇒ Sm(y)
+--    parseWFOL \"∀x∀y∀z Friend(x, y) ∧ Friend(y, z) ⇒ Friend(x, z) 0.7\"
+--    parseWFOL \"∀x Smoking(x) ⇒ Cancer(x) 1.5\"
+--    parseWFOL \"1.1 ∀x∀y Friend(x, y) ∧ Smoking(x) ⇒ Smoking(y)\"
 -- @
 parseWFOL :: String -> Either ParseError (FOL String, Double)
 parseWFOL = parse (contents parseWeighted) "<stdin>"
@@ -48,9 +46,9 @@ parseWFOL = parse (contents parseWeighted) "<stdin>"
 -- Some examples of valid strings for the parser:
 --
 -- @
---    parseFOL "ForAll .x, y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
---    parseFOL "A.x,y PositiveInteger(y) => GreaterThan(Add(x, y), x)"
---    parseFOL "∀ x Add(x, 0) = x"
+--    parseFOL \"ForAll x, y PositiveInteger(y) => GreaterThan(Add(x, y), x)\"
+--    parseFOL \"A.x,y Integer(x) and PositiveInteger(y) => GreaterThan(Add(x, y), x)\"
+--    parseFOL \"∀ x Add(x, 0) = x\"
 -- @
 parseFOL :: String -> Either ParseError (FOL String)
 parseFOL = parse (contents parseFOLAll) "<stdin>"
@@ -60,12 +58,38 @@ parseFOL = parse (contents parseFOLAll) "<stdin>"
 -- first-order logic predicates and v0, v1, v3 are optional boolean values
 -- (True, False, T, F). The parser is fairly flexible (see examples), allowing
 -- you to omit the assignment (in which case it is assumed to be true) and
--- use various symbols for joint probabilities:
+-- use various symbols for joint probabilities.
+--
+-- For truth values, this parser accepts T TRUE True true ⊤ F False FALSE false ⊥.
+--
+-- For introducing the truth value after a variable (e.g. Smoking(Bob) = True), the parser
+-- accepts == = := is ->. It is entirely optional as a variable without assignment
+-- is assumed to be true so
 --
 -- @
---    P(Predators(Wolf, Rabbit) | SameLocation(Wolf, Rabbit), Juicy(Rabbit))
---    P(!Predators(Rabbit, Wolf) | EatLettuce(Rabbit) ∩ EatLettuce(Wolf) = False)
---    Probability(Smoking(Bob) given Smoking(Anna) -> true, Friend(Anna, Bob) is false)
+--    Smoking(Bob) -> T
+--    Smoking(Bob)
+-- @
+--
+-- are equivalent. Also, it's possible to introduce negation with the ~ or ! suffix, so
+--
+-- @
+--    Smoking(Bob) = ⊥
+--    !Smoking(Bob)
+-- @
+--
+-- are also equivalent.
+--
+-- For separating variables in joint probabilities, the parser accetps , ; and ∩.
+-- For introducing conditioned variables, either use the traditional |, LaTeX' \mid,
+-- or the word /given/.
+--
+-- Full examples:
+--
+-- @
+--    parseCondQuery \"P(Predators(Wolf, Rabbit) | SameLocation(Wolf, Rabbit), Juicy(Rabbit))\"
+--    parseCondQuery \"P(!Predators(Rabbit, Wolf) | EatLettuce(Rabbit) ∩ EatLettuce(Wolf) = False)\"
+--    parseCondQuery \"Probability(Smoking(Bob) given Smoking(Anna) -> true, Friend(Anna, Bob) is false)\"
 -- @
 parseCondQuery :: String -> Either ParseError (Map (Predicate String) Bool, Map (Predicate String) Bool)
 parseCondQuery = parse (contents parseQ) "<stdin>"
@@ -73,13 +97,12 @@ parseCondQuery = parse (contents parseQ) "<stdin>"
 -- | Parser for joint probabilitye queries of the form
 -- P(f0 = v0, f1 = v1, ...), where f0, f1 et al. are first-order logic
 -- predicates formulas, and v0, v1, ...are optional boolean values (True,
--- False, T, F).
---
--- The parser is fairly flexible (see examples).
+-- False, T, F). This parser uses the same syntax as 'parseCondQuery', without
+-- the conditional variables.
 --
 -- @
---    Probability(FluInfection(Dan) ∩ StarLord(Dan) ∩ ElvisLivesIn(Sherbrooke))
---    P(Cancer(Charlotte), Cancer(Anna))
+--    parseJointQuery \"Probability(FluInfection(Dan) ∩ StarLord(Dan) ∩ ElvisLivesIn(Sherbrooke))\"
+--    parseJointQuery \"P(Cancer(Charlotte), Cancer(Anna))\"
 -- @
 parseJointQuery :: String -> Either ParseError (Map (Predicate String) Bool)
 parseJointQuery = parse (contents parseJ) "<stdin>"
@@ -96,8 +119,15 @@ parsePredicate = parse (contents parsePredOnly) "<stdin>"
 -- | Parser for predicates assigned to a truth value. If a truth value is not
 -- included, the parser assumes it is true.
 --
+-- For truth values, this parser accepts T TRUE True true ⊤ F False FALSE false ⊥.
+--
+-- For introducing the truth value after a variable (e.g. Smoking(Bob) = True), the parser
+-- accepts == = := is ->. It's also possible to prefix the predicate with either
+-- ! or ~ for negations.
+--
 -- @
---    Predators(Wolf, Rabbit) = False
+--    Predators(Rabbit, Wolf) = False
+--    !Predators(Rabbit, Wolf)
 --    GreaterThan(Add(1, x), 0)
 --    Equals(2, 2) is true
 --    Foo(bar, baz) == F
@@ -105,10 +135,12 @@ parsePredicate = parse (contents parsePredOnly) "<stdin>"
 parsePredicateAss :: String -> Either ParseError (Predicate String, Bool)
 parsePredicateAss = parse (contents parsePredTruth) "<stdin>"
 
--- | Parse a list of evidence
+-- | Parse a list of evidence (predicate with optional truth value, see
+-- 'parsePredicateAss') separated by one of , ; and ∩.
 --
 -- @
 --    Predators(Wolf, Rabbit) = False, GreaterThan(Add(1, x), 0)
+--    A() ∩ B() ∩ C() ∩ !D()
 --    Equals(2, 2) is true
 --    Foo(bar, baz) == F, Grrr()
 -- @
@@ -116,6 +148,8 @@ parseEvidenceList :: String -> Either ParseError [(Predicate String, Bool)]
 parseEvidenceList = parse (contents parseEviList) "<stdin>"
 
 -- | Parse a list of evidence separated by spaces (of newline characters).
+-- uses the same syntax as 'parseEvidenceList', except only spaces and newline
+-- characters can separate the predicates.
 parseEvidenceLines :: String -> Either ParseError [(Predicate String, Bool)]
 parseEvidenceLines = parse (contents parseEviLines) "<stdin>"
 

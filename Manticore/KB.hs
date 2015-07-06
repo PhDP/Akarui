@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 -- | A knowledge base is a set of formulas. See MLN.hs for probabilistic
 -- knowledge bases.
 module Manticore.KB where

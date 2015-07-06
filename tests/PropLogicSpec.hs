@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances #-} -- Investigate, perhaps a bad idea.
+{-# LANGUAGE FlexibleInstances #-}
 
 module PropLogicSpec where
 

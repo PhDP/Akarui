@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleInstances #-}
 
 module FOLSpec where
@@ -51,4 +50,3 @@ prop_fol_ord f0 f1 = case f0 `compare` f1 of
 -- Equal to self.
 prop_fol_self_eq :: FOL String -> Bool
 prop_fol_self_eq f = f `compare` f == EQ && f == f
-

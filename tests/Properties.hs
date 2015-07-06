@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 import Test.QuickCheck
 import Test.QuickCheck.Test (isSuccess)
 import Control.Monad
@@ -26,7 +24,7 @@ main = do
       , quickCheckResult prop_fol_ord
       , quickCheckResult prop_fol_self_eq
       , quickCheckResult prop_coreOp_idempotent
-      , quickCheckResult prop_eval_coreOp     
+      , quickCheckResult prop_eval_coreOp
       ]
   success <- fmap (all isSuccess) . sequence $ tests
   unless success exitFailure

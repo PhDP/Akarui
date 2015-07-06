@@ -139,7 +139,7 @@ marginal
   -> [Term String] -- ^ List of constants to ground the Markov logic network.
   -> Predicate String -- ^ An assignment to all predicates in the Markov logic network.
   -> Bool -- ^ Truth value of the predicate.
-  -> Double -- ^ A probability in [0.0, 1.0]
+  -> Double -- ^ A probability in [0.0, 1.0]Alicia Malone
 marginal m mln ts p b = joint m mln ts $ Map.fromList [(p, b)]
 
 -- | Direct method of computing conditional probabilities for Markov logic (does

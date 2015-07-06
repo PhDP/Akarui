@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 -- | Useful (and private) functions to handle text.
 module Manticore.Text where
 

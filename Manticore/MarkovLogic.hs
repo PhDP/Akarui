@@ -10,7 +10,7 @@ import Data.Set (Set)
 import Data.List (foldl')
 import Manticore.FOL
 import qualified Manticore.Formula as F
-import Manticore.Formula (Formula (Top, Bottom))
+import Manticore.Formula (Formula (..))
 import Manticore.Predicate
 import Manticore.Term
 import Manticore.Parser

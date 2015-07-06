@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 -- | A generic formula used for various logics, most notably propositional logic
 -- and first-order logic (Manticore.FOL module). The structure mostly follows
 -- Harrison (2009), however, binary connectives ('and', 'or', ...) are

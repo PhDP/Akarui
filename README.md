@@ -6,6 +6,26 @@ Hybrid logic/probabilistic machine learning library.
 A library for probabilistic logic (or statistical relational) learning
 algorithms.
 
+## Building
+
+Using Cabal, ghc's package manager, you can build the library with:
+
+    $ cabal update
+    $ cabal install
+    $ cabal build
+
+Then, simply type
+
+    $ cabal repl
+
+...to have access to the library in an interactive console.
+
+The code is fully documented, type 
+
+    $ cabal haddock
+
+to generate a local copy of the documentation.
+
 ## Example
 
 Here's a complete example based on the classic *smoking* example from the
@@ -17,10 +37,11 @@ import the Markov logic network module:
 
     >>> import qualified Manticore.MarkovLogic as ML
 
-The most straighforward way to build a Markov logic network is with
-'Manticore.MarkovLogic.fromStrings'. This function takes an array of strings,
-each of which must be a valid first-order logic formula followed (or preceded)
-by a number (the weight of the formula). In this case we have:
+The most straighforward way to build a Markov logic network is with the
+*fromStrings* function from the Manticore.MarkovLogic module. This function
+takes an array of strings, each of which must be a valid first-order logic
+formula followed (or preceded) by a number (the weight of the formula). In this
+case we have:
 
     >>> let mln = ML.fromStrings ["∀x Smoking(x) ⇒ Cancer(x) 1.5", "∀x∀y Friend(x, y) ∧ Smoking(x) ⇒ Smoking(y) 1.1"]
 
@@ -70,9 +91,6 @@ the shorter "!Smoking(Anna)".
 
     >>> ask "P(Cancer(Anna) | !Smoking(Anna), !Smoking(Bob), !Friend(Bob, Anna))"
     Just 0.5000000000000002
-
-The code is fully documented, type 'cabal haddock' to generate a local copy of
-the documentation.
 
 ## Name
 

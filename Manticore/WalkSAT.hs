@@ -3,9 +3,63 @@ module Manticore.WalkSAT where
 
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Set (Set)
+import Data.List (foldl')
 import qualified Data.Set as Set
 import System.Random
 import Manticore.Formula
+import Manticore.KB
+
+-- | The WalkSAT algorithm as descripted in Russell and Norvig
+-- /Artificial Intelligence 3rd edition/, p 263.
+walkSAT
+  :: (Ord a)
+  => Set (Formula a) -- ^ A set of clauses.
+  -> Double -- ^ Probability of flipping.
+  -> Int -- ^ Max number of flips before giving up.
+  -> Int -- ^ Seed for the random number generator.
+  -> Maybe (Map a Bool) -- ^ A (possible) assignment to atoms that satisfies the formula.
+walkSAT fs p mf seed = step (mkStdGen seed) m0 mf
+  where
+    -- All the atoms in the set of formulas:
+    a = allAtoms fs
+    -- Initial model:
+    m0 = randomFairAss (mkStdGen seed) a
+
+    step _ _ 0 = Nothing
+    step g m n
+      | satisfiesAll m fs = Just m
+      | otherwise = step g''' m' (n - 1)
+        where
+          -- Unsatisfied formulas:
+          unsatisfied = Set.toList $ filterUnsatisfied m fs
+
+          -- Pick a clause randomly among the unsatisfied clauses:
+          (idx0, g') = randomR (0, length unsatisfied - 1) g :: (Int, StdGen)
+          u = unsatisfied !! idx0
+
+          -- Pick a random atom in the unsatisfied clause:
+          atoms' = atomsLs u
+          (idx1, g'') = randomR (0, length atoms' - 1) g' :: (Int, StdGen)
+          a' = atoms' !! idx1
+
+          -- Number of satisfied clauses when flipping each atom in the unsatisfied clause:
+          bestFlip =
+            fst $
+              foldl'
+                (\(best, c) x ->
+                  let c' = count x in if c' > c then (x, c') else (best, c))
+                (head atoms', count $ head atoms')
+                (tail atoms')
+            where count x = numSatisfied (Map.adjust not x m) fs
+
+          -- Whether a random atom is flipped or the one with the lowest deltaCost flips.
+          (flipTest, g''') = random g'' :: (Double, StdGen)
+          flips = flipTest < p
+
+          toFlip = if flips then a' else bestFlip
+
+          m' = Map.adjust not toFlip m
 
 -- | The MaxWalkSAT algorithm with a max number of tries (mt), max number
 -- of flips (mt), a target cost, a probability of flipping, and a markov

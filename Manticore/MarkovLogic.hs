@@ -19,6 +19,7 @@ import Manticore.Symbols
 import Manticore.Network
 import qualified Manticore.KB as KB
 import Manticore.KB (KB)
+import Manticore.Utils
 
 -- | A Markov logic network is a set of first-order logical formulas associated
 -- with a weight.
@@ -99,9 +100,9 @@ ask mln terms query = pq <|> pj
   where
     ts = map Constant terms
     pq = case parseCondQuery query of
-      Left _ -> Nothing; Right (q, c) -> Just $ conditional Map.empty mln ts q c
+      Left _ -> Nothing; Right (q, c) -> Just $ conditional Map.empty mln ts (mapToSet q) (mapToSet c)
     pj = case parseJointQuery query of
-      Left _ -> Nothing; Right q -> Just $ joint Map.empty mln ts q
+      Left _ -> Nothing; Right q -> Just $ joint Map.empty mln ts $ mapToSet q
 
 -- | Direct method of computing joint probabilities for Markov logic (does not
 -- scale!).
@@ -109,7 +110,7 @@ joint
   :: Map (String, [Term String]) (Term String) -- ^ Resolve functions in predicates. If the predicates have no functions in them, provide Data.Map.empty.
   -> MLN String -- ^ The Markov logic network.
   -> [Term String] -- ^ List of constants to ground the Markov logic network.
-  -> Map (Predicate String) Bool -- ^ An set of assignments.
+  -> Set (Predicate String, Bool) -- ^ An set of assignments. The reason...
   -> Double -- ^ A probability in [0.0, 1.0]
 joint m mln ts query = sum (map evalNet toEval) / z
   where
@@ -118,7 +119,7 @@ joint m mln ts query = sum (map evalNet toEval) / z
     -- Assignments to evaluate:
     toEval = filter valid allass
     -- Check if an assignment fits the query:
-    valid ass = Map.foldrWithKey (\k v acc -> acc && case Map.lookup k ass of Just b -> v == b; _ -> False) True query
+    valid ass = Set.foldr' (\(k, v) acc -> acc && case Map.lookup k ass of Just b -> v == b; _ -> False) True query
     -- The formula (the factors) to evaluate
     fs = allWGroundings m ts mln
     -- Value of the network for a given assignment.
@@ -140,7 +141,7 @@ marginal
   -> Predicate String -- ^ An assignment to all predicates in the Markov logic network.
   -> Bool -- ^ Truth value of the predicate.
   -> Double -- ^ A probability in [0.0, 1.0]Alicia Malone
-marginal m mln ts p b = joint m mln ts $ Map.fromList [(p, b)]
+marginal m mln ts p b = joint m mln ts $ Set.fromList [(p, b)]
 
 -- | Direct method of computing conditional probabilities for Markov logic (does
 -- not scale!).
@@ -148,10 +149,10 @@ conditional
   :: Map (String, [Term String]) (Term String) -- ^ Resolve functions in predicates. If the predicates have no functions in them, provide Data.Map.empty.
   -> MLN String -- ^ The Markov logic network.
   -> [Term String] -- ^ List of constants to ground the Markov logic network.
-  -> Map (Predicate String) Bool -- ^ An set of assignments for the query.
-  -> Map (Predicate String) Bool -- ^ Conditions.
+  -> Set (Predicate String, Bool) -- ^ An set of assignments for the query.
+  -> Set (Predicate String, Bool) -- ^ Conditions.
   -> Double -- ^ A probability in [0.0, 1.0]
-conditional m mln ts query cond = joint' (Map.union query cond) / joint' cond
+conditional m mln ts query cond = joint' (Set.union query cond) / joint' cond
   where joint' = joint m mln ts
 
 -- | Algorithm to construct a network for Markov logic network inference.

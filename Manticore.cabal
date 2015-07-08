@@ -92,6 +92,7 @@ library
     Manticore.Fmt
   other-modules:
     Manticore.Text
+    Manticore.Utils
   build-depends:
     base >= 4.6,
     containers,

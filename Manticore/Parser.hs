@@ -17,8 +17,8 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr as Ex
 import qualified Text.Parsec.Token as Tok
-import qualified Data.Map as Map
-import Data.Map (Map)
+import qualified Data.Set as Set
+import Data.Set (Set)
 import Manticore.Formula
 import Manticore.FOL
 import Manticore.Term
@@ -91,7 +91,7 @@ parseFOL = parse (contents parseFOLAll) "<stdin>"
 --    parseCondQuery \"P(!Predators(Rabbit, Wolf) | EatLettuce(Rabbit) ∩ EatLettuce(Wolf) = False)\"
 --    parseCondQuery \"Probability(Smoking(Bob) given Smoking(Anna) -> true, Friend(Anna, Bob) is false)\"
 -- @
-parseCondQuery :: String -> Either ParseError (Map (Predicate String) Bool, Map (Predicate String) Bool)
+parseCondQuery :: String -> Either ParseError (Set (Predicate String, Bool), Set (Predicate String, Bool))
 parseCondQuery = parse (contents parseQ) "<stdin>"
 
 -- | Parser for joint probabilitye queries of the form
@@ -104,7 +104,7 @@ parseCondQuery = parse (contents parseQ) "<stdin>"
 --    parseJointQuery \"Probability(FluInfection(Dan) ∩ StarLord(Dan) ∩ ElvisLivesIn(Sherbrooke))\"
 --    parseJointQuery \"P(Cancer(Charlotte), Cancer(Anna))\"
 -- @
-parseJointQuery :: String -> Either ParseError (Map (Predicate String) Bool)
+parseJointQuery :: String -> Either ParseError (Set (Predicate String, Bool))
 parseJointQuery = parse (contents parseJ) "<stdin>"
 
 -- | Parser for predicates.
@@ -272,22 +272,22 @@ parsePredAss = do
   t <- parseTop <|> parseBottom
   return (p, t == Top)
 
-parseJ :: Parser (Map (Predicate String) Bool)
+parseJ :: Parser (Set (Predicate String, Bool))
 parseJ = do
   reservedOps ["P(", "p(", "Probability(", "probability("]
   query <- parseEviList
   reservedOp ")"
-  return (Map.fromList query)
+  return $ Set.fromList query
 
 -- Parse conditionals P(f1 | f2 -> true, f3 -> False, f4 -> T).
-parseQ :: Parser (Map (Predicate String) Bool, Map (Predicate String) Bool)
+parseQ :: Parser (Set (Predicate String, Bool), Set (Predicate String, Bool))
 parseQ = do
   reservedOps ["P(", "p(", "Probability(", "probability("]
   query <- parseEviList
   reservedOps ["|", "\\mid", "given"]
   conds <- parseEviList
   reservedOp ")"
-  return (Map.fromList query, Map.fromList conds)
+  return (Set.fromList query, Set.fromList conds)
 
 parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePred, parsePredLike, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNegation :: Parser (FOL String)
 parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence

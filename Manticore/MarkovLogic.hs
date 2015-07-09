@@ -1,6 +1,11 @@
 -- | Types and algorithms for Markov logic networks. The module has quite a
 -- few 'fromStrings' methods that take strings and parse them into data
 -- structure to make it easier to play with Markov logic in the repl.
+--
+-- For Markov logic, data is often represented with a Set (Predicate a, Bool).
+-- This is prefered to Map since it simplifies queries such as
+-- "P(Cancer(Bob) | !Cancer(Bob))", where a map would not allow these two
+-- different predicate -> value mappings.
 module Manticore.MarkovLogic where
 
 import qualified Data.Map as Map
@@ -19,7 +24,6 @@ import Manticore.Symbols
 import Manticore.Network
 import qualified Manticore.KB as KB
 import Manticore.KB (KB)
-import Manticore.Utils
 
 -- | A Markov logic network is a set of first-order logical formulas associated
 -- with a weight.
@@ -100,9 +104,9 @@ ask mln terms query = pq <|> pj
   where
     ts = map Constant terms
     pq = case parseCondQuery query of
-      Left _ -> Nothing; Right (q, c) -> Just $ conditional Map.empty mln ts (mapToSet q) (mapToSet c)
+      Left _ -> Nothing; Right (q, c) -> Just $ conditional Map.empty mln ts q c
     pj = case parseJointQuery query of
-      Left _ -> Nothing; Right q -> Just $ joint Map.empty mln ts $ mapToSet q
+      Left _ -> Nothing; Right q -> Just $ joint Map.empty mln ts q
 
 -- | Direct method of computing joint probabilities for Markov logic (does not
 -- scale!).
@@ -178,17 +182,6 @@ constructNetwork query evidence ts mln = Set.foldr' (\p acc -> Map.insert p (mb 
         step
           (Set.union (Set.deleteMin f) (Set.intersection mbq g))
           (Set.union g mbq)
-
--- | Algorithm to construct a network for Markov logic network inference. This
--- helper takes strings to make it easier to use in the console.
-constructNetworkFromStrings :: String -> [String] -> [String] -> UNetwork (Predicate String)
-constructNetworkFromStrings query ts mln = constructNetwork q e t m
-  where
-    (q, e) = case parseCondQuery query of
-      Left _ -> (Set.empty, [])
-      Right (q', e') -> (Map.keysSet q', Set.toList $ Map.keysSet e')
-    t = map Constant ts
-    m = fromStrings mln
 
 -- | Builds a weighted knowledge base from a list of strings. If
 -- 'Manticore.Parser.parseWFOL' fails to parse a formula, it is ignored.

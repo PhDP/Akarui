@@ -220,6 +220,7 @@ parseQualForm :: Parser (QualT, [String], FOL String)
 parseQualForm = do
   q <- parseExists <|> parseForAll -- many1
   v <- commaSep identifier
+  optional $ reservedOp ":"
   a <- parseFOLAll
   return (q, v, a)
 

@@ -47,7 +47,7 @@ parseWFOL = parse (contents parseWeighted) "<stdin>"
 --
 -- @
 --    parseFOL \"ForAll x, y PositiveInteger(y) => GreaterThan(Add(x, y), x)\"
---    parseFOL \"A.x,y Integer(x) and PositiveInteger(y) => GreaterThan(Add(x, y), x)\"
+--    parseFOL \"A.x,y: Integer(x) and PositiveInteger(y) => GreaterThan(Add(x, y), x)\"
 --    parseFOL \"∀ x Add(x, 0) = x\"
 -- @
 parseFOL :: String -> Either ParseError (FOL String)

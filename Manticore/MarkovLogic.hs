@@ -42,10 +42,10 @@ fmtWFormula s f w = showW ++ replicate nSpaces ' ' ++ F.prettyPrintFm s f
 
 -- | Adds a formula to the markov logic network using the parser. If the parser
 -- fails, the function returns the MLN unmodified.
-tellS :: String -> Double -> MLN String -> MLN String
-tellS s w mln = case parseFOL s of
-  Left _  -> mln
-  Right f -> Map.insert f w mln
+tell :: String -> MLN String -> MLN String
+tell s mln = case parseWFOL s of
+  Left _        -> mln
+  Right (f, w)  -> Map.insert f w mln
 
 -- | Gathers all the predicates of a markov logic network in a set.
 allPredicates :: (Ord t) => MLN t -> Set (Predicate t)

@@ -32,6 +32,13 @@ description:
   .
   >>> let mln' = ML.fromStrings ["1.5 forall x Smoking(x) implies Cancer(x)", "1.1 forall x,y Friend(x, y) and Smoking(x) implies Smoking(y)"]
   .
+  We can use 'Manticore.MarkovLogic.fmtMLN' function to print the Markov logic
+  network:
+  .
+  >>> putStrLn (ML.fmtMLN mln)
+  1.5                     ∀x Smoking(x) ⇒ Cancer(x)
+  1.1                     ∀x ∀y Friend(x, y) ∧ Smoking(x) ⇒ Smoking(y)
+  .
   A Markov logic network is a template for Markov networks. To get a Markov
   network, we need to apply a set of constant to the Markov logic networks.
   Here, we will create only two constants:
@@ -41,7 +48,7 @@ description:
   Then, we can query the network, say, what is the probability that Anna has
   cancer?
   .
-  >>> ML.ask mln cs "P(Cancer(Anna))"
+  >>> ML.ask cs mln "P(Cancer(Anna))"
   Just 0.6133819604540808
   .
   The function 'Manticore.MarkovLogic.ask' takes a Markov logic network, a list
@@ -73,7 +80,41 @@ description:
   .
   >>> ask "P(Cancer(Anna) | !Smoking(Anna), !Smoking(Bob), !Friend(Bob, Anna))"
   Just 0.5000000000000002
-
+  .
+  We can add a logic formula to the network with the 'Manticore.MarkovLogic.tell'
+  function. Note that 'Manticore.MarkovLogic.tell' takes a string (just like
+  'Manticore.MarkovLogic.fromStrings' takes a list of strings) and will return
+  a new Markov logic network with the formula added. Let's say we want to add
+  a rule that /friends of friends are friends/, we could add this rule with a
+  weight of 1.0 with:
+  .
+  >>> let mln2 = tell "1.0 A.x,y,z Friend(x, y) and Friend(y, z) => Friend(x, z)" mln
+  >>> putStrLn (fmtMLN mln2)
+  1.5                     ∀x Smoking(x) ⇒ Cancer(x)
+  1.0                     ∀x ∀y ∀z Friend(x, y) ∧ Friend(y, z) ⇒ Friend(x, z)
+  1.1                     ∀x ∀y Friend(x, y) ∧ Smoking(x) ⇒ Smoking(y)
+  .
+  This time we'll ask queries with this network using four objects: Anna, Bob,
+  Charlotte, Dominique, again creating a shortcut function ask2 to avoid always
+  providing the same arguments:
+  .
+  >>> let cs2 = ["Anna", "Bob", "Charlotte"]
+  >>> let ask2 = ML.ask cs2 mln2
+  .
+  >>> ask2 "P(Cancer(Anna))"
+  Just 0.6093306813995714
+  >>> ask2 "P(Cancer(Anna) | Smoking(Bob) and Friend(Bob, Charlotte))"
+  Just 0.6504904438065744
+  >>> ask2 "P(Cancer(Anna) | Smoking(Bob))"
+  Just 0.6399247839775043
+  >>> ask2 "P(Cancer(Anna) | Smoking(Bob) and Friend(Bob, Charlotte) and Friend(Charlotte, Anna))"
+  Just 0.7070401384366385
+  >>> ask2 "P(Cancer(Anna) | Smoking(Bob) and Friend(Bob, Charlotte) and !Friend(Charlotte, Anna))"
+  Just 0.6329610969479669
+  >>> ask2 "P(Cancer(Anna) | Smoking(Bob) and Friend(Bob, Charlotte) and Friend(Charlotte, Anna) and !Smoking(Anna))"
+  Just 0.4999999999999977
+  >>> ask2 "P(Cancer(Anna) | !Smoking(Anna))"
+  Just 0.49999999999999856
 
 library
   default-language: Haskell2010

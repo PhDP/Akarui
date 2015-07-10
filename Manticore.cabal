@@ -53,7 +53,7 @@ description:
   .
   The function 'Manticore.MarkovLogic.ask' takes a Markov logic network, a list
   of terms (represented as a list of strings), and a string query. It will return
-  Just P, with P being a probability in the [0.0, 1.0] range, or Nothing it the
+  Just P, with P being a probability in the [0.0, 1.0] range, or Nothing if the
   parser fails to read the query. To make the process a bit easier we'll create
   a function ask that have already the mln and terms supplied:
   .

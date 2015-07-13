@@ -12,7 +12,7 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
-import Data.List (foldl')
+import Data.List (partition)
 import Control.Applicative ((<|>))
 import Manticore.FOL
 import qualified Manticore.Formula as F
@@ -116,12 +116,15 @@ joint
   -> [Term String] -- ^ List of constants to ground the Markov logic network.
   -> Set (Predicate String, Bool) -- ^ An set of assignments. The reason...
   -> Double -- ^ A probability in [0.0, 1.0]
-joint m mln ts query = sum (map evalNet toEval) / z
+joint m mln ts query = vq / z
   where
+    vq = sum $ map evalNet toEval
+    vo = sum $ map evalNet others
+    z = vq + vo
     -- All possible assignments
     allass = allAss m ts fs
     -- Assignments to evaluate:
-    toEval = filter valid allass
+    (toEval, others) = partition valid allass
     -- Check if an assignment fits the query:
     valid ass = Set.foldr' (\(k, v) acc -> acc && case Map.lookup k ass of Just b -> v == b; _ -> False) True query
     -- The formula (the factors) to evaluate
@@ -133,8 +136,6 @@ joint m mln ts query = sum (map evalNet toEval) / z
       Top    -> w
       Bottom -> 0.0
       _      -> error ("Eval failed for " ++ show v ++ " given " ++ show ass')
-    -- The normalization factor
-    z = foldl' (\a ass' -> evalNet ass' + a) 0.0 allass
 
 -- | Direct method of computing marginal probabilities for Markov logic (does
 -- not scale!).

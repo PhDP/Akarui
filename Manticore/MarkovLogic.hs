@@ -110,6 +110,17 @@ ask mln terms query = pq <|> pj
 
 -- | Direct method of computing joint probabilities for Markov logic (does not
 -- scale!).
+partitionAss
+  :: Set (Predicate String, Bool) -- ^ The joint query.
+  -> [Map (Predicate String) Bool] -- ^ All possiblement assignments.
+  -> ([Map (Predicate String) Bool], [Map (Predicate String) Bool]) -- ^ A probability in [0.0, 1.0]
+partitionAss query = partition valid
+  where
+    -- Check if an assignment fits the query:
+    valid ass = Set.foldr' (\(k, v) acc -> acc && case Map.lookup k ass of Just b -> v == b; _ -> False) True query
+
+-- | Direct method of computing joint probabilities for Markov logic (does not
+-- scale!).
 joint
   :: Map (String, [Term String]) (Term String) -- ^ Resolve functions in predicates. If the predicates have no functions in them, provide Data.Map.empty.
   -> MLN String -- ^ The Markov logic network.
@@ -124,9 +135,7 @@ joint m mln ts query = vq / z
     -- All possible assignments
     allass = allAss m ts fs
     -- Assignments to evaluate:
-    (toEval, others) = partition valid allass
-    -- Check if an assignment fits the query:
-    valid ass = Set.foldr' (\(k, v) acc -> acc && case Map.lookup k ass of Just b -> v == b; _ -> False) True query
+    (toEval, others) = partitionAss query allass
     -- The formula (the factors) to evaluate
     fs = allWGroundings m ts mln
     -- Value of the network for a given assignment.
@@ -157,8 +166,24 @@ conditional
   -> Set (Predicate String, Bool) -- ^ An set of assignments for the query.
   -> Set (Predicate String, Bool) -- ^ Conditions.
   -> Double -- ^ A probability in [0.0, 1.0]
-conditional m mln ts query cond = joint' (Set.union query cond) / joint' cond
-  where joint' = joint m mln ts
+conditional m mln ts query cond = vnum / vden
+   where
+     vnum = sum $ map evalNet numerator
+     vden = sum $ map evalNet denom
+     -- All possible assignments
+     allass = allAss m ts fs
+     -- Assignments to evaluate:
+     (numerator, _) = partitionAss (Set.union query cond) allass
+     (denom, _ ) = partitionAss cond allass
+     -- The formula (the factors) to evaluate
+     fs = allWGroundings m ts mln
+     -- Value of the network for a given assignment.
+     evalNet ass' = exp $ Map.foldrWithKey (\f w a -> val f w ass' + a) 0.0 fs
+     -- Values of a factor
+     val f w ass' = let v = F.eval ass' f in case v of
+       Top    -> w
+       Bottom -> 0.0
+       _      -> error ("Eval failed for " ++ show v ++ " given " ++ show ass')
 
 -- | Algorithm to construct a network for Markov logic network inference.
 --

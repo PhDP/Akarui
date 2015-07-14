@@ -6,7 +6,7 @@ Hybrid logic/probabilistic machine learning library.
 A library for probabilistic logic (or statistical relational) learning
 algorithms.
 
-See this blog post for a full example.
+See this [blog post](http://phdp.github.io/posts/2015-07-13-srl-code.html) for a full example.
 
 ## Building
 

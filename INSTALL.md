@@ -17,3 +17,8 @@ root of the code to compile Manticore:
     cabal install --only-dependencies --enable-tests
     cabal configure --enable-tests
     cabal build
+
+On recent versions of Ubuntu, install cabal and ghc with:
+
+    $ sudo apt-get install ghc cabal-install libghc-cabal-dev
+

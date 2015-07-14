@@ -16,7 +16,7 @@ Using Cabal, ghc's package manager, you can build the library with:
     $ cabal install
     $ cabal build
 
-Se *INSTALL.md* for platform-specific info.
+See *INSTALL.md* for platform-specific info.
 
 After the library is compiled, simply type
 

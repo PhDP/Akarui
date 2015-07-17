@@ -1,4 +1,6 @@
-[![Beild status](https://travis-ci.org/PhDP/Sphinx-AI.svg?branch=master)](https://travis-ci.org/PhDP/Sphinx-AI)
+# Sphinx-AI
+
+[![Build status](https://travis-ci.org/PhDP/Sphinx-AI.svg?branch=master)](https://travis-ci.org/PhDP/Sphinx-AI)
 [![Build status](https://ci.appveyor.com/api/projects/status/2g9tn9oprxm58gc6/branch/master?svg=true)](https://ci.appveyor.com/project/PhilippeDesjardinsProulx/manticore/branch/master)
 
 Hybrid logic/probabilistic machine learning library.

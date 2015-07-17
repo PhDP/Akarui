@@ -4,7 +4,8 @@ import qualified Manticore.MarkovLogic as ML
 mln = ML.fromStrings
         [ "∀x Smoking(x) ⇒ Cancer(x) 1.5"
         , "∀xy Friend(x, y) ∧ Smoking(x) ⇒ Smoking(y) 1.1"
-        , "∀x,y Friend(x, y) ⇔ Friend(y, x) 2.0"]
+        , "∀x,y Friend(x, y) ⇔ Friend(y, x) 2.0"
+        , "A.x !Cancer(x) 2.0"]
 
 cs = ["Jerry", "Elaine", "George"]
 

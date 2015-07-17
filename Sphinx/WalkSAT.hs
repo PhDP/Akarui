@@ -1,5 +1,5 @@
 -- | WalkSat algorithms to find the most likely assignments to atoms.
-module Manticore.WalkSAT where
+module Sphinx.WalkSAT where
 
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -7,8 +7,8 @@ import Data.Set (Set)
 import Data.List (foldl')
 import qualified Data.Set as Set
 import System.Random
-import Manticore.Formula
-import Manticore.KB
+import Sphinx.Formula
+import Sphinx.KB
 
 -- | The WalkSAT algorithm as descripted in Russell and Norvig
 -- /Artificial Intelligence 3rd edition/, p 263.

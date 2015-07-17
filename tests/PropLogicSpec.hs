@@ -7,7 +7,7 @@ import qualified Data.Set as Set
 import Test.QuickCheck
 import Control.Monad
 import System.Random
-import Manticore.Formula
+import Sphinx.Formula
 
 import TextGen
 

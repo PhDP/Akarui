@@ -5,8 +5,8 @@ module KBSpec where
 import Test.QuickCheck
 import qualified Data.Set as Set
 --import Data.Set (Set)
-import Manticore.KB
---import Manticore.Formula
+import Sphinx.KB
+--import Sphinx.Formula
 import PropLogicSpec
 
 -- The problem is that the formula don't share any atoms. It would be wiser

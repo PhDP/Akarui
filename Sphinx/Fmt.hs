@@ -1,12 +1,12 @@
 -- | Functions to print some common data stuctures in a specific format. This
--- is mostly convenient for playing with Manticore in the console.
-module Manticore.Fmt where
+-- is mostly convenient for playing with Sphinx in the console.
+module Sphinx.Fmt where
 
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Manticore.Text
+import Sphinx.Text
 
 -- | Formats a set in the standard format (not a 'fromList').
 fmtSet :: (Show k, Ord k) => Set k -> String

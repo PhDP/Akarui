@@ -3,7 +3,7 @@
 module TermSpec where
 
 import Test.QuickCheck
-import Manticore.Term
+import Sphinx.Term
 import TextGen
 
 instance Arbitrary (Term String) where

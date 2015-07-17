@@ -1,5 +1,5 @@
 -- | Useful functions with no place to call home (can you hear the violins?).
-module Manticore.Utils where
+module Sphinx.Utils where
 
 import qualified Data.Map as Map
 import Data.Map (Map)

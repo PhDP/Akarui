@@ -1,16 +1,16 @@
 -- | Type and functions for first-order predicate logic.
-module Manticore.FOL where
+module Sphinx.FOL where
 
 import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
-import Manticore.Formula
-import Manticore.Predicate (Predicate (Predicate))
-import qualified Manticore.Predicate as Pred
-import Manticore.Term (Term (Constant, Variable, Function))
-import qualified Manticore.Term as Term
+import Sphinx.Formula
+import Sphinx.Predicate (Predicate (Predicate))
+import qualified Sphinx.Predicate as Pred
+import Sphinx.Term (Term (Constant, Variable, Function))
+import qualified Sphinx.Term as Term
 
 -- | A first-order logic formula is simply a formula of predicates.
 type FOL t = Formula (Predicate t)

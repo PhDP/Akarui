@@ -1,5 +1,4 @@
-# Manticore
-[![Build status](https://travis-ci.org/PhDP/Manticore.svg?branch=master)](https://travis-ci.org/PhDP/Manticore)
+[![Beild status](https://travis-ci.org/PhDP/Sphinx-AI.svg?branch=master)](https://travis-ci.org/PhDP/Sphinx-AI)
 [![Build status](https://ci.appveyor.com/api/projects/status/2g9tn9oprxm58gc6/branch/master?svg=true)](https://ci.appveyor.com/project/PhilippeDesjardinsProulx/manticore/branch/master)
 
 Hybrid logic/probabilistic machine learning library.
@@ -33,9 +32,7 @@ to generate a local copy of the documentation.
 ## Name
 
 It's a hybrid and it answers queries: it **had** to be named *Sphinx*... but
-there's already a package with this name in hackage, so another mythological
-creature, the manticore, would have to do. It's a hybrid and it rhymes with
-'multicore'.
+there's already a package with this name in hackage, so we'll go with Sphinx-AI.
 
 ## License
 

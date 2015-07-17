@@ -3,7 +3,7 @@
 module PredicateSpec where
 
 import Test.QuickCheck
-import Manticore.Predicate
+import Sphinx.Predicate
 
 import TextGen
 import TermSpec

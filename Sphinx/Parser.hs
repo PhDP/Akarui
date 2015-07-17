@@ -1,6 +1,6 @@
 -- | Parsers for first-order logic and other important structures (e.g. Markov
 -- logic networks).
-module Manticore.Parser (
+module Sphinx.Parser (
   parseFOL,
   parseWFOL,
   parseJointQuery,
@@ -19,10 +19,10 @@ import qualified Text.Parsec.Expr as Ex
 import qualified Text.Parsec.Token as Tok
 import qualified Data.Set as Set
 import Data.Set (Set)
-import Manticore.Formula
-import Manticore.FOL
-import Manticore.Term
-import Manticore.Predicate
+import Sphinx.Formula
+import Sphinx.FOL
+import Sphinx.Term
+import Sphinx.Predicate
 
 -- | Parser for weighted first-order logic. Parses a double following by
 -- a formula (or a formula followed by a double).

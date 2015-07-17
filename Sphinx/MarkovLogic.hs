@@ -6,7 +6,7 @@
 -- This is prefered to Map since it simplifies queries such as
 -- "P(Cancer(Bob) | !Cancer(Bob))", where a map would not allow these two
 -- different predicate -> value mappings.
-module Manticore.MarkovLogic where
+module Sphinx.MarkovLogic where
 
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -14,16 +14,16 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (partition)
 import Control.Applicative ((<|>))
-import Manticore.FOL
-import qualified Manticore.Formula as F
-import Manticore.Formula (Formula (..))
-import Manticore.Predicate
-import Manticore.Term
-import Manticore.Parser
-import Manticore.Symbols
-import Manticore.Network
-import qualified Manticore.KB as KB
-import Manticore.KB (KB)
+import Sphinx.FOL
+import qualified Sphinx.Formula as F
+import Sphinx.Formula (Formula (..))
+import Sphinx.Predicate
+import Sphinx.Term
+import Sphinx.Parser
+import Sphinx.Symbols
+import Sphinx.Network
+import qualified Sphinx.KB as KB
+import Sphinx.KB (KB)
 
 -- | A Markov logic network is a set of first-order logical formulas associated
 -- with a weight.
@@ -92,13 +92,13 @@ allAss ::
 allAss m ts mln = F.allAss $ allGroundings m ts mln
 
 -- | Helper function to facilitate answering conditional & joint probability
--- queries from the console. See 'Manticore.Parser.parseCondQuery' and
--- 'Manticore.Parser.parseJointQuery' to understand what kind of strings can
+-- queries from the console. See 'Sphinx.Parser.parseCondQuery' and
+-- 'Sphinx.Parser.parseJointQuery' to understand what kind of strings can
 -- be parsed.
 ask
   :: MLN String -- ^ A Markov logic network.
   -> [String] -- ^ A list of constants to ground the Markov logic network.
-  -> String -- ^ A query to be parsed by 'Manticore.Parser.parseCondQuery' or 'Manticore.Parser.parseJointQuery'.
+  -> String -- ^ A query to be parsed by 'Sphinx.Parser.parseCondQuery' or 'Sphinx.Parser.parseJointQuery'.
   -> Maybe Double -- ^ Either a double in [0.0, 1.0] or Nothing if the parsers fail.
 ask mln terms query = pq <|> pj
   where
@@ -210,9 +210,9 @@ constructNetwork query evidence ts mln = Set.foldr' (\p acc -> Map.insert p (mb 
           (Set.union g mbq)
 
 -- | Builds a weighted knowledge base from a list of strings. If
--- 'Manticore.Parser.parseWFOL' fails to parse a formula, it is ignored.
+-- 'Sphinx.Parser.parseWFOL' fails to parse a formula, it is ignored.
 fromStrings
-  :: [String]   -- ^ A set of string, each of which is a first-order logic formula with a weight. Is being parsed by 'Manticore.Parser.parseWFOL'.
+  :: [String]   -- ^ A set of string, each of which is a first-order logic formula with a weight. Is being parsed by 'Sphinx.Parser.parseWFOL'.
   -> MLN String -- ^ A Markov logic network.
 fromStrings = foldr
   (\k acc ->

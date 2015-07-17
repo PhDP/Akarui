@@ -1,15 +1,15 @@
 -- | A knowledge base is a set of formulas. See MLN.hs for probabilistic
 -- knowledge bases.
-module Manticore.KB where
+module Sphinx.KB where
 
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.Map (Map)
-import Manticore.Formula
-import Manticore.FOL
-import Manticore.Parser
-import Manticore.Predicate
-import Manticore.Term
+import Sphinx.Formula
+import Sphinx.FOL
+import Sphinx.Parser
+import Sphinx.Predicate
+import Sphinx.Term
 
 -- | A knowledge base is a set of formula.
 type KB a = Set (Formula a)

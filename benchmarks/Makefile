@@ -1,7 +1,7 @@
 ghc := ghc
 ghcflags := -O3
 
-binaries := ExactInference
+binaries := ExactInference ExactInference2
 
 all: $(binaries)
 

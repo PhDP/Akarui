@@ -1,6 +1,6 @@
 # Installing
 
-Sphinx is tested with continuous integratation for the ghc compiler versions
+Sphinx-AI is tested with continuous integratation for the ghc compiler versions
 7.6, 7.8, and 7.10, along with cabal 1.18, 1.20, and 1.22. Sphinx has few
 dependencies and they should all compile on major platforms (at the very least
 Linux, Windows, and Mac OSX)

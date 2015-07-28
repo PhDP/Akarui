@@ -43,6 +43,7 @@ data QualT =
     ForAll
   -- | Existential qualifier.
   | Exists
+  | Unique
   deriving (Eq, Ord, Show)
 
 -- | A formula with generic atoms. Propositional logic can easily be described
@@ -127,6 +128,7 @@ prettyPrintFm s = rmQuotes . buildStr (0 :: Int)
       BinOp Iff x y         -> showInfix (pr > 2) 2 (symIff s) x y
       Qualifier ForAll v x  -> symForall s ++ qualSpace ++ v ++ " " ++ buildStr pr x
       Qualifier Exists v x  -> symExists s ++ qualSpace ++ v ++ " " ++ buildStr pr x
+      Qualifier Unique v x  -> symExists s ++ "!" ++ qualSpace ++ v ++ " " ++ buildStr pr x
 
 -- | Gathers all atoms in the formula.
 atoms :: (Ord a) => Formula a -> Set a

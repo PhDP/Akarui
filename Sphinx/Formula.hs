@@ -271,6 +271,14 @@ randomFairAss g s = Map.fromList $ zip (Set.toList s) rs
 randomFairAssF :: (Ord a) => StdGen -> Formula a -> Map a Bool
 randomFairAssF g f = randomFairAss g $ atoms f
 
+-- | Returns true if the formula has qualifiers
+hasQual :: Formula a -> Bool
+hasQual f = case f of
+  Not x       -> hasQual x
+  BinOp _ x y -> hasQual x || hasQual y
+  Qualifier{} -> True
+  _           -> False
+
 -- | Gathers the variables inside some type of qualifier.
 qualVars :: QualT -> Formula a -> Set String
 qualVars q = gat'

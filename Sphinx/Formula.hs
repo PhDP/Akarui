@@ -312,6 +312,16 @@ coreOp f = case f of
   Qualifier q v x   -> Qualifier q v (coreOp x)
   _ -> f
 
+-- | Normal form.
+nnf :: Formula a -> Formula a
+nnf f = case coreOp f of
+  BinOp And x y       -> BinOp And (nnf x) (nnf y)
+  BinOp Or x y        -> BinOp Or  (nnf x) (nnf y)
+  Not (Not x)         -> nnf x
+  Not (BinOp And x y) -> BinOp Or  (nnf (Not x)) (nnf (Not y))
+  Not (BinOp Or x y)  -> BinOp And (nnf (Not x)) (nnf (Not y))
+  _ -> f
+
 -- | Returns all possible valuations of a set of formula.
 allAss :: (Ord a) => Set (Formula a) -> [Map a Bool]
 allAss fs = if null as then [] else ms (head as) (tail as)

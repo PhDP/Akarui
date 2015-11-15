@@ -8,7 +8,8 @@ module Sphinx.Parser (
   parsePredicate,
   parsePredicateAss,
   parseEvidenceList,
-  parseEvidenceLines
+  parseEvidenceLines,
+  parseClause
 ) where
 
 import Data.Functor.Identity
@@ -17,12 +18,14 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr as Ex
 import qualified Text.Parsec.Token as Tok
+import Data.List (foldl')
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Sphinx.Formula
 import Sphinx.FOL
 import Sphinx.Term
 import Sphinx.Predicate
+import Sphinx.Clause
 
 -- | Parser for weighted first-order logic. Parses a double following by
 -- a formula (or a formula followed by a double).
@@ -147,6 +150,14 @@ parsePredicateAss = parse (contents parsePredTruth) "<stdin>"
 parseEvidenceList :: String -> Either ParseError [(Predicate String, Bool)]
 parseEvidenceList = parse (contents parseEviList) "<stdin>"
 
+-- | Parse a clause (a disjunction of positive and negative literals).
+--
+-- @
+--    !Women(p) or Vegetarian(p)
+-- @
+parseClause :: String -> Either ParseError (Clause (Predicate String))
+parseClause = parse (contents parseCl) "<stdin>"
+
 -- | Parse a list of evidence separated by spaces (of newline characters).
 -- uses the same syntax as 'parseEvidenceList', except only spaces and newline
 -- characters can separate the predicates.
@@ -209,6 +220,13 @@ contents p = do
   r <- p
   eof
   return r
+
+parseCl :: Parser (Clause (Predicate String))
+parseCl = do
+  ls <- parsePredTruth `sepBy` (symbol "v" <|> symbol "or" <|> symbol "∨" <|> symbol "|")
+  let ps = foldl' (\a (p, b) -> if b then Set.insert p a else a) Set.empty ls
+      ns = foldl' (\a (p, b) -> if not b then Set.insert p a else a) Set.empty ls in
+    return $ Clause ps ns
 
 parseEviList :: Parser [(Predicate String, Bool)]
 parseEviList = parsePredTruth `sepBy` (symbol "," <|> symbol ";" <|> symbol "and" <|> symbol "∩")

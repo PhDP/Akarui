@@ -9,7 +9,8 @@ module Sphinx.Parser (
   parsePredicateAss,
   parseEvidenceList,
   parseEvidenceLines,
-  parseClause
+  parseClause,
+  parseDomain
 ) where
 
 import Data.Functor.Identity
@@ -158,7 +159,16 @@ parseEvidenceList = parse (contents parseEviList) "<stdin>"
 parseClause :: String -> Either ParseError (Clause (Predicate String))
 parseClause = parse (contents parseCl) "<stdin>"
 
--- | Parse a list of evidence separated by spaces (of newline characters).
+-- | Parse a clause (a disjunction of positive and negative literals).
+--
+-- @
+--    dom1={1, 2, 3, 4}
+--    person = { Elaine, George, Jerry, Cosmo, Newman }
+-- @
+parseDomain :: String -> Either ParseError (String, Set String)
+parseDomain = parse (contents parseDs) "<stdin>"
+
+-- | Parse a list of evidence separated by spaces (or newline characters).
 -- uses the same syntax as 'parseEvidenceList', except only spaces and newline
 -- characters can separate the predicates.
 parseEvidenceLines :: String -> Either ParseError [(Predicate String, Bool)]
@@ -227,6 +237,15 @@ parseCl = do
   let ps = foldl' (\a (p, b) -> if b then Set.insert p a else a) Set.empty ls
       ns = foldl' (\a (p, b) -> if not b then Set.insert p a else a) Set.empty ls in
     return $ Clause ps ns
+
+parseDs :: Parser (String, Set String)
+parseDs = do
+  n <- identifier
+  reservedOp "="
+  reservedOp "{"
+  elems <- commaSep identifier
+  reservedOp "}"
+  return (n, Set.fromList elems)
 
 parseEviList :: Parser [(Predicate String, Bool)]
 parseEviList = parsePredTruth `sepBy` (symbol "," <|> symbol ";" <|> symbol "and" <|> symbol "∩")

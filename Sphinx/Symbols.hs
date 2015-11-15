@@ -19,6 +19,10 @@ data Symbols = Symbols
 long, shouting, semisymbolic, symbolic, laTeX, ascii :: Symbols
 
 -- | A representation using words instead of symbols (blasphemy!).
+human = Symbols "and" "or" "xor" "=>" "iff" "!" "true" "false" "Forall"
+  "Exists" "!="
+
+-- | A representation using words instead of symbols (blasphemy!).
 long = Symbols "and" "or" "xor" "implies" "iff" "not" "true" "false" "forall"
   "exists" "!="
 

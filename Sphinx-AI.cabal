@@ -28,6 +28,7 @@ library
     Sphinx.KB
     Sphinx.Network
     Sphinx.Fmt
+    Sphinx.Clause
   other-modules:
     Sphinx.Text
     Sphinx.Utils

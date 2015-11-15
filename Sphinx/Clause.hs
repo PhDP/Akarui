@@ -2,9 +2,12 @@
 module Sphinx.Clause where
 
 import Sphinx.Formula
+import Sphinx.Predicate
+import Sphinx.Symbols (human)
 import Sphinx.Utils (sfoldl1')
 import qualified Data.Set as Set
 import Data.Set (Set)
+import Text.Parsec
 
 -- | A clause is a disjunction of positive and negative prediates.
 data Clause t = Clause (Set t) (Set t)
@@ -18,3 +21,8 @@ toFormula (Clause ps ns)
       BinOp Implies
         (sfoldl1' (BinOp And) $ Set.map Atom ns)
         (sfoldl1' (BinOp Or)  $ Set.map Atom ps)
+
+showWClause :: Either ParseError (Clause (Predicate String), Double) -> String
+showWClause (Left _)  = ""
+showWClause (Right (c, w)) =
+  prettyPrintFm human (toFormula c) ++ ", " ++ show w

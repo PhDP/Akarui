@@ -10,6 +10,7 @@ module Sphinx.Parser (
   parseEvidenceList,
   parseEvidenceLines,
   parseClause,
+  parseWClause,
   parseDomain
 ) where
 
@@ -159,6 +160,15 @@ parseEvidenceList = parse (contents parseEviList) "<stdin>"
 parseClause :: String -> Either ParseError (Clause (Predicate String))
 parseClause = parse (contents parseCl) "<stdin>"
 
+-- | Parse a weighted clause (a disjunction of positive and negative literals).
+--
+-- @
+--    1.5 !Women(p) or Vegetarian(p)
+--    !Women(p) or Vegetarian(p)  1.5
+-- @
+parseWClause :: String -> Either ParseError (Clause (Predicate String), Double)
+parseWClause = parse (contents parseWeightedClause) "<stdin>"
+
 -- | Parse a clause (a disjunction of positive and negative literals).
 --
 -- @
@@ -233,10 +243,29 @@ contents p = do
 
 parseCl :: Parser (Clause (Predicate String))
 parseCl = do
+  optional $ reservedOp "("
   ls <- parsePredTruth `sepBy` (symbol "v" <|> symbol "or" <|> symbol "∨" <|> symbol "|")
+  optional $ reservedOp ")"
   let ps = foldl' (\a (p, b) -> if b then Set.insert p a else a) Set.empty ls
       ns = foldl' (\a (p, b) -> if not b then Set.insert p a else a) Set.empty ls in
     return $ Clause ps ns
+
+-- Parse a weight and then a first-order logic formula
+parseLeftWC :: Parser (Clause (Predicate String), Double)
+parseLeftWC  = do
+  n <- float
+  c <- parseCl
+  return (c, n)
+
+-- Parse a first-order logic formula and then a weight
+parseRightWC :: Parser (Clause (Predicate String), Double)
+parseRightWC = do
+  c <- parseCl
+  n <- float
+  return (c, n)
+
+parseWeightedClause :: Parser (Clause (Predicate String), Double)
+parseWeightedClause = try parseLeftWC <|> parseRightWC
 
 parseDs :: Parser (String, Set String)
 parseDs = do

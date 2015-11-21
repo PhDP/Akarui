@@ -87,15 +87,15 @@ instance Ord a => Ord (Formula a) where
   Atom a0 `compare` Atom a1 = a0 `compare` a1
   Atom _ `compare` _ = GT
   _ `compare` Atom _ = LT
-  Not f0 `compare` Not f1 = f0 `compare` f1
+  Not f0 `compare` Not f1 = (numAtoms f0 `compare` numAtoms f1) <> f0 `compare` f1
   Not _ `compare` _ = GT
   _ `compare` Not _ = LT
   BinOp b0 f00 f01 `compare` BinOp b1 f10 f11 =
-    (b0 `compare` b1) <> (f00 `compare` f10) <> (f01 `compare` f11)
+    (numAtoms (BinOp b0 f00 f01) `compare` numAtoms (BinOp b1 f10 f11)) <> (b0 `compare` b1) <> (f00 `compare` f10) <> (f01 `compare` f11)
   BinOp{} `compare` Qualifier{} = GT
   Qualifier{} `compare` BinOp{} = LT
   Qualifier q0 v0 f0 `compare` Qualifier q1 v1 f1 =
-    (q0 `compare` q1) <> (v0 `compare` v1) <> (f1 `compare` f0)
+    (numAtoms f0 `compare` numAtoms f1) <> (q0 `compare` q1) <> (v0 `compare` v1) <> (f1 `compare` f0)
 
 -- | Prints the formula given a set of symbols ('Sphinx.Symbols.Symbols').
 -- This function is built to support printing in symbolic, LaTeX, and ASCII
@@ -129,6 +129,14 @@ prettyPrintFm s = rmQuotes . buildStr (0 :: Int)
       Qualifier ForAll v x  -> symForall s ++ qualSpace ++ v ++ " " ++ buildStr pr x
       Qualifier Exists v x  -> symExists s ++ qualSpace ++ v ++ " " ++ buildStr pr x
       Qualifier Unique v x  -> symExists s ++ "!" ++ qualSpace ++ v ++ " " ++ buildStr pr x
+
+-- | Count the number of atoms (Top & Bottom are considered atoms).
+numAtoms :: Formula a -> Int
+numAtoms f = case f of
+  Not x           -> numAtoms x
+  BinOp _ x y     -> numAtoms x + numAtoms y
+  Qualifier _ _ x -> numAtoms x
+  _               -> 1
 
 -- | Gathers all atoms in the formula.
 atoms :: (Ord a) => Formula a -> Set a

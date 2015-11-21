@@ -212,8 +212,20 @@ reservedOp = Tok.reservedOp lexer
 symbol :: String -> Parser String
 symbol = Tok.symbol lexer
 
-float :: ParsecT String () Identity Double
-float = Tok.float lexer
+float, pfloat, nfloat :: ParsecT String () Identity Double
+
+float = nfloat <|> pfloat
+
+nfloat = do
+  reservedOp "-"
+  f <- Tok.float lexer
+  return (-f)
+
+
+pfloat = do
+  optional $ reservedOp "+"
+  f <- Tok.float lexer
+  return f
 
 identifier :: ParsecT String () Identity String
 identifier = Tok.identifier lexer

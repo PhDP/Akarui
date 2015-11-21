@@ -16,15 +16,15 @@ data Symbols = Symbols
   , symNotEqual :: String
   } deriving (Show)
 
-long, shouting, semisymbolic, symbolic, laTeX, ascii :: Symbols
+human, long, shouting, semisymbolic, symbolic, laTeX, ascii :: Symbols
 
 -- | A representation using words instead of symbols (blasphemy!).
 human = Symbols "and" "or" "xor" "=>" "iff" "!" "true" "false" "Forall"
   "Exists" "!="
 
 -- | A representation using words instead of symbols (blasphemy!).
-long = Symbols "and" "or" "xor" "implies" "iff" "not" "true" "false" "forall"
-  "exists" "!="
+long = Symbols "and" "or" "xor" "implies" "iff" "not" "true" "false" "Forall"
+  "Exists" "!="
 
 -- | USING WORDS INSTEAD OF SYMBOLS AND BEING LOUD ABOUT IT!
 shouting = Symbols "AND" "OR" "XOR" "IMPLIES" "IFF" "NOT" "TRUE" "FALSE"

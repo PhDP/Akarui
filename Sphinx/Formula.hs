@@ -87,15 +87,15 @@ instance Ord a => Ord (Formula a) where
   Atom a0 `compare` Atom a1 = a0 `compare` a1
   Atom _ `compare` _ = GT
   _ `compare` Atom _ = LT
-  Not f0 `compare` Not f1 = (numAtoms f0 `compare` numAtoms f1) <> f0 `compare` f1
+  Not f0 `compare` Not f1 = f0 `compare` f1
   Not _ `compare` _ = GT
   _ `compare` Not _ = LT
   BinOp b0 f00 f01 `compare` BinOp b1 f10 f11 =
-    (numAtoms (BinOp b0 f00 f01) `compare` numAtoms (BinOp b1 f10 f11)) <> (b0 `compare` b1) <> (f00 `compare` f10) <> (f01 `compare` f11)
+    (b0 `compare` b1) <> (f00 `compare` f10) <> (f01 `compare` f11)
   BinOp{} `compare` Qualifier{} = GT
   Qualifier{} `compare` BinOp{} = LT
   Qualifier q0 v0 f0 `compare` Qualifier q1 v1 f1 =
-    (numAtoms f0 `compare` numAtoms f1) <> (q0 `compare` q1) <> (v0 `compare` v1) <> (f1 `compare` f0)
+    (q0 `compare` q1) <> (v0 `compare` v1) <> (f1 `compare` f0)
 
 -- | Prints the formula given a set of symbols ('Sphinx.Symbols.Symbols').
 -- This function is built to support printing in symbolic, LaTeX, and ASCII

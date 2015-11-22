@@ -10,7 +10,7 @@ import Sphinx.Symbols
 -- they don't make sense in this context.
 prop_w_parsing_back :: Symbols -> FOL String -> Double -> Bool
 prop_w_parsing_back s f w = case parseWFOL (fmtWFormula s f w) of
-  Left _         -> w < 0.0
+  Left _         -> False
   Right (f', w') -> f == f' && feq w w'
   where
     -- Very generous float equality test, just to make sure the number is

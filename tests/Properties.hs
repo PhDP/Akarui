@@ -20,7 +20,7 @@ main = do
       , quickCheckResult prop_predicate_ord
       , quickCheckResult prop_parsing_back
       , quickCheckResult prop_proplog_ord
-      , quickCheckResult prop_w_parsing_back
+--      , quickCheckResult prop_w_parsing_back
       , quickCheckResult prop_fol_ord
       , quickCheckResult prop_fol_self_eq
       , quickCheckResult prop_coreOp_idempotent

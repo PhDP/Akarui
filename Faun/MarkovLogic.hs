@@ -6,7 +6,7 @@
 -- This is prefered to Map since it simplifies queries such as
 -- "P(Cancer(Bob) | !Cancer(Bob))", where a map would not allow these two
 -- different predicate -> value mappings.
-module Sphinx.MarkovLogic where
+module Faun.MarkovLogic where
 
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -14,16 +14,16 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (partition)
 import Control.Applicative ((<|>))
-import Sphinx.FOL
-import qualified Sphinx.Formula as F
-import Sphinx.Formula (Formula (..))
-import Sphinx.Predicate
-import Sphinx.Term
-import Sphinx.Parser
-import Sphinx.Symbols
-import Sphinx.Network
-import qualified Sphinx.KB as KB
-import Sphinx.KB (KB)
+import Faun.FOL
+import qualified Faun.Formula as F
+import Faun.Formula (Formula (..))
+import Faun.Predicate
+import Faun.Term
+import Faun.Parser
+import Faun.Symbols
+import Faun.Network
+import qualified Faun.KB as KB
+import Faun.KB (KB)
 
 -- | A Markov logic network is a set of first-order logical formulas associated
 -- with a weight.

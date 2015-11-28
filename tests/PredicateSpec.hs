@@ -3,7 +3,7 @@
 module PredicateSpec where
 
 import Test.QuickCheck
-import Sphinx.Predicate
+import Faun.Predicate
 
 import TextGen
 import TermSpec

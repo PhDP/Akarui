@@ -1,5 +1,5 @@
 -- | Useful (and private) functions to handle text.
-module Sphinx.Text where
+module Faun.Text where
 
 -- | Removes quotation marks from a string.
 rmQuotes :: String -> String

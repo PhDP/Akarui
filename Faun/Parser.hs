@@ -1,6 +1,6 @@
 -- | Parsers for first-order logic and other important structures (e.g. Markov
 -- logic networks).
-module Sphinx.Parser (
+module Faun.Parser (
   parseFOL,
   parseWFOL,
   parseJointQuery,
@@ -23,11 +23,11 @@ import qualified Text.Parsec.Token as Tok
 import Data.List (foldl')
 import qualified Data.Set as Set
 import Data.Set (Set)
-import Sphinx.Formula
-import Sphinx.FOL
-import Sphinx.Term
-import Sphinx.Predicate
-import Sphinx.Clause
+import Faun.Formula
+import Faun.FOL
+import Faun.Term
+import Faun.Predicate
+import Faun.Clause
 
 -- | Parser for weighted first-order logic. Parses a double following by
 -- a formula (or a formula followed by a double).

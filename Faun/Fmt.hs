@@ -1,12 +1,12 @@
 -- | Functions to print some common data stuctures in a specific format. This
 -- is mostly convenient for playing with Sphinx in the console.
-module Sphinx.Fmt where
+module Faun.Fmt where
 
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Sphinx.Text
+import Faun.Text
 
 -- | Formats a set in the standard format (not a 'fromList').
 fmtSet :: (Show k, Ord k) => Set k -> String

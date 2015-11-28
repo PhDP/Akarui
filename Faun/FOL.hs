@@ -1,16 +1,16 @@
 -- | Type and functions for first-order predicate logic.
-module Sphinx.FOL where
+module Faun.FOL where
 
 import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
-import Sphinx.Formula
-import Sphinx.Predicate (Predicate (Predicate))
-import qualified Sphinx.Predicate as Pred
-import Sphinx.Term (Term (Constant, Variable, Function))
-import qualified Sphinx.Term as Term
+import Faun.Formula
+import Faun.Predicate (Predicate (Predicate))
+import qualified Faun.Predicate as Pred
+import Faun.Term (Term (Constant, Variable, Function))
+import qualified Faun.Term as Term
 
 -- | A first-order logic formula is simply a formula of predicates.
 type FOL t = Formula (Predicate t)

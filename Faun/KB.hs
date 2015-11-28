@@ -1,15 +1,15 @@
 -- | A knowledge base is a set of formulas. See MLN.hs for probabilistic
 -- knowledge bases.
-module Sphinx.KB where
+module Faun.KB where
 
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.Map (Map)
-import Sphinx.Formula
-import Sphinx.FOL
-import Sphinx.Parser
-import Sphinx.Predicate
-import Sphinx.Term
+import Faun.Formula
+import Faun.FOL
+import Faun.Parser
+import Faun.Predicate
+import Faun.Term
 
 -- | A knowledge base is a set of formula.
 type KB a = Set (Formula a)

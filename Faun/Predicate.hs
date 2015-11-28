@@ -1,12 +1,12 @@
 -- | Type and functions for predicates: the atoms of first-order logic.
-module Sphinx.Predicate where
+module Faun.Predicate where
 
-import Sphinx.Text
-import Sphinx.Term (Term)
+import Faun.Text
+import Faun.Term (Term)
 import Data.List (foldl')
 import Data.Set (Set)
 import qualified Data.Set as Set
-import qualified Sphinx.Term as Term
+import qualified Faun.Term as Term
 
 -- | Predicates are atoms (thus they evaluate to true/false) mapping a list
 -- of terms (objects) to a truth value.

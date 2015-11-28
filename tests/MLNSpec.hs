@@ -1,9 +1,9 @@
 module MLNSpec where
 
-import Sphinx.MarkovLogic
-import Sphinx.FOL
-import Sphinx.Parser
-import Sphinx.Symbols
+import Faun.MarkovLogic
+import Faun.FOL
+import Faun.Parser
+import Faun.Symbols
 
 -- Tests if printing a formula plus a weight and parsing the result yields back
 -- the original formula and weight. It should fail for negative numbers since

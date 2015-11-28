@@ -1,11 +1,11 @@
-# Sphinx-AI
+# Faun
 
 [![Build status](https://travis-ci.org/PhDP/Sphinx-AI.svg?branch=master)](https://travis-ci.org/PhDP/Sphinx-AI)
 [![Build status](https://ci.appveyor.com/api/projects/status/2g9tn9oprxm58gc6/branch/master?svg=true)](https://ci.appveyor.com/project/PhilippeDesjardinsProulx/manticore/branch/master)
 
-Hybrid logic/probabilistic machine learning library.
-A library for probabilistic logic (or statistical relational) learning
-algorithms.
+Faun is a fun functional library for hybrid statistical + relational learning.
+It focuses on the problem of structure learning: being able to learn theories
+from data.
 
 See this [blog post](http://phdp.github.io/posts/2015-07-13-srl-code.html) for a full example.
 
@@ -30,11 +30,6 @@ The code is fully documented, type
     $ cabal haddock
 
 to generate a local copy of the documentation.
-
-## Name
-
-It's a hybrid and it answers queries: it **had** to be named *Sphinx*... but
-there's already a package with this name in hackage, so we'll go with Sphinx-AI.
 
 ## License
 

@@ -1,5 +1,5 @@
 import Data.Maybe (fromMaybe)
-import qualified Manticore.MarkovLogic as ML
+import qualified Faun.MarkovLogic as ML
 
 mln = ML.fromStrings
         [ "∀x Smoking(x) ⇒ Cancer(x) 1.5"

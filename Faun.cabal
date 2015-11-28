@@ -1,4 +1,4 @@
-name:           Sphinx-AI
+name:           Faun
 version:        0.1.0.0
 synopsis:       Hybrid logic + probabilistic machine learning library
 license:        MIT
@@ -17,21 +17,21 @@ library
   default-language: Haskell2010
   ghc-options: -O2 -Wall
   exposed-modules:
-    Sphinx.Formula
-    Sphinx.FOL
-    Sphinx.Predicate
-    Sphinx.Term
-    Sphinx.MarkovLogic
-    Sphinx.WalkSAT
-    Sphinx.Parser
-    Sphinx.Symbols
-    Sphinx.KB
-    Sphinx.Network
-    Sphinx.Fmt
-    Sphinx.Clause
+    Faun.Formula
+    Faun.FOL
+    Faun.Predicate
+    Faun.Term
+    Faun.MarkovLogic
+    Faun.WalkSAT
+    Faun.Parser
+    Faun.Symbols
+    Faun.KB
+    Faun.Network
+    Faun.Fmt
+    Faun.Clause
   other-modules:
-    Sphinx.Text
-    Sphinx.Utils
+    Faun.Text
+    Faun.Utils
   build-depends:
     base >= 4.6,
     containers,
@@ -60,9 +60,9 @@ test-suite tests
     containers,
     QuickCheck >= 2.7,
     test-framework-quickcheck2,
-    Sphinx-AI,
+    Faun,
     random
 
 source-repository head
   type:       git
-  location:   git://github.com/PhDP/Sphinx-AI.git
+  location:   git://github.com/PhDP/Faun.git

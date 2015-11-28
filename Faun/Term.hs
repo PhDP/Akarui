@@ -1,5 +1,5 @@
 -- | Type and functions for terms: the objects of first-order logic.
-module Sphinx.Term where
+module Faun.Term where
 
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -8,7 +8,7 @@ import Data.Set (Set)
 import Data.List (foldl')
 import Data.Monoid ((<>), mconcat)
 import Data.Maybe (fromMaybe)
-import Sphinx.Text
+import Faun.Text
 
 -- | A term represents an object. Terms are not atoms, they are found in
 -- predicates in first-order logic.

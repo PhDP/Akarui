@@ -1,5 +1,5 @@
 -- | A weighted directed network represented as an 'forest', a map of maps.
-module Sphinx.Network where
+module Faun.Network where
 
 import Data.Map (Map)
 import qualified Data.Map as Map

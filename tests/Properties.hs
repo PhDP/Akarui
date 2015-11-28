@@ -6,7 +6,7 @@ import System.Exit (exitFailure)
 import PropLogicSpec
 import PredicateSpec
 import FOLSpec
-import MLNSpec
+import MLNSpec()
 
 main :: IO ()
 main = do

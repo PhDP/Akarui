@@ -28,7 +28,9 @@ library
     Faun.KB
     Faun.Network
     Faun.Fmt
-    Faun.Clause
+    Faun.Clausal
+    Faun.SetClause
+    Faun.LiteralSign
   other-modules:
     Faun.Text
     Faun.Utils

@@ -7,6 +7,9 @@ Faun is a fun functional library for hybrid statistical + relational learning.
 It focuses on the problem of structure learning: being able to learn theories
 from data.
 
+Faun has a companion project, Ofelia, a command-line tool to access Faun's 
+most important algorithms.
+
 See this [blog post](http://phdp.github.io/posts/2015-07-13-srl-code.html) for a full example.
 
 ## Building

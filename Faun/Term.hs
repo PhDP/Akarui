@@ -36,12 +36,12 @@ instance (Eq t) => Eq (Term t) where
   _ == _ = False
 
 instance (Ord t) => Ord (Term t) where
-  (Variable t0) `compare` (Variable t1) = t0 `compare` t1
-  (Variable t0) `compare` (Constant t1) = t0 `compare` t1
-  (Variable _) `compare` (Function _ _) = LT
   (Constant t0) `compare` (Constant t1) = t0 `compare` t1
   (Constant t0) `compare` (Variable t1) = t0 `compare` t1
   (Constant _) `compare` (Function _ _) = LT
+  (Variable t0) `compare` (Variable t1) = t0 `compare` t1
+  (Variable t0) `compare` (Constant t1) = t0 `compare` t1
+  (Variable _) `compare` (Function _ _) = LT
   (Function n0 ts0) `compare` (Function n1 ts1) = compareFun n0 ts0 n1 ts1
   (Function _ _) `compare` _ = GT
 

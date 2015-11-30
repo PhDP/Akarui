@@ -33,11 +33,11 @@ allPredicates = Set.foldr' (\k acc -> Set.union (atoms k) acc) Set.empty
 
 -- | Tests if a valuation satisfied a set of formulas.
 satisfiesAll :: (Ord a) => Map a Bool -> Set (Formula a) -> Bool
-satisfiesAll ass = Set.foldl' (\t f -> t && satisfiable ass f) True
+satisfiesAll ass = Set.foldl' (\t f -> t && satisfy ass f) True
 
 -- | Filters the formula that are satisfied by a valuation.
 filterSatisfied :: (Ord a) => Map a Bool -> Set (Formula a) -> Set (Formula a)
-filterSatisfied ass = Set.filter (satisfiable ass)
+filterSatisfied ass = Set.filter (satisfy ass)
 
 -- | Filters the formula that are not satisfied by a valuation.
 filterUnsatisfied :: (Ord a) => Map a Bool -> Set (Formula a) -> Set (Formula a)
@@ -45,7 +45,7 @@ filterUnsatisfied ass = Set.filter (unsatisfiable ass)
 
 -- | Number of satisfied formulas for a given valuation.
 numSatisfied :: (Ord a) => Map a Bool -> Set (Formula a) -> Int
-numSatisfied ass = Set.foldl' (\n f -> n + if satisfiable ass f then 1 else 0) 0
+numSatisfied ass = Set.foldl' (\n f -> n + if satisfy ass f then 1 else 0) 0
 
 -- | All valuations that are true for a set of formulas.
 trueValuations :: (Ord a) => Set (Formula a) -> [Map a Bool]

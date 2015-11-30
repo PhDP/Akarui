@@ -260,8 +260,8 @@ eval ass = simplify . eval'
 
 -- | Given an assignment to atoms, test whethers the formula evaluates to 'True'
 -- This functions ignores qualifiers (if present, and they should not be there).
-satisfiable :: (Ord a) => Map a Bool -> Formula a -> Bool
-satisfiable ass f = case eval ass f of Top -> True; _ -> False
+satisfy :: (Ord a) => Map a Bool -> Formula a -> Bool
+satisfy ass f = case eval ass f of Top -> True; _ -> False
 
 -- | Given an assignment to atoms, test whethers the formula fails to evaluate
 -- to true. That is: unsatisfiable means it evaluates to Bottom or failed to

@@ -6,6 +6,14 @@ import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 
+-- | 'any' with a Map's keys.
+anyKey :: (Ord k) => (k -> Bool) -> Map k v -> Bool
+anyKey p = Map.foldrWithKey (\key _ acc -> acc || p key) False
+
+-- | 'all' with a Map's keys.
+allKeys :: (Ord k) => (k -> Bool) -> Map k v -> Bool
+allKeys p = Map.foldrWithKey (\key _ acc -> acc && p key) True
+
 -- | Builds a set of tuple from a map.
 mapToSet :: (Ord k, Ord v) => Map k v -> Set (k, v)
 mapToSet = Map.foldrWithKey (\k v acc -> Set.insert (k, v) acc) Set.empty

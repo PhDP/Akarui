@@ -31,6 +31,9 @@ library
     Faun.Clausal
     Faun.SetClause
     Faun.LiteralSign
+    Faun.KnowledgeBase
+    Faun.RuleType
+    Faun.Domain
   other-modules:
     Faun.Text
     Faun.Utils

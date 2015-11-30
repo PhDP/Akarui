@@ -22,9 +22,8 @@ data KnowledgeBase = KnowledgeBase
   , predicates        :: Map String [Domain]
   }
 
--- | Checks whether a formulas entails.
-entails :: KnowledgeBase -> FOL String -> Bool
-entails k f = all (\a -> allKeys (satisfy a) (formulas k)) ass
+-- | Checks by brute force if a knowledgebase entails a formula.
+(|=) :: KnowledgeBase -> FOL String -> Bool
+(|=) k f = all (\a -> not (allKeys (satisfy a) (formulas k)) || satisfy a f) ass
   where
     ass = allAss $ Set.insert f $ Map.keysSet $ formulas k
-

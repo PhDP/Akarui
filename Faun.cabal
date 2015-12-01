@@ -34,6 +34,7 @@ library
     Faun.KnowledgeBase
     Faun.RuleType
     Faun.Domain
+    Faun.Fuzzy
   other-modules:
     Faun.Text
     Faun.Utils

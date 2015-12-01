@@ -6,6 +6,23 @@ import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 
+maxVal :: (Ord k, Ord v) => Map k v -> v
+maxVal m = Map.foldr max f m
+  where (_, f) = Map.findMin m -- any value would do
+
+minVal :: (Ord k, Ord v) => Map k v -> v
+minVal m = Map.foldr min f m
+  where (_, f) = Map.findMin m -- any value would do
+
+-- | Converts a Map k v to a Map v (Set k)
+reverseMap :: (Ord k, Ord v) => Map k v -> Map v (Set k)
+reverseMap = Map.foldrWithKey (\k v acc -> Map.insert v (inSet k v acc) acc) Map.empty
+  where
+    -- If the key is absent, add a new set, otherwise insert in the set.
+    inSet k v m = case Map.lookup v m of
+      Just s -> Set.insert k s
+      Nothing -> Set.fromList [k]
+
 -- | 'any' with a Map's keys.
 anyKey :: (Ord k) => (k -> Bool) -> Map k v -> Bool
 anyKey p = Map.foldrWithKey (\key _ acc -> acc || p key) False
@@ -13,6 +30,14 @@ anyKey p = Map.foldrWithKey (\key _ acc -> acc || p key) False
 -- | 'all' with a Map's keys.
 allKeys :: (Ord k) => (k -> Bool) -> Map k v -> Bool
 allKeys p = Map.foldrWithKey (\key _ acc -> acc && p key) True
+
+-- | 'any' with a Map's keys and values
+anyKeyVal :: (Ord k) => (k -> v -> Bool) -> Map k v -> Bool
+anyKeyVal p = Map.foldrWithKey (\key val acc -> acc || p key val) False
+
+-- | 'all' with a Map's keys.
+allKeyVal :: (Ord k) => (k -> v -> Bool) -> Map k v -> Bool
+allKeyVal p = Map.foldrWithKey (\key val acc -> acc && p key val) True
 
 -- | Builds a set of tuple from a map.
 mapToSet :: (Ord k, Ord v) => Map k v -> Set (k, v)

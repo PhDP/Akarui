@@ -11,7 +11,8 @@ module Faun.Parser (
   parseEvidenceLines,
   parseClause,
   parseWClause,
-  parseDomain
+  parseDomain,
+  parseFuzzySet
 ) where
 
 import Data.Functor.Identity
@@ -21,6 +22,7 @@ import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr as Ex
 import qualified Text.Parsec.Token as Tok
 import Data.List (foldl')
+import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Faun.Formula
@@ -28,6 +30,7 @@ import Faun.FOL
 import Faun.Term
 import Faun.Predicate
 import Faun.SetClause
+import Faun.Fuzzy
 
 -- | Parser for weighted first-order logic. Parses a double following by
 -- a formula (or a formula followed by a double).
@@ -184,6 +187,10 @@ parseDomain = parse (contents parseDs) "<stdin>"
 parseEvidenceLines :: String -> Either ParseError [(Predicate String, Bool)]
 parseEvidenceLines = parse (contents parseEviLines) "<stdin>"
 
+-- | Parse a fuzzy set.
+parseFuzzySet :: String -> Either ParseError FuzzySet
+parseFuzzySet = parse (contents parseFuzzy) "<stdin>"
+
 langDef :: Tok.LanguageDef ()
 langDef = Tok.LanguageDef {
     Tok.commentStart    = "/*"
@@ -221,11 +228,9 @@ nfloat = do
   f <- Tok.float lexer
   return (-f)
 
-
 pfloat = do
   optional $ reservedOp "+"
-  f <- Tok.float lexer
-  return f
+  Tok.float lexer
 
 identifier :: ParsecT String () Identity String
 identifier = Tok.identifier lexer
@@ -252,6 +257,30 @@ contents p = do
   r <- p
   eof
   return r
+
+parseFuzzyElement :: Parser (String, Double)
+parseFuzzyElement = parseFuzzyLeftElement <|> parseFuzzyRightElement
+
+parseFuzzyLeftElement :: Parser (String, Double)
+parseFuzzyLeftElement = do
+  name <- identifier
+  reservedOp "/"
+  degree <- float
+  return (name, degree)
+
+parseFuzzyRightElement :: Parser (String, Double)
+parseFuzzyRightElement = do
+  degree <- float
+  reservedOp "/"
+  name <- identifier
+  return (name, degree)
+
+parseFuzzy :: Parser FuzzySet
+parseFuzzy = do
+  reservedOp "{"
+  elems <- commaSep parseFuzzyElement
+  reservedOp "}"
+  return $ FuzzySet $ Map.fromList elems
 
 parseCl :: Parser (SetClause (Predicate String))
 parseCl = do

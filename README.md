@@ -1,16 +1,13 @@
 # Faun
 
-[![Build status](https://travis-ci.org/PhDP/Sphinx-AI.svg?branch=master)](https://travis-ci.org/PhDP/Sphinx-AI)
+[![Build status](https://travis-ci.org/PhDP/Faun.svg?branch=master)](https://travis-ci.org/PhDP/Faun)
 [![Build status](https://ci.appveyor.com/api/projects/status/2g9tn9oprxm58gc6/branch/master?svg=true)](https://ci.appveyor.com/project/PhilippeDesjardinsProulx/manticore/branch/master)
 
-Faun is a fun functional library for hybrid statistical + relational learning.
-It focuses on the problem of structure learning: being able to learn theories
-from data.
+Faun is a fun functional library for experimenting with different Reasoning
+systems.
 
-Faun has a companion project, Ofelia, a command-line tool to access Faun's 
-most important algorithms.
-
-See this [blog post](http://phdp.github.io/posts/2015-07-13-srl-code.html) for a full example.
+See this [blog post](http://phdp.github.io/posts/2015-07-13-srl-code.html) for
+an example of probabilistic logic.
 
 ## Building
 
@@ -28,7 +25,7 @@ After the library is compiled, simply type
 
 ...to have access to the library in an interactive console.
 
-The code is fully documented, type 
+The code is fully documented, type
 
     $ cabal haddock
 

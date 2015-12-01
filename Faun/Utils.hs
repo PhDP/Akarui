@@ -6,10 +6,12 @@ import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 
+-- | Max value in a map.
 maxVal :: (Ord k, Ord v) => Map k v -> v
 maxVal m = Map.foldr max f m
   where (_, f) = Map.findMin m -- any value would do
 
+-- | Max value in a map.
 minVal :: (Ord k, Ord v) => Map k v -> v
 minVal m = Map.foldr min f m
   where (_, f) = Map.findMin m -- any value would do

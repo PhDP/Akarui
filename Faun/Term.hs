@@ -7,7 +7,7 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.Char (isLower)
 import Data.List (foldl')
-import Data.Monoid ((<>))
+import Data.Monoid ((<>), mconcat)
 import Data.Maybe (fromMaybe)
 import Faun.Text
 import Faun.Parser

@@ -7,11 +7,14 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (intercalate)
 import Faun.Utils
+import Faun.Parser
+import Text.Parsec
+import Text.Parsec.String (Parser)
 
 data FuzzySet = FuzzySet (Map String Double)
     deriving (Eq)
 
-instance Show (FuzzySet) where
+instance Show FuzzySet where
   show (FuzzySet m) = "{" ++ str ++ "}"
     where elems = Map.toList m
           str = intercalate ", " $ map (\(k, v) -> k ++ "/" ++ show v) elems
@@ -72,3 +75,31 @@ dilation (FuzzySet m) = FuzzySet $ Map.map sqrt m
 normalization :: FuzzySet -> FuzzySet
 normalization (FuzzySet m) = FuzzySet $ Map.map (/ maxv) m
   where maxv = maxVal m
+
+-- | Parse a fuzzy set.
+parseFuzzySet :: String -> Either ParseError FuzzySet
+parseFuzzySet = parse (contents parserFuzzy) "<stdin>"
+
+parserFuzzyElement :: Parser (String, Double)
+parserFuzzyElement = parserFuzzyLeftElement <|> parserFuzzyRightElement
+
+parserFuzzyLeftElement :: Parser (String, Double)
+parserFuzzyLeftElement = do
+  name <- identifier
+  reservedOp "/"
+  degree <- float
+  return (name, degree)
+
+parserFuzzyRightElement :: Parser (String, Double)
+parserFuzzyRightElement = do
+  degree <- float
+  reservedOp "/"
+  name <- identifier
+  return (name, degree)
+
+parserFuzzy :: Parser FuzzySet
+parserFuzzy = do
+  reservedOp "{"
+  elems <- commaSep parserFuzzyElement
+  reservedOp "}"
+  return $ FuzzySet $ Map.fromList elems

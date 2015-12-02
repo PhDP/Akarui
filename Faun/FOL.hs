@@ -6,11 +6,16 @@ import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
+import Data.Functor.Identity
 import Faun.Formula
 import Faun.Predicate (Predicate (Predicate))
 import qualified Faun.Predicate as Pred
-import Faun.Term (Term (Constant, Variable, Function))
+import Faun.Term (Term (Constant, Variable, Function), parseTerm, parseFunForm)
 import qualified Faun.Term as Term
+import Faun.Parser
+import Text.Parsec
+import Text.Parsec.String (Parser)
+import qualified Text.Parsec.Expr as Ex
 
 -- | A first-order logic formula is simply a formula of predicates.
 type FOL t = Formula (Predicate t)
@@ -166,3 +171,122 @@ groundings m cs f = loopV
       where
         gr v' =
           Set.map (\fm -> map (\c -> simplify $ resolveFun m $ resolveForAll v' c fm) cs)
+
+-- | Parser for weighted first-order logic. Parses a double following by
+-- a formula (or a formula followed by a double).
+--
+-- The /smoking/ example for Markov logic:
+--
+-- @
+--    parseWFOL \"∀x∀y∀z Friend(x, y) ∧ Friend(y, z) ⇒ Friend(x, z) 0.7\"
+--    parseWFOL \"∀x Smoking(x) ⇒ Cancer(x) 1.5\"
+--    parseWFOL \"1.1 ∀x∀y Friend(x, y) ∧ Smoking(x) ⇒ Smoking(y)\"
+-- @
+parseWFOL :: String -> Either ParseError (FOL String, Double)
+parseWFOL = parse (contents parseWeighted) "<stdin>"
+
+-- | Parser for first-order logic. The parser will read a string and output
+-- an either type with (hopefully) the formula on the right.
+--
+-- This parser makes the assumption that variables start with a lowercase
+-- character, while constants start with an uppercase character.
+--
+-- Some examples of valid strings for the parser:
+--
+-- @
+--    parseFOL \"ForAll x, y PositiveInteger(y) => GreaterThan(Add(x, y), x)\"
+--    parseFOL \"A.x,y: Integer(x) and PositiveInteger(y) => GreaterThan(Add(x, y), x)\"
+--    parseFOL \"∀ x Add(x, 0) = x\"
+-- @
+parseFOL :: String -> Either ParseError (FOL String)
+parseFOL = parse (contents parseFOLAll) "<stdin>"
+
+parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePred, parsePredLike, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNegation :: Parser (FOL String)
+parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
+
+parseSentence = Ex.buildExpressionParser tbl parseAtoms
+
+parseTop  = reservedOps ["True", "TRUE", "true", "T", "⊤"] >> return Top
+
+parseBottom = reservedOps ["False", "FALSE", "false", "F", "⊥"] >> return Bottom
+
+parseNQual = do
+  nots <- many1 parseNot
+  (q, vs, a) <- parseQualForm
+  return $ foldr (\_ acc -> Not acc) (foldr (Qualifier q) a vs) nots
+
+parseQual = do
+  (q, vs, a) <- parseQualForm
+  return $ foldr (Qualifier q) a vs
+
+parseNegation = do
+  n <- parseNot
+  a <- parseAtoms
+  return $ n a
+
+parsePredLike = try parseIdentity <|> try parseNIdentity <|> parsePred
+
+parseAtoms =
+      try parsePredLike
+  <|> parseNegation
+  <|> parseTop
+  <|> parseBottom
+  <|> parens parseFOLAll
+
+parsePred = do
+  args <- parseFunForm
+  return $ Atom $ uncurry Predicate args
+
+parseIdentity = do
+  left <- parseTerm
+  reservedOps ["=", "=="]
+  right <- parseTerm
+  return $ Atom $ Predicate "Identity" [left, right]
+
+parseNIdentity = do
+  left <- parseTerm
+  reservedOps ["!=", "/=", "\\neq"]
+  right <- parseTerm
+  return $ Not $ Atom $ Predicate "Identity" [left, right]
+
+parseNot :: Parser (FOL String -> FOL String)
+parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
+
+parseExists, parseForAll :: Parser QualT
+parseExists = reservedOps ["E.", "Exists", "exists", "∃"] >> return Exists
+parseForAll = reservedOps ["A.", "ForAll", "Forall", "forall", "∀"] >> return ForAll
+
+-- Parse a weight and then a first-order logic formula
+parseLeftW :: Parser (FOL String, Double)
+parseLeftW = do
+  n <- float
+  f <- parseFOLAll
+  return (f, n)
+
+-- Parse a first-order logic formula and then a weight
+parseRightW :: Parser (FOL String, Double)
+parseRightW = do
+  f <- parseFOLAll
+  n <- float
+  return (f, n)
+
+parseWeighted :: Parser (FOL String, Double)
+parseWeighted = try parseLeftW <|> parseRightW
+
+parseQualForm :: Parser (QualT, [String], FOL String)
+parseQualForm = do
+  q <- parseExists <|> parseForAll -- many1
+  v <- commaSep identifier
+  optional $ reservedOp ":"
+  a <- parseFOLAll
+  return (q, v, a)
+
+-- Prefix operators
+tbl :: Ex.OperatorTable String () Identity (Formula a)
+tbl =
+  [ [binary ["And", "and", "AND", "∧"] (BinOp And) Ex.AssocRight]
+  , [binary ["Or", "or", "OR", "∨", "v"] (BinOp Or) Ex.AssocRight]
+  , [binary ["Implies", "implies", "IMPLIES", "⇒", "=>"] (BinOp Implies) Ex.AssocRight]
+  , [binary ["Xor", "xor", "XOR", "⊕"] (BinOp Xor) Ex.AssocRight]
+  , [binary ["Iff", "iff", "IFF", "⇔", "<=>"] (BinOp Iff) Ex.AssocRight] ]
+  where binary ns fun = Ex.Infix (do { reservedOps ns; return fun })

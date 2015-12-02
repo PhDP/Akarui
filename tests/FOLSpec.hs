@@ -6,7 +6,6 @@ import Test.QuickCheck
 import Control.Monad
 import Faun.Formula
 import Faun.FOL
-import Faun.Parser
 import Faun.Symbols
 import PredicateSpec
 

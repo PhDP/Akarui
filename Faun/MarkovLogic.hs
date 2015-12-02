@@ -19,11 +19,11 @@ import qualified Faun.Formula as F
 import Faun.Formula (Formula (..))
 import Faun.Predicate
 import Faun.Term
-import Faun.Parser
 import Faun.Symbols
 import Faun.Network
 import qualified Faun.KB as KB
 import Faun.KB (KB)
+import Faun.ParseProbability
 
 -- | A Markov logic network is a set of first-order logical formulas associated
 -- with a weight.

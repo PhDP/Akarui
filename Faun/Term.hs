@@ -5,10 +5,14 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
+import Data.Char (isLower)
 import Data.List (foldl')
-import Data.Monoid ((<>), mconcat)
+import Data.Monoid ((<>))
 import Data.Maybe (fromMaybe)
 import Faun.Text
+import Faun.Parser
+import Text.Parsec
+import Text.Parsec.String (Parser)
 
 -- | A term represents an object. Terms are not atoms, they are found in
 -- predicates in first-order logic.
@@ -131,3 +135,22 @@ resolveFun :: (Ord a) => Map (String, [Term a]) (Term a) -> Term a -> Term a
 resolveFun m t = case t of
   Function n ts -> fromMaybe t $ Map.lookup (n, map (resolveFun m) ts) m
   _             -> t
+
+parseFunForm :: Parser (String, [Term String])
+parseFunForm = do
+  n <- identifier
+  reservedOp "("
+  ts <- commaSep parseTerm
+  reservedOp ")"
+  return (n, ts)
+
+parseTerm, parseVarCon, parseFunction :: Parser (Term String)
+parseTerm = try parseFunction <|> parseVarCon
+
+parseFunction = do
+  args <- parseFunForm
+  return $ uncurry Function args
+
+parseVarCon = do
+  n <- identifier
+  return $ if isLower $ head n then Variable n else Constant n

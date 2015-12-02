@@ -2,7 +2,6 @@ module MLNSpec where
 
 import Faun.MarkovLogic
 import Faun.FOL
-import Faun.Parser
 import Faun.Symbols
 
 -- Tests if printing a formula plus a weight and parsing the result yields back

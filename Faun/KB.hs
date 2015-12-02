@@ -7,7 +7,6 @@ import Data.Set (Set)
 import Data.Map (Map)
 import Faun.Formula
 import Faun.FOL
-import Faun.Parser
 import Faun.Predicate
 import Faun.Term
 

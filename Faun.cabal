@@ -23,7 +23,6 @@ library
     Faun.Term
     Faun.MarkovLogic
     Faun.WalkSAT
-    Faun.Parser
     Faun.Symbols
     Faun.KB
     Faun.Network
@@ -35,6 +34,8 @@ library
     Faun.RuleType
     Faun.Domain
     Faun.Fuzzy
+    Faun.Parser
+    Faun.ParseProbability
   other-modules:
     Faun.Text
     Faun.Utils

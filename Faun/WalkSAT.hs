@@ -8,7 +8,6 @@ import Data.List (foldl')
 import qualified Data.Set as Set
 import System.Random
 import Faun.Formula
-import Faun.KB
 
 -- | The WalkSAT algorithm as descripted in Russell and Norvig
 -- /Artificial Intelligence 3rd edition/, p 263.

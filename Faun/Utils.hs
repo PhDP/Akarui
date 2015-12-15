@@ -58,3 +58,11 @@ sfoldr1' f s = Set.foldr' f first rest
   where
     first = Set.findMax s
     rest = Set.delete first s
+
+-- | Surrounds a list.
+surround :: a -> [a] -> [a]
+surround e ls = (e : ls) ++ [e]
+
+-- | Drops the last two items of a list.
+dropLst2 :: [a] -> [a]
+dropLst2 = init . init

@@ -6,27 +6,34 @@ import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
-import Data.Functor.Identity
+import qualified Data.Text as T
 import Faun.Formula
 import Faun.Predicate (Predicate (Predicate))
 import qualified Faun.Predicate as Pred
-import Faun.Term (Term (Constant, Variable, Function), parseTerm, parseFunForm)
+import Faun.Term (Term (Constant, Variable, Function))
 import qualified Faun.Term as Term
-import Faun.Parser
-import Text.Parsec
-import Text.Parsec.String (Parser)
-import qualified Text.Parsec.Expr as Ex
+import Faun.ShowTxt
+import Faun.BinT
+import Faun.QualT
 
 -- | A first-order logic formula is simply a formula of predicates.
-type FOL t = Formula (Predicate t)
+type FOL = Formula Predicate
+
+-- | Special "Truth", "Top", "True" predicate.
+top :: FOL
+top = Atom $ Predicate "Top" []
+
+-- | Special "False", "Bot", "Bottom" predicate.
+bot :: FOL
+bot = Atom $ Predicate "Bot" []
 
 -- | Extracts predicates from a list of formulas. If a formula is not an atom,
 -- it will be ignored.
-toPredicates :: (Ord t) => [FOL t] -> [Predicate t]
+toPredicates :: [FOL] -> [Predicate]
 toPredicates = foldl' (\acc f -> case f of Atom p -> p : acc; _ -> acc) []
 
 -- | Tests if the formula is 'grounded', i.e. if it has no variables.
-ground :: FOL t -> Bool
+ground :: FOL -> Bool
 ground f = case f of
   Atom (Predicate _ ts) -> all Term.ground ts
   BinOp _ x y           -> ground x || ground y
@@ -34,7 +41,7 @@ ground f = case f of
   _                     -> False
 
 -- | Gathers all the variables in a first-order logic formula.
-variables :: (Ord t) => FOL t -> Set t
+variables :: FOL -> Set T.Text
 variables = gat Set.empty
   where
     -- Gathers variables from terms
@@ -48,12 +55,11 @@ variables = gat Set.empty
       Not x                 -> Set.union (gatE x) s
       BinOp _ x y           -> Set.unions [gatE x, gatE y, s]
       Qualifier _ _ x       -> Set.union (gatE x) s
-      _                     -> Set.empty
     -- Gathers with an empty set
     gatE = gat Set.empty
 
 -- | Test for the presence of a predicate in the formula.
-hasPred :: (Eq t) => Predicate t -> FOL t -> Bool
+hasPred :: Predicate -> FOL -> Bool
 hasPred p f = case f of
   Atom p'         -> p == p'
   BinOp _ x y     -> hasPred p x || hasPred p y
@@ -62,7 +68,7 @@ hasPred p f = case f of
 
 -- | Test for the presence of a predicate in the formula using only the name
 -- of the predicate.
-hasPredName :: (Eq t) => FOL t -> String -> Bool
+hasPredName :: FOL -> T.Text -> Bool
 hasPredName f n = case f of
   Atom (Predicate n' _) -> n == n'
   BinOp _ x y     -> hasPredName x n || hasPredName y n
@@ -71,7 +77,7 @@ hasPredName f n = case f of
 
 -- | Returns true if the formula has functions. This is often used in algorithms
 -- where we must ensure all functions have been resolved to an object.
-hasFun :: FOL t -> Bool
+hasFun :: FOL -> Bool
 hasFun f = case f of
   Atom (Predicate _ ts) -> any (\trm -> (Term.numFuns trm :: Int) > 0) ts
   BinOp _ x y           -> hasFun x || hasFun y
@@ -79,52 +85,27 @@ hasFun f = case f of
   _                     -> False
 
 -- | Substitute a term in the formula.
-substitute :: (Eq a) => Term a -> Term a -> FOL a -> FOL a
+substitute :: Term -> Term -> FOL -> FOL
 substitute old new f = case f of
   Atom (Predicate n ts)
     -> Atom $ Predicate n $ map (Term.substitute old new) ts
   Not x           -> Not $ substitute old new x
   BinOp b x y     -> BinOp b (substitute old new x) (substitute old new y)
   Qualifier q v x -> Qualifier q v (substitute old new x)
-  _               -> f -- Top / Bottom
 
 -- | Shows the internal structure of the first-order logic formula. This is
 -- mostly useful for testing and making sure the formula has the correct
 -- structure.
-showFOLStruct :: (Show a) => FOL a -> String
+showFOLStruct :: FOL -> T.Text
 showFOLStruct f = case f of
-  Atom a          -> Pred.showStruct a
-  Top             -> "Top"
-  Bottom          -> "Bottom"
-  Not x           -> "Not (" ++ showFOLStruct x ++ ")"
-  BinOp b x y     -> show b ++ " (" ++ showFOLStruct x ++ ") (" ++ showFOLStruct y ++ ")"
-  Qualifier q v x -> show q ++ " " ++ v ++ "(" ++ showFOLStruct x ++ ")"
-
--- | Resolve functions by providing a map from function name & arguments to terms.
-resolveFun :: (Ord a) => Map (String, [Term a]) (Term a) -> FOL a -> FOL a
-resolveFun m f = case f of
-  Atom (Predicate n ts) ->
-    Atom $ Predicate n $ map (Term.resolveFun m) ts
-  Not x             -> Not (resolveFun m x)
-  BinOp b x y       -> BinOp b (resolveFun m x) (resolveFun m y)
-  Qualifier q v x   -> Qualifier q v (resolveFun m x)
-  _                 -> f
-
--- | Resolve predicates by providing a map from name & arguments to bool.
-resolvePre :: (Ord a) => Map (String, [Term a]) Bool -> FOL a -> FOL a
-resolvePre m f = case f of
-  Atom (Predicate n ts) -> case Map.lookup (n, ts) m of
-    Just True   -> Top
-    Just False  -> Bottom
-    Nothing     -> f
-  Not x             -> Not (resolvePre m x)
-  BinOp b x y       -> BinOp b (resolvePre m x) (resolvePre m y)
-  Qualifier q v x   -> Qualifier q v (resolvePre m x)
-  _                 -> f
+  Atom a            -> Pred.showStruct a
+  Not x             -> T.concat ["Not (", showFOLStruct x, ")"]
+  BinOp b x y       -> T.concat [showTxt b, " (", showFOLStruct x, ") (", showFOLStruct y, ")"]
+  Qualifier q v x   -> T.concat [showTxt q, " ", v, "(", showFOLStruct x, ")"]
 
 -- | Resolves universal qualifiers, substituting the variables in the 'ForAll'
 -- for a given term (a constant, generally).
-resolveForAll :: String -> Term String -> FOL String -> FOL String
+resolveForAll :: T.Text -> Term -> FOL -> FOL
 resolveForAll v t f = case f of
   Not x                 -> Not $ resolveForAll v t x
   BinOp b x y           -> BinOp b (resolveForAll v t x) (resolveForAll v t y)
@@ -140,8 +121,8 @@ resolveForAll v t f = case f of
 -- Reference:
 --   P Domingos and D Lowd, Markov Logic: An Interface Layer for Artificial
 -- Intelligence, 2009, Morgan & Claypool. p. 14.
-groundings :: Map (String, [Term String]) (Term String) -> [Term String] -> FOL String -> Set (FOL String)
-groundings m cs f = loopV
+groundings :: [Term] -> FOL -> Set FOL
+groundings cs f = loopV
   where
     groundSub v f' = case f' of
       Atom p ->
@@ -153,7 +134,6 @@ groundings m cs f = loopV
       Not x            -> Not $ groundSub v x
       BinOp b x y      -> BinOp b (groundSub v x) (groundSub v y)
       Qualifier q v' x -> Qualifier q v' (groundSub v' x)
-      _                -> f'
 
     existsVar f' = case f' of
       Not x                 -> Not $ existsVar x
@@ -170,123 +150,132 @@ groundings m cs f = loopV
     loopG v g = Set.foldr (\x a -> Set.union a (Set.fromList x)) Set.empty (gr v g)
       where
         gr v' =
-          Set.map (\fm -> map (\c -> simplify $ resolveFun m $ resolveForAll v' c fm) cs)
+          Set.map (\fm -> map (\c -> simplify $ resolveForAll v' c fm) cs)
 
--- | Parser for weighted first-order logic. Parses a double following by
--- a formula (or a formula followed by a double).
---
--- The /smoking/ example for Markov logic:
---
--- @
---    parseWFOL \"∀x∀y∀z Friend(x, y) ∧ Friend(y, z) ⇒ Friend(x, z) 0.7\"
---    parseWFOL \"∀x Smoking(x) ⇒ Cancer(x) 1.5\"
---    parseWFOL \"1.1 ∀x∀y Friend(x, y) ∧ Smoking(x) ⇒ Smoking(y)\"
--- @
-parseWFOL :: String -> Either ParseError (FOL String, Double)
-parseWFOL = parse (contents parseWeighted) "<stdin>"
+-- | Returns all possible valuations of a set of formula.
+allAss :: Set FOL -> [Map Predicate Bool]
+allAss fs = if null as then [] else ms (head as) (tail as)
+  where
+    as = Set.toList $ Set.foldr Set.union Set.empty $ Set.map atoms fs
+    ms atm s =
+      if null s then
+        [Map.fromList [(atm, True)], Map.fromList [(atm, False)]]
+      else
+        map (Map.insert atm True) (ms (head s) (tail s)) ++
+         map (Map.insert atm False) (ms (head s) (tail s))
 
--- | Parser for first-order logic. The parser will read a string and output
--- an either type with (hopefully) the formula on the right.
---
--- This parser makes the assumption that variables start with a lowercase
--- character, while constants start with an uppercase character.
---
--- Some examples of valid strings for the parser:
---
--- @
---    parseFOL \"ForAll x, y PositiveInteger(y) => GreaterThan(Add(x, y), x)\"
---    parseFOL \"A.x,y: Integer(x) and PositiveInteger(y) => GreaterThan(Add(x, y), x)\"
---    parseFOL \"∀ x Add(x, 0) = x\"
--- @
-parseFOL :: String -> Either ParseError (FOL String)
-parseFOL = parse (contents parseFOLAll) "<stdin>"
+-- | The unary negation operator.
+lneg :: FOL -> FOL
+lneg (Not y) = y
+lneg x
+  | x == top                = bot
+  | x == bot                = top
+  | otherwise               = Not x
 
-parseFOLAll, parseSentence, parseTop, parseBottom, parseAtoms, parsePred, parsePredLike, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNegation :: Parser (FOL String)
-parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
+-- | The 'and' (conjunction) binary operator.
+land :: FOL -> FOL -> FOL
+land x y
+  | x == top && y == top    = top
+  | x == bot || y == bot    = bot
+  | x == top                = y
+  | y == top                = x
+  | otherwise               = BinOp And x y
 
-parseSentence = Ex.buildExpressionParser tbl parseAtoms
+-- | The 'or' (inclusive disjunction) binary operator.
+lor :: FOL -> FOL -> FOL
+lor x y
+  | x == top || y == top    = top
+  | x == bot                = y
+  | y == bot                = x
+  | otherwise               = BinOp Or x y
 
-parseTop  = reservedOps ["True", "TRUE", "true", "T", "⊤"] >> return Top
+-- | The 'exclusive or' (exclusive disjunction) binary operator.
+lxor :: FOL -> FOL -> FOL
+lxor x y
+  | y == bot                = x
+  | x == bot                = y
+  | y == top                = lneg x
+  | x == top                = lneg y
+  | otherwise               = BinOp Xor x y
 
-parseBottom = reservedOps ["False", "FALSE", "false", "F", "⊥"] >> return Bottom
+-- | The 'implies' (implication) binary operator.
+limplies :: FOL -> FOL -> FOL
+limplies x y
+  | x == top                = y
+  | x == bot                = top
+  | y == bot                = lneg x
+  | y == top                = top
+  | otherwise               = BinOp Implies x y
 
-parseNQual = do
-  nots <- many1 parseNot
-  (q, vs, a) <- parseQualForm
-  return $ foldr (\_ acc -> Not acc) (foldr (Qualifier q) a vs) nots
+-- | The 'if and only if' (equivalence) binary operator.
+liff :: FOL -> FOL -> FOL
+liff x y
+  | x == top                = y
+  | x == bot && y == bot    = top
+  | x == bot                = lneg y
+  | y == bot                = lneg x
+  | y == top                = x
+  | otherwise               = BinOp Iff x y
 
-parseQual = do
-  (q, vs, a) <- parseQualForm
-  return $ foldr (Qualifier q) a vs
+-- | Dispatch binary operators to their resolution function.
+binOperator :: BinT -> FOL -> FOL -> FOL
+binOperator b = case b of
+  And     -> land
+  Or      -> lor
+  Xor     -> lxor
+  Implies -> limplies
+  Iff     -> liff
 
-parseNegation = do
-  n <- parseNot
-  a <- parseAtoms
-  return $ n a
+-- | Simplify using Harris' algorithm.
+simplify :: FOL -> FOL
+simplify f = case f of
+  Not x             -> lneg $ sim1 $ simplify x
+  BinOp b x y       -> binOperator b (sim1 $ simplify x) (sim1 $ simplify y)
+  Qualifier q v x   -> Qualifier q v $ sim1 $ simplify x
+  _                 -> f
+  where
+    sim1 f' = case f' of
+      Not x           -> lneg $ sim1 x
+      BinOp b x y     -> binOperator b (sim1 x) (sim1 y)
+      Qualifier q v x -> Qualifier q v $ sim1 x
+      _               -> f'
 
-parsePredLike = try parseIdentity <|> try parseNIdentity <|> parsePred
+-- | Evaluates a formula given an assignment to atoms. If the assignment is
+-- incomplete, eval with evaluate as much as possible but might not reduce
+-- formula to top/bot. This function completely ignores qualifiers. For
+-- functions that rely on qualifiers, see the Sphinx.FOL first-order logic
+-- module.
+eval :: Map Predicate Bool -> FOL -> FOL
+eval ass = simplify . eval'
+ where
+   eval' f' = case f' of
+     Atom a            -> case Map.lookup a ass of
+       Just True   -> top
+       Just False  -> bot
+       Nothing     -> f'
+     Not x             -> lneg $ eval' x
+     BinOp b x y       -> BinOp b (eval' x) (eval' y)
+     Qualifier _ _ x   -> eval' x
 
-parseAtoms =
-      try parsePredLike
-  <|> parseNegation
-  <|> parseTop
-  <|> parseBottom
-  <|> parens parseFOLAll
+-- | Given an assignment to atoms, test whethers the formula evaluates to 'True'
+-- This functions ignores qualifiers (if present, and they should not be there).
+satisfy :: Map Predicate Bool -> FOL -> Bool
+satisfy ass f = eval ass f == top
 
-parsePred = do
-  args <- parseFunForm
-  return $ Atom $ uncurry Predicate args
+-- | Given an assignment to atoms, test whethers the formula fails to evaluate
+-- to true. That is: unsatisfiable means it evaluates to bot or failed to
+-- evaluate to top/bot.
+unsatisfiable :: Map Predicate Bool -> FOL -> Bool
+unsatisfiable ass f = eval ass f /= top
 
-parseIdentity = do
-  left <- parseTerm
-  reservedOps ["=", "=="]
-  right <- parseTerm
-  return $ Atom $ Predicate "Identity" [left, right]
-
-parseNIdentity = do
-  left <- parseTerm
-  reservedOps ["!=", "/=", "\\neq"]
-  right <- parseTerm
-  return $ Not $ Atom $ Predicate "Identity" [left, right]
-
-parseNot :: Parser (FOL String -> FOL String)
-parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
-
-parseExists, parseForAll :: Parser QualT
-parseExists = reservedOps ["E.", "Exists", "exists", "∃"] >> return Exists
-parseForAll = reservedOps ["A.", "ForAll", "Forall", "forall", "∀"] >> return ForAll
-
--- Parse a weight and then a first-order logic formula
-parseLeftW :: Parser (FOL String, Double)
-parseLeftW = do
-  n <- float
-  f <- parseFOLAll
-  return (f, n)
-
--- Parse a first-order logic formula and then a weight
-parseRightW :: Parser (FOL String, Double)
-parseRightW = do
-  f <- parseFOLAll
-  n <- float
-  return (f, n)
-
-parseWeighted :: Parser (FOL String, Double)
-parseWeighted = try parseLeftW <|> parseRightW
-
-parseQualForm :: Parser (QualT, [String], FOL String)
-parseQualForm = do
-  q <- parseExists <|> parseForAll -- many1
-  v <- commaSep identifier
-  optional $ reservedOp ":"
-  a <- parseFOLAll
-  return (q, v, a)
-
--- Prefix operators
-tbl :: Ex.OperatorTable String () Identity (Formula a)
-tbl =
-  [ [binary ["And", "and", "AND", "∧"] (BinOp And) Ex.AssocRight]
-  , [binary ["Or", "or", "OR", "∨", "v"] (BinOp Or) Ex.AssocRight]
-  , [binary ["Implies", "implies", "IMPLIES", "⇒", "=>"] (BinOp Implies) Ex.AssocRight]
-  , [binary ["Xor", "xor", "XOR", "⊕"] (BinOp Xor) Ex.AssocRight]
-  , [binary ["Iff", "iff", "IFF", "⇔", "<=>"] (BinOp Iff) Ex.AssocRight] ]
-  where binary ns fun = Ex.Infix (do { reservedOps ns; return fun })
+-- | Takes a formula, a list of assignments, and returns how many were true,
+-- false, or undefined (could not be reduced to either top or bot).
+numTrueFalse :: (Integral n) => FOL -> [Map Predicate Bool] -> (n, n, n)
+numTrueFalse f =
+  foldl'
+    (\(t, b, u) ass ->
+      let v = eval ass f in
+        if v == top then (t + 1, b, u)
+        else if v == bot then (t, b + 1, u)
+        else (t, b, u + 1))
+    (0, 0, 0)

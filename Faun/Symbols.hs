@@ -1,25 +1,31 @@
 -- | Different sets of symbols used to print logic formulas.
 module Faun.Symbols where
 
--- | Supported symbols
+import qualified Data.Text as T
+
+-- | Sets of symbols to print logic formulas.
 data Symbols = Symbols
-  { symAnd :: String
-  , symOr :: String
-  , symXor :: String
-  , symImplies :: String
-  , symIff :: String
-  , symNot :: String
-  , symTop :: String
-  , symBottom :: String
-  , symForall :: String
-  , symExists :: String
-  , symNotEqual :: String
+  { symAnd        :: T.Text
+  , symOr         :: T.Text
+  , symXor        :: T.Text
+  , symImplies    :: T.Text
+  , symIff        :: T.Text
+  , symNot        :: T.Text
+  , symTop        :: T.Text
+  , symBottom     :: T.Text
+  , symForall     :: T.Text
+  , symExists     :: T.Text
+  , symNotEqual   :: T.Text
   } deriving (Show)
 
-human, long, shouting, semisymbolic, symbolic, laTeX, ascii :: Symbols
+human, long, shouting, semisymbolic, symbolic, laTeX, ascii, setnotation :: Symbols
 
--- | A representation using words instead of symbols (blasphemy!).
+-- | A standard mix of symbols and strings.
 human = Symbols "and" "or" "xor" "=>" "iff" "!" "true" "false" "Forall"
+  "Exists" "!="
+
+-- | A representation using standard set notation.
+setnotation = Symbols "∩" "∪" "⊕" "⊃" "↔" "¬" "true" "false" "Forall"
   "Exists" "!="
 
 -- | A representation using words instead of symbols (blasphemy!).

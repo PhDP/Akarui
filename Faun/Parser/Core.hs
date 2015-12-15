@@ -1,6 +1,6 @@
 -- | Parsers for first-order logic and other important structures (e.g. Markov
 -- logic networks).
-module Faun.Parser where
+module Faun.Parser.Core where
 
 import Data.Functor.Identity
 import Text.Parsec

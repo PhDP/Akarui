@@ -16,58 +16,35 @@ description:
 library
   default-language: Haskell2010
   ghc-options: -O2 -Wall
+  extensions: OverloadedStrings
   exposed-modules:
     Faun.Formula
     Faun.FOL
     Faun.Predicate
     Faun.Term
-    Faun.MarkovLogic
-    Faun.WalkSAT
     Faun.Symbols
-    Faun.KB
+    Faun.BinT
+    Faun.QualT
+    Faun.ShowTxt
+    Faun.FuzzySet
     Faun.Network
-    Faun.Fmt
-    Faun.Clausal
-    Faun.SetClause
-    Faun.LiteralSign
-    Faun.KnowledgeBase
-    Faun.RuleType
-    Faun.Domain
-    Faun.Fuzzy
-    Faun.Parser
-    Faun.ParseProbability
+    Faun.FormulaSet
+    Faun.MarkovLogic
+    Faun.Parser.Core
+    Faun.Parser.FOL
+    Faun.Parser.Term
+    Faun.Parser.FuzzySet
+    Faun.Parser.LogicOps
+    Faun.Parser.Probability
   other-modules:
     Faun.Text
     Faun.Utils
   build-depends:
     base >= 4.6,
     containers,
-    parsec,
+    parsec >= 3.1.2,
     text,
     transformers,
-    random
-
-test-suite tests
-  default-language: Haskell2010
-  -- Supress orphan warnings to allow 'Arbitrary' instance def:
-  ghc-options: -Wall -fno-warn-orphans
-  hs-source-dirs: tests
-  type: exitcode-stdio-1.0
-  main-is: Properties.hs
-  other-modules:
-    PropLogicSpec
-    FOLSpec
-    TermSpec
-    PredicateSpec
-    MLNSpec
-    KBSpec
-    TextGen
-  build-depends:
-    base >= 4.6,
-    containers,
-    QuickCheck >= 2.7,
-    test-framework-quickcheck2,
-    Faun,
     random
 
 source-repository head

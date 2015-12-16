@@ -1,5 +1,8 @@
 -- | WalkSat algorithms to find the most likely assignments to atoms.
-module Faun.WalkSAT where
+module Faun.WalkSAT
+( walkSAT
+, maxWalkSAT
+) where
 
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -8,16 +11,18 @@ import Data.List (foldl')
 import qualified Data.Set as Set
 import System.Random
 import Faun.Formula
+import Faun.Predicate
+import Faun.FOL
+import Faun.FormulaSet
 
 -- | The WalkSAT algorithm as descripted in Russell and Norvig
 -- /Artificial Intelligence 3rd edition/, p 263.
 walkSAT
-  :: (Ord a)
-  => Set (Formula a) -- ^ A set of clauses.
+  :: Set FOL -- ^ A set of clauses.
   -> Double -- ^ Probability of flipping.
   -> Int -- ^ Max number of flips before giving up.
   -> Int -- ^ Seed for the random number generator.
-  -> Maybe (Map a Bool) -- ^ A (possible) assignment to atoms that satisfies the formula.
+  -> Maybe (Map Predicate Bool) -- ^ A (possible) assignment to atoms that satisfies the formula.
 walkSAT fs p mf seed = step (mkStdGen seed) m0 mf
   where
     -- All the atoms in the set of formulas:
@@ -67,7 +72,14 @@ walkSAT fs p mf seed = step (mkStdGen seed) m0 mf
 -- Reference:
 --   P Domingos and D Lowd, Markov Logic: An Interface Layer for Artificial
 -- Intelligence, 2009, Morgan & Claypool. p. 24.
-maxWalkSAT :: Ord a => Int -> Int -> Double -> Double -> Int -> Map (Formula a) Double -> Maybe (Map a Bool)
+maxWalkSAT
+  :: Int -- ^ Number of tries.
+  -> Int -- ^ Max number of flips.
+  -> Double -- ^ Target cost (sum of the failing formulas).
+  -> Double -- ^ Probability of flipping.
+  -> Int -- ^ Seed.
+  -> Map FOL Double -- ^ Probabilistic knowledge base.
+  -> Maybe (Map Predicate Bool) -- ^ The answer (or not).
 maxWalkSAT mt mf target p seed fs = step (mkStdGen seed) mt
   where
     -- Set of atoms (predicates) in the MLN:

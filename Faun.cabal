@@ -27,9 +27,11 @@ library
     Faun.QualT
     Faun.ShowTxt
     Faun.FuzzySet
+    Faun.FuzzyLogic
     Faun.Network
     Faun.FormulaSet
     Faun.MarkovLogic
+    Faun.WalkSAT
     Faun.Parser.Core
     Faun.Parser.FOL
     Faun.Parser.Term

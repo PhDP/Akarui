@@ -1,7 +1,18 @@
-{-# LANGUAGE OverloadedStrings #-}
-
--- | Faun.Fuzzy is a fun functional set of functions for fuzzy logic
-module Faun.FuzzySet where
+-- | Faun.Fuzzy is a fun functional set of functions for fuzzy sets.
+module Faun.FuzzySet
+( FuzzySet(..)
+, fromSet
+, subsetOf
+, elementOf
+, support
+, singleton
+, union
+, intersection
+, complement
+, concentration
+, dilation
+, normalization
+) where
 
 import qualified Data.Map.Strict as Map
 import Data.Map (Map)
@@ -28,8 +39,6 @@ showByElem (FuzzySet m) = T.concat ["{", txt, "}"]
 -- | Converts a normal set into a fuzzyset with degree 1.0 for all elements.
 fromSet :: Set T.Text -> FuzzySet
 fromSet s = FuzzySet $ Set.foldr' (\k acc -> Map.insert k 1.0 acc) Map.empty s
-
--- Standard functions on sets
 
 -- | A set f0 is a subset of f1 if, for all elements, degree(e0) < degree(e1).
 subsetOf :: FuzzySet -> FuzzySet -> Bool
@@ -59,8 +68,6 @@ intersection (FuzzySet m0) (FuzzySet m1) = FuzzySet $ Map.intersectionWith min m
 -- | The complement of a fuzzy set.
 complement :: FuzzySet -> FuzzySet
 complement (FuzzySet m) = FuzzySet $ Map.map (1.0 -) m
-
--- Operations unique to fuzzy sets
 
 -- | Square all degrees.
 concentration :: FuzzySet -> FuzzySet

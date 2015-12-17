@@ -12,6 +12,9 @@ module Faun.FuzzySet
 , concentration
 , dilation
 , normalization
+, size
+, supportSize
+, remove0s
 ) where
 
 import qualified Data.Map.Strict as Map
@@ -59,11 +62,11 @@ support (FuzzySet m) = Map.keysSet $ Map.filter (> 0.0) m
 
 -- | Number of elements with a degree greater than 0.
 supportSize :: FuzzySet -> Int -- Integral?
-supportSize = Size.size . support
+supportSize = Set.size . support
 
 -- | Removes elements with a degree of 0.   -- size $ removes0 === support
 remove0s :: FuzzySet -> FuzzySet
-remove0s (FuzzySet m) :: FuzzySet $ Map.filter (> 0.0) m
+remove0s (FuzzySet m) = FuzzySet $ Map.filter (> 0.0) m
 
 -- | Tests whether the fuzzy set is a singleton (has a support of 1).
 singleton :: FuzzySet -> Bool

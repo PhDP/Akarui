@@ -16,7 +16,7 @@ type FuzzyLogic = Formula FS.FuzzySet
 fuzzyFm :: FuzzyLogic
 fuzzyFm = BinOp And a (BinOp Or b c)
   where
-    a = Atom $ FS.FuzzySet $ Map.fromList [("a", 0.5), ("b", 0.5), ("c", 0.8), ("e", 0.2), ("z", 1.0)]
+    a = Not $ Atom $ FS.FuzzySet $ Map.fromList [("a", 0.5), ("b", 0.5), ("c", 0.8), ("e", 0.2), ("z", 1.0)]
     b = Atom $ FS.FuzzySet $ Map.fromList [("x", 0.5), ("a", 0.1), ("d", 0.8), ("y", 0.2), ("h", 0.4)]
     c = Atom $ FS.FuzzySet $ Map.fromList [("a", 0.1), ("d", 0.1), ("h", 0.8)]
 

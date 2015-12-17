@@ -31,6 +31,10 @@ instance Show FuzzySet where
 instance ShowTxt FuzzySet where
   showTxt = showByElem
 
+-- | Number of elements in the fuzzyset.
+size :: FuzzySet -> Int
+size (FuzzySet m) = Map.size m
+
 showByElem :: FuzzySet -> T.Text
 showByElem (FuzzySet m) = T.concat ["{", txt, "}"]
   where elems = Map.toList m
@@ -52,6 +56,14 @@ elementOf e (FuzzySet m) = case Map.lookup e m of Just 1.0 -> True; _ -> False
 -- | The set of members with a degree greater than 0.
 support :: FuzzySet -> Set T.Text
 support (FuzzySet m) = Map.keysSet $ Map.filter (> 0.0) m
+
+-- | Number of elements with a degree greater than 0.
+supportSize :: FuzzySet -> Int -- Integral?
+supportSize = Size.size . support
+
+-- | Removes elements with a degree of 0.   -- size $ removes0 === support
+remove0s :: FuzzySet -> FuzzySet
+remove0s (FuzzySet m) :: FuzzySet $ Map.filter (> 0.0) m
 
 -- | Tests whether the fuzzy set is a singleton (has a support of 1).
 singleton :: FuzzySet -> Bool

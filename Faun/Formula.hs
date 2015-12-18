@@ -73,9 +73,12 @@ prettyPrintFm s = FT.rmQuotes . buildStr (0 :: Int)
     -- For negation and qualifiers, add spaces after words but not symbols:
     notSpace = if T.toLower (symNot s) == "not" then " " else ""
     qualSpace = if T.toLower (symForall s) == "forall" then " " else ""
+    suffixNot = symNot s == "'"
 
     -- Format prefixes:
-    showPrefix b pr sym p = FT.surrIf b $ T.concat [sym, notSpace, buildStr (pr + 1) p]
+    showNot b pr sym p =
+      FT.surrIf b $ T.concat $ if suffixNot then [txt, sym] else [sym, notSpace, txt]
+      where txt = buildStr (pr + 1) p
 
     -- Format infix operators:
     showInfix b pr sym p q =
@@ -84,7 +87,7 @@ prettyPrintFm s = FT.rmQuotes . buildStr (0 :: Int)
     -- Recursive function to build the string:
     buildStr pr fm = case fm of
       Atom a                -> showTxt a
-      Not x                 -> showPrefix (pr > 12) 11 (symNot s) x
+      Not x                 -> showNot (pr > 12) 11 (symNot s) x
       BinOp And x y         -> showInfix (pr > 10) 10 (symAnd s) x y
       BinOp Or x y          -> showInfix (pr > 8) 8 (symOr s) x y
       BinOp Implies x y     -> showInfix (pr > 6) 6 (symImplies s) x y

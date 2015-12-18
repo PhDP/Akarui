@@ -2,10 +2,13 @@
 module Faun.FuzzyLogic
 ( FuzzyLogic
 , resolve
+, prettyPrintFuzzy
 , fuzzyFm
 ) where
 
+import qualified Data.Text as T
 import qualified Data.Map as Map
+import Faun.Symbols (setnotation)
 import Faun.Formula
 import qualified Faun.FuzzySet as FS
 import Faun.BinT
@@ -28,6 +31,9 @@ resolve f = let f' = coreOp f in
     Not x           -> FS.complement (resolve x)
     BinOp Or x y    -> FS.intersection (resolve x) (resolve y)
     BinOp And x y   -> FS.union (resolve x) (resolve y)
-    BinOp _ _ _     -> error "Only core operations (or, and) should be left."
+    BinOp{}         -> error "Only core operations (or, and) should be left."
     _               -> FS.FuzzySet Map.empty
 
+-- | Pretty print the fuzzy logic formulas.
+prettyPrintFuzzy :: FuzzyLogic -> T.Text
+prettyPrintFuzzy = prettyPrintFm setnotation

@@ -25,7 +25,7 @@ human = Symbols "and" "or" "xor" "=>" "iff" "!" "true" "false" "Forall"
   "Exists" "!="
 
 -- | A representation using standard set notation.
-setnotation = Symbols "∩" "∪" "⊕" "⊃" "↔" "¬" "true" "false" "Forall"
+setnotation = Symbols "∩" "∪" "⊕" "⊃" "↔" "'" "true" "false" "Forall"
   "Exists" "!="
 
 -- | A representation using words instead of symbols (blasphemy!).

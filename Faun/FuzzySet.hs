@@ -1,6 +1,7 @@
 -- | Faun.Fuzzy is a fun functional set of functions for fuzzy sets.
 module Faun.FuzzySet
 ( FuzzySet(..)
+, NamedFuzzy(..)
 , fromSet
 , subsetOf
 , elementOf
@@ -25,6 +26,7 @@ import qualified Data.Text as T
 import Faun.Utils
 import Faun.ShowTxt
 
+-- | ...
 data FuzzySet = FuzzySet (Map T.Text Double)
     deriving (Eq)
 
@@ -33,6 +35,18 @@ instance Show FuzzySet where
 
 instance ShowTxt FuzzySet where
   showTxt = showByElem
+
+-- | Named
+data NamedFuzzy = NamedFuzzy
+  {  name :: T.Text
+  ,  set :: FuzzySet
+  }
+
+instance Show NamedFuzzy where
+  show = T.unpack . name
+
+instance ShowTxt NamedFuzzy where
+  showTxt = name
 
 -- | Number of elements in the fuzzyset.
 size :: FuzzySet -> Int

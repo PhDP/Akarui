@@ -27,6 +27,7 @@ library
     Faun.QualT
     Faun.ShowTxt
     Faun.FuzzySet
+    Faun.NamedFuzzy
     Faun.FuzzyLogic
     Faun.Network
     Faun.FormulaSet
@@ -36,6 +37,7 @@ library
     Faun.Parser.FOL
     Faun.Parser.Term
     Faun.Parser.FuzzySet
+    Faun.Parser.NamedFuzzy
     Faun.Parser.LogicOps
     Faun.Parser.Probability
   other-modules:

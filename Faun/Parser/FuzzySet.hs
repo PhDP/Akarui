@@ -1,5 +1,9 @@
 -- | Faun.Fuzzy is a fun functional set of functions for fuzzy logic
-module Faun.Parser.FuzzySet where
+module Faun.Parser.FuzzySet
+( parseFuzzySet
+, getFuzzy
+, getFuzzyElement
+) where
 
 import qualified Data.Map as Map
 import Data.List (foldl')
@@ -11,18 +15,18 @@ import Faun.FuzzySet
 
 -- | Parse a fuzzy set.
 parseFuzzySet :: String -> Either ParseError FuzzySet
-parseFuzzySet = parse (contents parserFuzzy) "<stdin>"
+parseFuzzySet = parse (contents getFuzzy) "<stdin>"
 
-parserFuzzy :: Parser FuzzySet
-parserFuzzy = do
+getFuzzy :: Parser FuzzySet
+getFuzzy = do
   reservedOp "{"
-  elems <- commaSep parserFuzzyElement
+  elems <- commaSep getFuzzyElement
   reservedOp "}"
   return $ FuzzySet $ foldl' (\m e -> Map.insert (T.pack $ fst e) (snd e) m) Map.empty elems
 
-parserFuzzyElement :: Parser (String, Double)
-parserFuzzyElement = do
-  name <- identifier
+getFuzzyElement :: Parser (String, Double)
+getFuzzyElement = do
+  n <- identifier
   reservedOp "/"
   degree <- float
-  return (name, degree)
+  return (n, degree)

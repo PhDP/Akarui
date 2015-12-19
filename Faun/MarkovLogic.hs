@@ -60,10 +60,7 @@ fmtMLN (MLN m) =
 
 -- | Prints a weighted formula.
 fmtWFormula :: Symbols -> FOL -> Double -> T.Text
-fmtWFormula s f w = T.concat [showW, T.replicate nSpaces " ", F.prettyPrintFm s f]
-  where
-    showW = T.pack $ show w
-    nSpaces = 24 - T.length showW
+fmtWFormula s f w = T.concat [F.prettyPrintFm s f, ", ", T.pack $ show w, "."]
 
 -- | Adds a formula to the markov logic network using the parser. If the parser
 -- fails, the function returns the MLN unmodified.

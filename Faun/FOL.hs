@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+
 -- | Type and functions for first-order predicate logic.
 module Faun.FOL where
 
@@ -9,10 +11,12 @@ import Data.List (foldl')
 import qualified Data.Text as T
 import Faun.Formula
 import Faun.Predicate (Predicate (Predicate))
+import Faun.Symbols (symbolic)
 import qualified Faun.Predicate as Pred
 import Faun.Term (Term (Constant, Variable, Function))
 import qualified Faun.Term as Term
 import Faun.ShowTxt
+import Faun.PrettyPrint
 import Faun.BinT
 import Faun.QualT
 
@@ -26,6 +30,15 @@ top = Atom $ Predicate "Top" []
 -- | Special "False", "Bot", "Bottom" predicate.
 bot :: FOL
 bot = Atom $ Predicate "Bot" []
+
+instance Show FOL where
+  show = T.unpack . prettyPrintFm symbolic
+
+instance ShowTxt FOL where
+  showTxt = prettyPrintFm symbolic
+
+instance PrettyPrint FOL where
+  prettyPrint = prettyPrintFm
 
 -- | Extracts predicates from a list of formulas. If a formula is not an atom,
 -- it will be ignored.

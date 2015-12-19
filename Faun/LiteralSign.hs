@@ -2,12 +2,16 @@
 module Faun.LiteralSign where
 
 import Faun.Symbols
+import Faun.ShowTxt
+import Faun.PrettyPrint
 
 data LiteralSign = Positive | Negative
   deriving (Eq, Ord, Show, Read)
 
--- | Pretty print a literal sign. It prints nothing for positive literals, and
--- the not sign for negative literals.
-prettyPrint :: Symbols -> LiteralSign -> String
-prettyPrint _ Positive = ""
-prettyPrint s Negative = symNot s
+instance ShowTxt LiteralSign where
+  showTxt Positive = "Positive"
+  showTxt Negative = "Negative"
+
+instance PrettyPrint LiteralSign where
+  prettyPrint _ Positive = ""
+  prettyPrint s Negative = symNot s

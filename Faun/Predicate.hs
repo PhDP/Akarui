@@ -9,6 +9,8 @@ import Data.List (foldl')
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Faun.ShowTxt
+import Faun.PrettyPrint
+import Faun.Symbols
 
 -- | Predicates are atoms (thus they evaluate to true/false) mapping a list
 -- of terms (objects) to a truth value.
@@ -17,12 +19,12 @@ data Predicate =
   Predicate T.Text [Term]
 
 -- | True (Top) predicate.
-true :: Predicate
-true = Predicate "True" []
+topPredicate :: Predicate
+topPredicate = Predicate "Top" []
 
 -- | False (Bottom, Bot) predicate.
-false :: Predicate
-false = Predicate "False" []
+botPredicate :: Predicate
+botPredicate = Predicate "Bot" []
 
 instance Eq Predicate where
   (Predicate n0 ts0) == (Predicate n1 ts1) =
@@ -36,6 +38,12 @@ instance Show Predicate where
 
 instance ShowTxt Predicate where
   showTxt = fmtPredicate False
+
+instance PrettyPrint Predicate where
+  prettyPrint s p
+   | p == topPredicate    = symTop s
+   | p == botPredicate    = symBottom s
+   | otherwise            = fmtPredicate False p
 
 -- | Format predicates.
 fmtPredicate

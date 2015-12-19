@@ -15,7 +15,7 @@ description:
 
 library
   default-language: Haskell2010
-  ghc-options: -O2 -Wall
+  ghc-options: -O2 -Wall -fno-warn-orphans
   default-extensions: OverloadedStrings
   exposed-modules:
     Faun.Formula
@@ -26,6 +26,7 @@ library
     Faun.BinT
     Faun.QualT
     Faun.ShowTxt
+    Faun.PrettyPrint
     Faun.FuzzySet
     Faun.NamedFuzzy
     Faun.FuzzyLogic

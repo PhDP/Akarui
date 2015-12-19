@@ -20,7 +20,7 @@ import qualified Faun.Text as FT
 import qualified Data.Text as T
 import Faun.BinT
 import Faun.QualT
-import Faun.ShowTxt
+import Faun.PrettyPrint
 
 -- | A formula with generic atoms. Propositional logic can easily be described
 -- with Formula String, and first-order logic is defined in module Faun.FOL as
@@ -34,12 +34,6 @@ data Formula a =
   | BinOp BinT (Formula a) (Formula a)
   -- | Qualifier apply to a string (following Harrison 2009).
   | Qualifier QualT T.Text (Formula a) -- Following Harris' here, but it might be smarter to put qualifiers in FOL only.
-
-instance ShowTxt a => Show (Formula a) where
-  show = T.unpack . prettyPrintFm symbolic
-
-instance ShowTxt a => ShowTxt (Formula a) where
-  showTxt = prettyPrintFm symbolic
 
 instance Eq a => Eq (Formula a) where
   Atom a0 == Atom a1  = a0 == a1
@@ -67,7 +61,7 @@ instance Ord a => Ord (Formula a) where
 -- | Prints the formula given a set of symbols ('Sphinx.Symbols.Symbols').
 -- This function is built to support printing in symbolic, LaTeX, and ASCII
 -- formats.
-prettyPrintFm :: (ShowTxt a) => Symbols -> Formula a -> T.Text
+prettyPrintFm :: (PrettyPrint a) => Symbols -> Formula a -> T.Text
 prettyPrintFm s = FT.rmQuotes . buildStr (0 :: Int)
   where
     -- For negation and qualifiers, add spaces after words but not symbols:
@@ -86,7 +80,7 @@ prettyPrintFm s = FT.rmQuotes . buildStr (0 :: Int)
 
     -- Recursive function to build the string:
     buildStr pr fm = case fm of
-      Atom a                -> showTxt a
+      Atom a                -> prettyPrint s a
       Not x                 -> showNot (pr > 12) 11 (symNot s) x
       BinOp And x y         -> showInfix (pr > 10) 10 (symAnd s) x y
       BinOp Or x y          -> showInfix (pr > 8) 8 (symOr s) x y

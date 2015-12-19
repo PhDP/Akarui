@@ -24,8 +24,9 @@ import Data.Set (Set)
 import qualified Data.Text as T
 import Faun.Utils
 import Faun.ShowTxt
+import Faun.PrettyPrint
 
--- | ...
+-- | A fuzzy set represented as a map from elements (text) to their degree.
 data FuzzySet = FuzzySet (Map T.Text Double)
     deriving (Eq)
 
@@ -34,6 +35,9 @@ instance Show FuzzySet where
 
 instance ShowTxt FuzzySet where
   showTxt = showByElem
+
+instance PrettyPrint FuzzySet where
+  prettyPrint _ = showByElem
 
 -- | Number of elements in the fuzzyset.
 size :: FuzzySet -> Int

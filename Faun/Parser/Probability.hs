@@ -14,6 +14,7 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Faun.Parser.Core
 import Faun.Parser.FOL
+import Faun.Parser.Bool
 import Faun.Formula
 import Faun.Predicate
 
@@ -144,7 +145,7 @@ parsePredAss :: Parser (Predicate, Bool)
 parsePredAss = do
   p <- parsePredOnly
   reservedOps ["->", "=", "==", ":=", "is"]
-  t <- parserTrue <|> parserFalse
+  t <- getTop <|> getBot
   return (p, t)
 
 parseJ :: Parser (Set (Predicate, Bool))

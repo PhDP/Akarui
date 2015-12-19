@@ -11,6 +11,7 @@ import qualified Data.Text as T
 import Text.Parsec
 import Text.Parsec.String (Parser)
 import Faun.Parser.Core
+import Faun.Parser.Numbers
 import Faun.FuzzySet
 
 -- | Parse a fuzzy set.
@@ -28,5 +29,5 @@ getFuzzyElement :: Parser (String, Double)
 getFuzzyElement = do
   n <- identifier
   reservedOp "/"
-  degree <- float
+  degree <- getDouble
   return (n, degree)

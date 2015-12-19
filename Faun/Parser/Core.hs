@@ -6,7 +6,6 @@ import Data.Functor.Identity
 import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Token as Tok
---import Data.List (foldl')
 
 langDef :: Tok.LanguageDef ()
 langDef = Tok.LanguageDef {
@@ -36,19 +35,6 @@ reservedOp = Tok.reservedOp lexer
 symbol :: String -> Parser String
 symbol = Tok.symbol lexer
 
-float, pfloat, nfloat :: ParsecT String () Identity Double
-
-float = nfloat <|> pfloat
-
-nfloat = do
-  reservedOp "-"
-  f <- Tok.float lexer
-  return (-f)
-
-pfloat = do
-  optional $ reservedOp "+"
-  Tok.float lexer
-
 identifier :: ParsecT String () Identity String
 identifier = Tok.identifier lexer
 
@@ -64,7 +50,3 @@ contents p = do
   r <- p
   eof
   return r
-
-parserTrue, parserFalse :: Parser Bool
-parserTrue  = reservedOps ["True", "TRUE", "true", "T", "⊤"] >> return True
-parserFalse = reservedOps ["False", "FALSE", "false", "F", "⊥"] >> return False

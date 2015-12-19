@@ -40,6 +40,8 @@ library
     Faun.Parser.NamedFuzzy
     Faun.Parser.LogicOps
     Faun.Parser.Probability
+    Faun.Parser.Numbers
+    Faun.Parser.Bool
   other-modules:
     Faun.Text
     Faun.Utils

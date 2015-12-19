@@ -9,6 +9,7 @@ import Faun.Formula
 import Faun.FOL
 import Faun.Parser.LogicOps
 import Faun.Parser.Core
+import Faun.Parser.Numbers
 import Faun.Parser.Term as Term
 import Faun.Predicate
 import Faun.QualT
@@ -100,7 +101,7 @@ parseForAll = reservedOps ["A.", "ForAll", "Forall", "forall", "∀"] >> return 
 -- Parse a weight and then a first-order logic formula
 parseLeftW :: Parser (FOL, Double)
 parseLeftW = do
-  n <- float
+  n <- getDouble
   f <- parseFOLAll
   return (f, n)
 
@@ -108,7 +109,7 @@ parseLeftW = do
 parseRightW :: Parser (FOL, Double)
 parseRightW = do
   f <- parseFOLAll
-  n <- float
+  n <- getDouble
   return (f, n)
 
 parseWeighted :: Parser (FOL, Double)

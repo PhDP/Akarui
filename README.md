@@ -1,7 +1,6 @@
 # Faun
 
 [![Build status](https://travis-ci.org/PhDP/Faun.svg?branch=master)](https://travis-ci.org/PhDP/Faun)
-[![Build status](https://ci.appveyor.com/api/projects/status/2g9tn9oprxm58gc6/branch/master?svg=true)](https://ci.appveyor.com/project/PhilippeDesjardinsProulx/manticore/branch/master)
 
 Faun is a fun functional library for experimenting with different reasoning
 systems (read the doc carefully: some stuff is experimental, some is fast, some

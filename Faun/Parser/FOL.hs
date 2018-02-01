@@ -12,7 +12,7 @@ import Faun.Parser.Core
 import Faun.Parser.Numbers
 import Faun.Parser.Term as Term
 import Faun.Predicate
-import Faun.QualT
+import Faun.QuanT
 
 -- | Parser for weighted first-order logic. Parses a double following by
 -- a formula (or a formula followed by a double).
@@ -43,8 +43,8 @@ parseWFOL = parse (contents parseWeighted) "<stdin>"
 parseFOL :: String -> Either ParseError FOL
 parseFOL = parse (contents parseFOLAll) "<stdin>"
 
-parseFOLAll, parseSentence, parseTop, parseBot, parseAtoms, parsePred, parsePredLike, parseIdentity, parseNIdentity, parseQual, parseNQual, parseNegation :: Parser FOL
-parseFOLAll = try parseNQual <|> try parseQual <|> parseSentence
+parseFOLAll, parseSentence, parseTop, parseBot, parseAtoms, parsePred, parsePredLike, parseIdentity, parseNIdentity, parseQuan, parseNQuan, parseNegation :: Parser FOL
+parseFOLAll = try parseNQuan<|> try parseQuan <|> parseSentence
 
 parseSentence = Ex.buildExpressionParser logicTbl parseAtoms
 
@@ -52,14 +52,14 @@ parseTop  = reservedOps ["True", "TRUE", "true", "T", "⊤"] >> return top
 
 parseBot = reservedOps ["False", "FALSE", "false", "F", "⊥"] >> return bot
 
-parseNQual = do
+parseNQuan = do
   nots <- many1 parseNot
-  (q, vs, a) <- parseQualForm
-  return $ foldr (\_ acc -> Not acc) (foldr (Qualifier q) a vs) nots
+  (q, vs, a) <- parseQuanForm
+  return $ foldr (\_ acc -> Not acc) (foldr (Quantifier q) a vs) nots
 
-parseQual = do
-  (q, vs, a) <- parseQualForm
-  return $ foldr (Qualifier q) a vs
+parseQuan = do
+  (q, vs, a) <- parseQuanForm
+  return $ foldr (Quantifier q) a vs
 
 parseNegation = do
   n <- parseNot
@@ -94,7 +94,7 @@ parseNIdentity = do
 parseNot :: Parser (FOL -> FOL)
 parseNot = reservedOps ["Not", "NOT", "not", "~", "!", "¬"] >> return Not
 
-parseExists, parseForAll :: Parser QualT
+parseExists, parseForAll :: Parser QuanT
 parseExists = reservedOps ["E.", "Exists", "exists", "∃"] >> return Exists
 parseForAll = reservedOps ["A.", "ForAll", "Forall", "forall", "∀"] >> return ForAll
 
@@ -115,8 +115,8 @@ parseRightW = do
 parseWeighted :: Parser (FOL, Double)
 parseWeighted = try parseLeftW <|> parseRightW
 
-parseQualForm :: Parser (QualT, [T.Text], FOL)
-parseQualForm = do
+parseQuanForm :: Parser (QuanT, [T.Text], FOL)
+parseQuanForm = do
   q <- parseExists <|> parseForAll -- many1
   v <- commaSep identifier
   optional $ reservedOp ":"

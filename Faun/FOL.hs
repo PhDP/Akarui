@@ -18,7 +18,7 @@ import qualified Faun.Term as Term
 import Faun.ShowTxt
 import Faun.PrettyPrint
 import Faun.BinT
-import Faun.QualT
+import Faun.QuanT
 
 -- | A first-order logic formula is simply a formula of predicates.
 type FOL = Formula Predicate
@@ -50,7 +50,7 @@ ground :: FOL -> Bool
 ground f = case f of
   Atom (Predicate _ ts) -> all Term.ground ts
   BinOp _ x y           -> ground x || ground y
-  Qualifier _ _ x       -> ground x
+  Quantifier _ _ x      -> ground x
   _                     -> False
 
 -- | Gathers all the variables in a first-order logic formula.
@@ -67,7 +67,7 @@ variables = gat Set.empty
       Atom (Predicate _ ts) -> foldl' gatT Set.empty ts
       Not x                 -> Set.union (gatE x) s
       BinOp _ x y           -> Set.unions [gatE x, gatE y, s]
-      Qualifier _ _ x       -> Set.union (gatE x) s
+      Quantifier _ _ x       -> Set.union (gatE x) s
     -- Gathers with an empty set
     gatE = gat Set.empty
 
@@ -76,7 +76,7 @@ hasPred :: Predicate -> FOL -> Bool
 hasPred p f = case f of
   Atom p'         -> p == p'
   BinOp _ x y     -> hasPred p x || hasPred p y
-  Qualifier _ _ x -> hasPred p x
+  Quantifier _ _ x -> hasPred p x
   _               -> False
 
 -- | Test for the presence of a predicate in the formula using only the name
@@ -85,7 +85,7 @@ hasPredName :: FOL -> T.Text -> Bool
 hasPredName f n = case f of
   Atom (Predicate n' _) -> n == n'
   BinOp _ x y     -> hasPredName x n || hasPredName y n
-  Qualifier _ _ x -> hasPredName x n
+  Quantifier _ _ x -> hasPredName x n
   _               -> False
 
 -- | Returns true if the formula has functions. This is often used in algorithms
@@ -94,7 +94,7 @@ hasFun :: FOL -> Bool
 hasFun f = case f of
   Atom (Predicate _ ts) -> any (\trm -> (Term.numFuns trm :: Int) > 0) ts
   BinOp _ x y           -> hasFun x || hasFun y
-  Qualifier _ _ x       -> hasFun x
+  Quantifier _ _ x       -> hasFun x
   _                     -> False
 
 -- | Substitute a term in the formula.
@@ -104,7 +104,7 @@ substitute old new f = case f of
     -> Atom $ Predicate n $ map (Term.substitute old new) ts
   Not x           -> Not $ substitute old new x
   BinOp b x y     -> BinOp b (substitute old new x) (substitute old new y)
-  Qualifier q v x -> Qualifier q v (substitute old new x)
+  Quantifier q v x -> Quantifier q v (substitute old new x)
 
 -- | Shows the internal structure of the first-order logic formula. This is
 -- mostly useful for testing and making sure the formula has the correct
@@ -114,18 +114,18 @@ showFOLStruct f = case f of
   Atom a            -> Pred.showStruct a
   Not x             -> T.concat ["Not (", showFOLStruct x, ")"]
   BinOp b x y       -> T.concat [showTxt b, " (", showFOLStruct x, ") (", showFOLStruct y, ")"]
-  Qualifier q v x   -> T.concat [showTxt q, " ", v, "(", showFOLStruct x, ")"]
+  Quantifier q v x   -> T.concat [showTxt q, " ", v, "(", showFOLStruct x, ")"]
 
--- | Resolves universal qualifiers, substituting the variables in the 'ForAll'
+-- | Resolves universal Quantifiers, substituting the variables in the 'ForAll'
 -- for a given term (a constant, generally).
 resolveForAll :: T.Text -> Term -> FOL -> FOL
 resolveForAll v t f = case f of
   Not x                 -> Not $ resolveForAll v t x
   BinOp b x y           -> BinOp b (resolveForAll v t x) (resolveForAll v t y)
-  Qualifier ForAll v' x  ->
+  Quantifier ForAll v' x  ->
     if v == v' then substitute (Variable v) t x
-    else Qualifier ForAll v' (resolveForAll v t x)
-  Qualifier Exists v' x  -> Qualifier Exists v' (resolveForAll v t x)
+    else Quantifier ForAll v' (resolveForAll v t x)
+  Quantifier Exists v' x  -> Quantifier Exists v' (resolveForAll v t x)
   _                     -> f
 
 -- | Takes a formula, a map between functions and constants, and a list of
@@ -146,18 +146,18 @@ groundings cs f = loopV
           f'
       Not x            -> Not $ groundSub v x
       BinOp b x y      -> BinOp b (groundSub v x) (groundSub v y)
-      Qualifier q v' x -> Qualifier q v' (groundSub v' x)
+      Quantifier q v' x -> Quantifier q v' (groundSub v' x)
 
     existsVar f' = case f' of
       Not x                 -> Not $ existsVar x
       BinOp b x y           -> BinOp b (existsVar x) (existsVar y)
-      Qualifier Exists v x  -> existsVar $ groundSub v x
-      Qualifier ForAll v x  -> Qualifier ForAll v $ existsVar x
+      Quantifier Exists v x  -> existsVar $ groundSub v x
+      Quantifier ForAll v x  -> Quantifier ForAll v $ existsVar x
       _                     -> f'
 
     f0 = existsVar f
     g0 = Set.fromList [f0]
-    vs = uniQualVars f0
+    vs = uniquanVars f0
 
     loopV = Set.foldr' loopG g0 vs
     loopG v g = Set.foldr (\x a -> Set.union a (Set.fromList x)) Set.empty (gr v g)
@@ -244,19 +244,19 @@ simplify :: FOL -> FOL
 simplify f = case f of
   Not x             -> lneg $ sim1 $ simplify x
   BinOp b x y       -> binOperator b (sim1 $ simplify x) (sim1 $ simplify y)
-  Qualifier q v x   -> Qualifier q v $ sim1 $ simplify x
+  Quantifier q v x   -> Quantifier q v $ sim1 $ simplify x
   _                 -> f
   where
     sim1 f' = case f' of
       Not x           -> lneg $ sim1 x
       BinOp b x y     -> binOperator b (sim1 x) (sim1 y)
-      Qualifier q v x -> Qualifier q v $ sim1 x
+      Quantifier q v x -> Quantifier q v $ sim1 x
       _               -> f'
 
 -- | Evaluates a formula given an assignment to atoms. If the assignment is
 -- incomplete, eval with evaluate as much as possible but might not reduce
--- formula to top/bot. This function completely ignores qualifiers. For
--- functions that rely on qualifiers, see the Sphinx.FOL first-order logic
+-- formula to top/bot. This function completely ignores Quantifiers. For
+-- functions that rely on Quantifiers, see the Sphinx.FOL first-order logic
 -- module.
 eval :: Map Predicate Bool -> FOL -> FOL
 eval ass = simplify . eval'
@@ -268,10 +268,10 @@ eval ass = simplify . eval'
        Nothing     -> f'
      Not x             -> lneg $ eval' x
      BinOp b x y       -> BinOp b (eval' x) (eval' y)
-     Qualifier _ _ x   -> eval' x
+     Quantifier _ _ x   -> eval' x
 
 -- | Given an assignment to atoms, test whethers the formula evaluates to 'True'
--- This functions ignores qualifiers (if present, and they should not be there).
+-- This functions ignores Quantifiers (if present, and they should not be there).
 satisfy :: Map Predicate Bool -> FOL -> Bool
 satisfy ass f = eval ass f == top
 

@@ -24,7 +24,7 @@ library
     Faun.Term
     Faun.Symbols
     Faun.BinT
-    Faun.QualT
+    Faun.QuanT
     Faun.ShowTxt
     Faun.PrettyPrint
     Faun.FuzzySet

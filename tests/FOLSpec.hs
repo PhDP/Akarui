@@ -17,7 +17,7 @@ genAtom = do
   p <- genPredicate
   return $ Atom p
 
--- Missing: existential and universal qualifiers:
+-- Missing: existential and universal Quantifiers:
 instance Arbitrary FOL where
   arbitrary = sized fol'
     where

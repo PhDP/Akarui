@@ -19,7 +19,7 @@ import Faun.Symbols
 import qualified Faun.Text as FT
 import qualified Data.Text as T
 import Faun.BinT
-import Faun.QualT
+import Faun.QuanT
 import Faun.PrettyPrint
 
 -- | A formula with generic atoms. Propositional logic can easily be described
@@ -32,15 +32,15 @@ data Formula a =
   | Not (Formula a)
   -- | Binary connectives.
   | BinOp BinT (Formula a) (Formula a)
-  -- | Qualifier apply to a string (following Harrison 2009).
-  | Qualifier QualT T.Text (Formula a) -- Following Harris' here, but it might be smarter to put qualifiers in FOL only.
+  -- | Quantifier apply to a string (following Harrison 2009).
+  | Quantifier QuanT T.Text (Formula a) -- Following Harris' here, but it might be smarter to put Quantifiers in FOL only.
 
 instance Eq a => Eq (Formula a) where
   Atom a0 == Atom a1  = a0 == a1
   Not x0 == Not x1    = x0 == x1
   BinOp b0 x0 y0 == BinOp b1 x1 y1 =
     b0 == b1 && x0 == x1 && y0 == y1
-  Qualifier q0 v0 x0 == Qualifier q1 v1 x1 =
+  Quantifier q0 v0 x0 == Quantifier q1 v1 x1 =
     q0 == q1 && v0 == v1 && x0 == x1
   _ == _              = False
 
@@ -53,9 +53,9 @@ instance Ord a => Ord (Formula a) where
   _ `compare` Not _ = LT
   BinOp b0 f00 f01 `compare` BinOp b1 f10 f11 =
     (b0 `compare` b1) <> (f00 `compare` f10) <> (f01 `compare` f11)
-  BinOp{} `compare` Qualifier{} = GT
-  Qualifier{} `compare` BinOp{} = LT
-  Qualifier q0 v0 f0 `compare` Qualifier q1 v1 f1 =
+  BinOp{} `compare` Quantifier{} = GT
+  Quantifier{} `compare` BinOp{} = LT
+  Quantifier q0 v0 f0 `compare` Quantifier q1 v1 f1 =
     (q0 `compare` q1) <> (v0 `compare` v1) <> (f1 `compare` f0)
 
 -- | Prints the formula given a set of symbols ('Sphinx.Symbols.Symbols').
@@ -64,7 +64,7 @@ instance Ord a => Ord (Formula a) where
 prettyPrintFm :: (PrettyPrint a) => Symbols -> Formula a -> T.Text
 prettyPrintFm s = FT.rmQuotes . buildStr (0 :: Int)
   where
-    -- For negation and qualifiers, add spaces after words but not symbols:
+    -- For negation and Quantifiers, add spaces after words but not symbols:
     notSpace = if T.toLower (symNot s) == "not" then " " else ""
     qualSpace = if T.toLower (symForall s) == "forall" then " " else ""
     suffixNot = symNot s == "'"
@@ -87,16 +87,16 @@ prettyPrintFm s = FT.rmQuotes . buildStr (0 :: Int)
       BinOp Implies x y     -> showInfix (pr > 6) 6 (symImplies s) x y
       BinOp Xor x y         -> showInfix (pr > 4) 4 (symXor s) x y
       BinOp Iff x y         -> showInfix (pr > 2) 2 (symIff s) x y
-      Qualifier ForAll v x  -> T.concat [symForall s, qualSpace, v, " ", buildStr pr x]
-      Qualifier Exists v x  -> T.concat [symExists s, qualSpace, v, " ", buildStr pr x]
-      Qualifier Unique v x  -> T.concat [symExists s, "!", qualSpace, v, " ", buildStr pr x]
+      Quantifier ForAll v x  -> T.concat [symForall s, qualSpace, v, " ", buildStr pr x]
+      Quantifier Exists v x  -> T.concat [symExists s, qualSpace, v, " ", buildStr pr x]
+      Quantifier Unique v x  -> T.concat [symExists s, "!", qualSpace, v, " ", buildStr pr x]
 
 -- | Count the number of atoms (Top & Bottom are considered atoms).
 numAtoms :: Formula a -> Int
 numAtoms f = case f of
   Not x           -> numAtoms x
   BinOp _ x y     -> numAtoms x + numAtoms y
-  Qualifier _ _ x -> numAtoms x
+  Quantifier _ _ x -> numAtoms x
   _               -> 1
 
 -- | Gathers all atoms in the formula.
@@ -107,7 +107,7 @@ atoms = gat Set.empty
       Atom z          -> Set.insert z s
       Not x           -> Set.union (atoms x) s
       BinOp _ x y     -> Set.unions [atoms x, atoms y, s]
-      Qualifier _ _ x -> Set.union (atoms x) s
+      Quantifier _ _ x -> Set.union (atoms x) s
 
 -- | Gathers all atoms in the formula in a list for atoms that do not support
 -- the Ord type class.
@@ -119,36 +119,36 @@ atomsLs = nub . gat
       Atom z          -> z : l
       Not x           -> l ++ gat x
       BinOp _ x y     -> l ++ gat x ++ gat y
-      Qualifier _ _ x -> l ++ gat x
+      Quantifier _ _ x -> l ++ gat x
 
--- | Returns true if the formula has qualifiers
-hasQual :: Formula a -> Bool
-hasQual f = case f of
-  Not x       -> hasQual x
-  BinOp _ x y -> hasQual x || hasQual y
-  Qualifier{} -> True
+-- | Returns true if the formula has quantifiers
+hasQuan :: Formula a -> Bool
+hasQuan f = case f of
+  Not x       -> hasQuan x
+  BinOp _ x y -> hasQuan x || hasQuan y
+  Quantifier{} -> True
   _           -> False
 
--- | Gathers the variables inside some type of qualifier.
-qualVars :: QualT -> Formula a -> Set T.Text
-qualVars q = gat'
+-- | Gathers the variables inside some type of quantifier.
+quanVars :: QuanT -> Formula a -> Set T.Text
+quanVars q = gat'
   where
     gat' = gat Set.empty
     gat s f' = case f' of
       Not x            -> Set.union s (gat' x)
       BinOp _ x y      -> Set.unions [s, gat' x, gat' y]
-      Qualifier q' v x  ->
+      Quantifier q' v x  ->
         if q == q' then Set.union (Set.insert v s) (gat' x)
         else Set.union s (gat' x)
       _                -> Set.empty
 
--- | Returns existentially qualified variables.
-exiQualVars :: Formula a -> Set T.Text
-exiQualVars = qualVars Exists
+-- | Returns existentially quantified variables.
+exiquanVars :: Formula a -> Set T.Text
+exiquanVars = quanVars Exists
 
--- | Returns universally qualified variables.
-uniQualVars :: Formula a -> Set T.Text
-uniQualVars = qualVars ForAll
+-- | Returns universally quantifier variables.
+uniquanVars :: Formula a -> Set T.Text
+uniquanVars = quanVars ForAll
 
 -- | Randomly assigns all element of the set to either True or False with equal
 -- probability. It's a fair ass.
@@ -169,7 +169,7 @@ coreOp f = case f of
   BinOp Xor x y     -> BinOp Or (BinOp And (coreOp x) (Not $ coreOp y)) (BinOp And (Not $ coreOp x) (coreOp y))
   BinOp Implies x y -> BinOp Or (Not $ coreOp x) (coreOp y)
   BinOp Iff x y     -> BinOp Or (BinOp And (coreOp x) (coreOp y)) (BinOp And (Not $ coreOp x) (Not $ coreOp y))
-  Qualifier q v x   -> Qualifier q v (coreOp x)
+  Quantifier q v x   -> Quantifier q v (coreOp x)
   _ -> f
 
 -- | Normal form.

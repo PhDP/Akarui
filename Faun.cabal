@@ -1,4 +1,4 @@
-cabal-version:  2.4
+cabal-version:  2.2
 name:           Faun
 version:        0.2.0.0
 synopsis:       Hybrid logic + probabilistic machine learning library
@@ -47,7 +47,7 @@ library
     Faun.Text
     Faun.Utils
   build-depends:
-    base >= 4.6,
+    base >= 4.6 && < 4.13,
     containers,
     parsec >= 3.1.2,
     text,
@@ -67,7 +67,7 @@ test-suite tests
     PredicateSpec
     TextGen
   build-depends:
-    base >= 4.6,
+    base >= 4.6 && < 4.13,
     containers,
     QuickCheck >= 2.7,
     test-framework-quickcheck2,

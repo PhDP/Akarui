@@ -50,7 +50,7 @@ outEdgesSet v n = Map.keysSet $ outEdges v n
 
 -- | Returns the ingoing edges for a given vertex.
 inEdges :: (Ord k) => k -> Network k v -> Map k v
-inEdges v n = Map.foldWithKey addEdges Map.empty n
+inEdges v n = Map.foldrWithKey addEdges Map.empty n
   where
     addEdges k _ a =
       case getVal k v n of

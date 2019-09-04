@@ -1,13 +1,13 @@
+cabal-version:  2.4
 name:           Faun
-version:        0.1.0.0
+version:        0.2.0.0
 synopsis:       Hybrid logic + probabilistic machine learning library
-license:        MIT
+license:        Apache-2.0
 license-file:   LICENSE.md
 author:         Philippe Desjardins-Proulx <philippe.d.proulx@gmail.com>
 maintainer:     Philippe Desjardins-Proulx philippe.d.proulx@gmail.com
 category:       AI, Machine Learning, Logic, Statistics
 build-type:     Simple
-cabal-version:  >= 1.18
 description:
   A library for probabilistic logic (or statistical relational) learning
   algorithms. See http://phdp.github.io/posts/2015-07-13-srl-code.html

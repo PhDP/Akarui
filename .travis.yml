@@ -1,9 +1,12 @@
+os: linux
+dist: xenial
 sudo: require
 language: haskell
-os: linux
 
 env:
-  - CABAL=1.24 GHC=8.0.2
+  - CABAL=2.4 GHC=8.4.4
+  - CABAL=2.4 GHC=8.6.5
+  - CABAL=2.4 GHC=8.8.1
 
 before_install:
   - travis_retry sudo add-apt-repository -y ppa:hvr/ghc
@@ -13,11 +16,11 @@ before_install:
 
 install:
   - cabal --version
-  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
-  - travis_retry cabal update
-  - cabal install --only-dependencies --enable-tests --enable-benchmarks --force-reinstalls
+  - ghc --version
+  - travis_retry cabal new-update
+  - cabal new-install --lib
 
 script:
-  - cabal configure --enable-tests
-  - cabal build
-  - cabal test
+  - cabal new-configure --enable-tests
+  - cabal new-build
+  - cabal new-test

@@ -104,7 +104,7 @@ maxWalkSAT mt mf target p seed fs = step (mkStdGen seed) mt
         -- List of unsatisfied formula under soln:
         unsatisfied = Map.filterWithKey (\k _ -> unsatisfiable s k) fs
         -- Sum of weights of unsatisfied clauses in soln
-        cost = Map.fold (+) 0.0 unsatisfied
+        cost = Map.foldr (+) 0.0 unsatisfied
 
         -- Pick a clause randomly among the unsatisfied clauses:
         (idx0, r') = randomR (0, Map.size unsatisfied - 1) r :: (Int, StdGen)
@@ -129,4 +129,4 @@ maxWalkSAT mt mf target p seed fs = step (mkStdGen seed) mt
       where
         unsatisfied' = Map.filterWithKey
           (\k _ -> unsatisfiable (Map.adjust not v s) k) fs
-        cost' = Map.fold (+) 0.0 unsatisfied'
+        cost' = Map.foldr (+) 0.0 unsatisfied'

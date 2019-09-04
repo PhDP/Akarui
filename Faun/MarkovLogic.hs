@@ -72,7 +72,7 @@ tell s mln@(MLN m) = case parseWFOL s of
 -- | Gathers all the predicates of a markov logic network in a set.
 allPredicates :: MLN -> Set Predicate
 allPredicates (MLN m) =
-  Map.foldWithKey (\k _ acc -> Set.union (F.atoms k) acc) Set.empty m
+  Map.foldrWithKey (\k _ acc -> Set.union (F.atoms k) acc) Set.empty m
 
 -- | Get all groundings from a Markov logic network.
 allGroundings :: [Term] -> MLN -> Set FOL

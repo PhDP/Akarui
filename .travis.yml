@@ -4,7 +4,7 @@ sudo: require
 language: haskell
 
 env:
-  - CABAL=2.2   GHC=8.4.4
+  - CABAL=2.4   GHC=8.4.4
   - CABAL=2.4   GHC=8.6.5
 
 before_install:

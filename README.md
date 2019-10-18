@@ -6,8 +6,7 @@ Faun is a fun functional library for experimenting with different reasoning
 systems (read the doc carefully: some stuff is experimental, some is fast, some
 is slow).
 
-See this [blog post](http://phdp.github.io/posts/2015-07-13-srl-code.html) for
-an example of probabilistic logic.
+Development will move to 'develop' before the until the 1.0 release.
 
 ## Building
 

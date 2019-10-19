@@ -1,5 +1,5 @@
 -- | WalkSat algorithms to find the most likely assignments to atoms.
-module Faun.WalkSAT
+module Faun.FOL.WalkSAT
 ( walkSAT
 , maxWalkSAT
 ) where
@@ -10,10 +10,10 @@ import Data.Set (Set)
 import Data.List (foldl')
 import qualified Data.Set as Set
 import System.Random
-import Faun.Formula
-import Faun.Predicate
-import Faun.FOL
-import Faun.FormulaSet
+import Faun.FOL.Formula
+import Faun.FOL.Predicate
+import Faun.FOL.FOL
+import Faun.FOL.FormulaSet
 
 -- | The WalkSAT algorithm as descripted in Russell and Norvig
 -- /Artificial Intelligence 3rd edition/, p 263.

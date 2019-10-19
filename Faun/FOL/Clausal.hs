@@ -1,5 +1,5 @@
 -- | Defines a type class for clausal forms.
-module Faun.Clausal where
+module Faun.FOL.Clausal where
 
 -- class (KnowledgeBase c) => Clause c where
 class Clausal c where

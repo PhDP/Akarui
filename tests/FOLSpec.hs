@@ -5,11 +5,11 @@ module FOLSpec where
 import qualified Data.Text as T
 import Test.QuickCheck
 import Control.Monad
-import Faun.Formula
-import Faun.FOL
-import Faun.Symbols
-import Faun.BinT
-import Faun.Parser.FOL
+import Faun.FOL.Formula
+import Faun.FOL.FOL
+import Faun.FOL.Symbols
+import Faun.FOL.BinT
+import Faun.FOL.Parser.FOL
 import PredicateSpec
 
 genAtom :: Gen FOL

@@ -1,19 +1,19 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
 -- | Type and functions for fuzzy logic.
-module Faun.FuzzyLogic
+module Faun.MVL.FuzzyLogic
 ( FuzzyLogic
 , resolve
 ) where
 
 import qualified Data.Text as T
 import qualified Data.Map as Map
-import Faun.Symbols (setnotation)
-import Faun.Formula
-import qualified Faun.FuzzySet as FS
-import Faun.BinT
+import Faun.FOL.Symbols (setnotation)
+import Faun.FOL.Formula
+import qualified Faun.MVL.FuzzySet as FS
+import Faun.FOL.BinT
 import Faun.ShowTxt
-import Faun.PrettyPrint
+import Faun.FOL.PrettyPrint
 
 -- | A fuzzy logic formula.
 type FuzzyLogic = Formula FS.FuzzySet

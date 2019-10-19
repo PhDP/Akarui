@@ -6,7 +6,7 @@
 -- This is prefered to Map since it simplifies queries such as
 -- "P(Cancer(Bob) | !Cancer(Bob))", where a map would not allow these two
 -- different predicate -> value mappings.
-module Faun.MarkovLogic
+module Faun.FOL.MarkovLogic
 ( MLN(..)
 , tell
 , allPredicates
@@ -29,17 +29,17 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (partition)
 import Control.Applicative ((<|>))
-import qualified Faun.FOL as FOL
-import Faun.FOL (FOL)
-import qualified Faun.Formula as F
-import Faun.Predicate
-import Faun.Term
-import Faun.Symbols
+import qualified Faun.FOL.FOL as FOL
+import Faun.FOL.FOL (FOL)
+import qualified Faun.FOL.Formula as F
+import Faun.FOL.Predicate
+import Faun.FOL.Term
+import Faun.FOL.Symbols
 import Faun.Network
 import Faun.ShowTxt
-import qualified Faun.FormulaSet as FS
-import Faun.Parser.Probability
-import Faun.Parser.FOL
+import qualified Faun.FOL.FormulaSet as FS
+import Faun.FOL.Parser.Probability
+import Faun.FOL.Parser.FOL
 
 -- | A Markov logic network is a set of first-order logical formulas associated
 -- with a weight.

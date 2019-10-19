@@ -1,16 +1,16 @@
 -- | Type and functions for first-order predicate logic.
-module Faun.SetClause where
+module Faun.FOL.SetClause where
 
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
-import Faun.Clausal
-import Faun.Formula
-import Faun.LiteralSign
+import Faun.FOL.Clausal
+import Faun.FOL.Formula
+import Faun.FOL.LiteralSign
 import Faun.Utils (sfoldr1')
-import Faun.Parser
-import Faun.Predicate
-import Faun.ParseProbability
+import Faun.FOL.Parser
+import Faun.FOL.Predicate
+import Faun.FOL.ParseProbability
 import Text.Parsec
 import Text.Parsec.String (Parser)
 

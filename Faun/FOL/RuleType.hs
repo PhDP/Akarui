@@ -1,5 +1,5 @@
 -- | A knowledge base is a set of formulas. Will replace KB.
-module Faun.RuleType where
+module Faun.FOL.RuleType where
 
 -- | Supported types of logic formulas.
 data RuleType =

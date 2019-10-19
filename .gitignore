@@ -2,5 +2,6 @@ dist*
 .cabal-sandbox
 cabal.sandbox.config
 cabal.project.local
+cabal.project.local~
 .ghc*
 

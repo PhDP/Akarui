@@ -1,9 +1,8 @@
-module Faun.QuanT where
+module Faun.FOL.QuanT where
 
 import Faun.ShowTxt
 
--- | Supported quantifiers. They are only used in some logics, for example they
--- make no sense in propositional logic.
+-- | Supported quantifiers for predicate logics.
 data QuanT =
   -- | Univeral quantifier.
     ForAll

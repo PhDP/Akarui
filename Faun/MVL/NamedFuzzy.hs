@@ -1,12 +1,12 @@
-module Faun.NamedFuzzy
+module Faun.MVL.NamedFuzzy
 ( NamedFuzzy(..)
 , showNamedFuzzy
 ) where
 
 import qualified Data.Text as T
-import Faun.FuzzySet
+import Faun.MVL.FuzzySet
 import Faun.ShowTxt
-import Faun.PrettyPrint
+import Faun.FOL.PrettyPrint
 
 -- | Named fuzzy set.
 data NamedFuzzy = NamedFuzzy

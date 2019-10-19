@@ -6,7 +6,7 @@
 -- Reference:
 --   John Harrison, Handbook of Practical Logic and Automated Reasoning.
 -- Cambridge University Press, 2009.
-module Faun.Formula where
+module Faun.FOL.Formula where
 
 import System.Random
 import qualified Data.Map as Map
@@ -15,12 +15,12 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (nub)
 import Data.Monoid ((<>))
-import Faun.Symbols
+import Faun.FOL.Symbols
 import qualified Faun.Text as FT
 import qualified Data.Text as T
-import Faun.BinT
-import Faun.QuanT
-import Faun.PrettyPrint
+import Faun.FOL.BinT
+import Faun.FOL.QuanT
+import Faun.FOL.PrettyPrint
 
 -- | A formula with generic atoms. Propositional logic can easily be described
 -- with Formula String, and first-order logic is defined in module Faun.FOL as

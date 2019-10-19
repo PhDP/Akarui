@@ -1,4 +1,4 @@
-module Faun.BinT where
+module Faun.FOL.BinT where
 
 import Faun.ShowTxt
 

@@ -1,5 +1,5 @@
 -- | Domain of terms.
-module Faun.Domain where
+module Faun.FOL.Domain where
 
 import Data.Set (Set)
 import Faun.Parser

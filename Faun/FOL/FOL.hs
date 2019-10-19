@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
 -- | Type and functions for first-order predicate logic.
-module Faun.FOL where
+module Faun.FOL.FOL where
 
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -9,16 +9,16 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List (foldl')
 import qualified Data.Text as T
-import Faun.Formula
-import Faun.Predicate (Predicate (Predicate))
-import Faun.Symbols (symbolic)
-import qualified Faun.Predicate as Pred
-import Faun.Term (Term (Constant, Variable, Function))
-import qualified Faun.Term as Term
 import Faun.ShowTxt
-import Faun.PrettyPrint
-import Faun.BinT
-import Faun.QuanT
+import Faun.FOL.Formula
+import Faun.FOL.Predicate (Predicate (Predicate))
+import Faun.FOL.Symbols (symbolic)
+import qualified Faun.FOL.Predicate as Pred
+import Faun.FOL.Term (Term (Constant, Variable, Function))
+import qualified Faun.FOL.Term as Term
+import Faun.FOL.PrettyPrint
+import Faun.FOL.BinT
+import Faun.FOL.QuanT
 
 -- | A first-order logic formula is simply a formula of predicates.
 type FOL = Formula Predicate

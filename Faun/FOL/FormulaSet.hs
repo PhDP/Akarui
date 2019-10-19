@@ -1,15 +1,15 @@
 -- | A knowledge base is a set of formulas. See MLN.hs for probabilistic
 -- knowledge bases.
-module Faun.FormulaSet where
+module Faun.FOL.FormulaSet where
 
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.Map (Map)
-import Faun.Formula
-import Faun.FOL
-import Faun.Predicate
-import Faun.Term
-import Faun.Parser.FOL
+import Faun.FOL.Formula
+import Faun.FOL.FOL
+import Faun.FOL.Predicate
+import Faun.FOL.Term
+import Faun.FOL.Parser.FOL
 
 ---- | Pretty print a knowledge base.
 --showKB :: (Show a) => Set (Formula a) -> String

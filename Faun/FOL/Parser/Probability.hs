@@ -1,5 +1,5 @@
 -- | Parser to handle joint and conditional queries.
-module Faun.Parser.Probability (
+module Faun.FOL.Parser.Probability (
   parseEvidenceLines,
   parseEvidenceList,
   parsePredicateAss,
@@ -12,11 +12,11 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Data.Set as Set
 import Data.Set (Set)
-import Faun.Parser.Core
-import Faun.Parser.FOL
-import Faun.Parser.Bool
-import Faun.Formula
-import Faun.Predicate
+import Faun.FOL.Parser.Core
+import Faun.FOL.Parser.FOL
+import Faun.FOL.Parser.Bool
+import Faun.FOL.Formula
+import Faun.FOL.Predicate
 
 -- | Parser for conditional queries of the form
 -- P(f0 = v0, f1 = v1 | f2 = v2, f3 = v3, ...), where f, f0, f1, f2 are

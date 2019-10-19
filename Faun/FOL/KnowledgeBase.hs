@@ -1,15 +1,15 @@
 -- | A knowledge base is a set of formulas. Will replace KB.
-module Faun.KnowledgeBase where
+module Faun.FOL.KnowledgeBase where
 
 import qualified Data.Set as Set
 import Data.Set (Set)
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Faun.Formula (allAss, satisfy)
-import Faun.FOL
+import Faun.FOL.Formula (allAss, satisfy)
+import Faun.FOL.FOL
 --import Faun.Predicate
-import Faun.RuleType
-import Faun.Domain
+import Faun.FOL.RuleType
+import Faun.FOL.Domain
 import Faun.Utils (allKeys)
 
 -- | A knowledge base is a set of formulas.

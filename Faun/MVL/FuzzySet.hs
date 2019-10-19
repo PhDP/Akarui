@@ -1,5 +1,5 @@
 -- | Faun.Fuzzy is a fun functional set of functions for fuzzy sets.
-module Faun.FuzzySet
+module Faun.MVL.FuzzySet
 ( FuzzySet(..)
 , fromSet
 , subsetOf
@@ -24,7 +24,7 @@ import Data.Set (Set)
 import qualified Data.Text as T
 import Faun.Utils
 import Faun.ShowTxt
-import Faun.PrettyPrint
+import Faun.FOL.PrettyPrint
 
 -- | A fuzzy set represented as a map from elements (text) to their degree.
 data FuzzySet = FuzzySet (Map T.Text Double)

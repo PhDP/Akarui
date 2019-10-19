@@ -1,9 +1,9 @@
 -- | Defines a type class for clausal forms.
-module Faun.LiteralSign where
+module Faun.FOL.LiteralSign where
 
-import Faun.Symbols
 import Faun.ShowTxt
-import Faun.PrettyPrint
+import Faun.FOL.Symbols
+import Faun.FOL.PrettyPrint
 
 data LiteralSign = Positive | Negative
   deriving (Eq, Ord, Show, Read)

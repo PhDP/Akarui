@@ -1,14 +1,14 @@
 -- | Faun.Fuzzy is a fun functional set of functions for fuzzy logic
-module Faun.Parser.NamedFuzzy
+module Faun.FOL.Parser.NamedFuzzy
 ( parseNamedFuzzy
 ) where
 
 import qualified Data.Text as T
 import Text.Parsec
 import Text.Parsec.String (Parser)
-import Faun.Parser.Core
-import Faun.Parser.FuzzySet
-import Faun.NamedFuzzy
+import Faun.FOL.Parser.Core
+import Faun.FOL.Parser.FuzzySet
+import Faun.MVL.NamedFuzzy
 
 -- | Parse a fuzzy set.
 parseNamedFuzzy :: String -> Either ParseError NamedFuzzy

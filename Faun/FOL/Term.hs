@@ -1,5 +1,5 @@
 -- | Type and functions for terms: the objects of first-order logic.
-module Faun.Term where
+module Faun.FOL.Term where
 
 import Data.Set (Set)
 import qualified Data.Set as Set

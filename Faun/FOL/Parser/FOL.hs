@@ -1,18 +1,18 @@
 -- | Type and functions for first-order predicate logic.
-module Faun.Parser.FOL where
+module Faun.FOL.Parser.FOL where
 
 import qualified Data.Text as T
 import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr as Ex
-import Faun.Formula
-import Faun.FOL
-import Faun.Parser.LogicOps
-import Faun.Parser.Core
-import Faun.Parser.Numbers
-import Faun.Parser.Term as Term
-import Faun.Predicate
-import Faun.QuanT
+import Faun.FOL.Formula
+import Faun.FOL.FOL
+import Faun.FOL.Parser.LogicOps
+import Faun.FOL.Parser.Core
+import Faun.FOL.Parser.Numbers
+import Faun.FOL.Parser.Term as Term
+import Faun.FOL.Predicate
+import Faun.FOL.QuanT
 
 -- | Parser for weighted first-order logic. Parses a double following by
 -- a formula (or a formula followed by a double).

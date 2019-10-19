@@ -1,5 +1,5 @@
 -- | Different sets of symbols used to print logic formulas.
-module Faun.Symbols where
+module Faun.FOL.Symbols where
 
 import qualified Data.Text as T
 

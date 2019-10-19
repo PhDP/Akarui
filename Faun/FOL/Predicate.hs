@@ -1,16 +1,16 @@
 -- | Type and functions for predicates: the atoms of first-order logic.
-module Faun.Predicate where
+module Faun.FOL.Predicate where
 
 import qualified Faun.Text as FT
-import Faun.Term (Term)
-import qualified Faun.Term as Term
+import Faun.FOL.Term (Term)
+import qualified Faun.FOL.Term as Term
 import qualified Data.Text as T
 import Data.List (foldl')
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Faun.ShowTxt
-import Faun.PrettyPrint
-import Faun.Symbols
+import Faun.FOL.PrettyPrint
+import Faun.FOL.Symbols
 
 -- | Predicates are atoms (thus they evaluate to true/false) mapping a list
 -- of terms (objects) to a truth value.

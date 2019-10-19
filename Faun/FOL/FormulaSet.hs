@@ -1,4 +1,4 @@
--- | A knowledge base is a set of formulas. See MLN.hs for probabilistic
+-- | A knowledge base is a set of formulas. See MarkovLogic.hs for probabilistic
 -- knowledge bases.
 module Faun.FOL.FormulaSet where
 
@@ -9,7 +9,7 @@ import Faun.FOL.Formula
 import Faun.FOL.FOL
 import Faun.FOL.Predicate
 import Faun.FOL.Term
-import Faun.FOL.Parser.FOL
+import Faun.Parser.FOL
 
 ---- | Pretty print a knowledge base.
 --showKB :: (Show a) => Set (Formula a) -> String

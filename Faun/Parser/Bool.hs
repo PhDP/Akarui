@@ -1,4 +1,4 @@
-module Faun.FOL.Parser.Bool
+module Faun.Parser.Bool
 ( parseBool
 , getBool
 , getTop
@@ -7,7 +7,7 @@ module Faun.FOL.Parser.Bool
 
 import Text.Parsec
 import Text.Parsec.String (Parser)
-import Faun.FOL.Parser.Core
+import Faun.Parser.Core
 
 parseBool :: String -> Either ParseError Bool
 parseBool = parse (contents getBool) "<stdin>"

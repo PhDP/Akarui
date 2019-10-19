@@ -38,8 +38,8 @@ import Faun.FOL.Symbols
 import Faun.Network
 import Faun.ShowTxt
 import qualified Faun.FOL.FormulaSet as FS
-import Faun.FOL.Parser.Probability
-import Faun.FOL.Parser.FOL
+import Faun.Parser.Probability
+import Faun.Parser.FOL
 
 -- | A Markov logic network is a set of first-order logical formulas associated
 -- with a weight.

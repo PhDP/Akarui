@@ -1,5 +1,5 @@
 -- | Faun.Fuzzy is a fun functional set of functions for fuzzy logic
-module Faun.FOL.Parser.FuzzySet
+module Faun.Parser.FuzzySet
 ( parseFuzzySet
 , getFuzzy
 , getFuzzyElement
@@ -10,8 +10,8 @@ import Data.List (foldl')
 import qualified Data.Text as T
 import Text.Parsec
 import Text.Parsec.String (Parser)
-import Faun.FOL.Parser.Core
-import Faun.FOL.Parser.Numbers
+import Faun.Parser.Core
+import Faun.Parser.Numbers
 import Faun.MVL.FuzzySet
 
 -- | Parse a fuzzy set.

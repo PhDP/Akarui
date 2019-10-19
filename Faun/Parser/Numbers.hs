@@ -1,11 +1,11 @@
-module Faun.FOL.Parser.Numbers
+module Faun.Parser.Numbers
 ( parseDouble
 , getDouble
 ) where
 
 import Text.Parsec
 import Text.Parsec.String (Parser)
-import Faun.FOL.Parser.Core
+import Faun.Parser.Core
 import qualified Text.Parsec.Token as Tok
 
 parseDouble :: String -> Either ParseError Double

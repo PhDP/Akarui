@@ -9,7 +9,7 @@ import Faun.FOL.Formula
 import Faun.FOL.FOL
 import Faun.FOL.Symbols
 import Faun.FOL.BinT
-import Faun.FOL.Parser.FOL
+import Faun.Parser.FOL
 import PredicateSpec
 
 genAtom :: Gen FOL

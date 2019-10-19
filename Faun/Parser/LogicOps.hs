@@ -1,11 +1,11 @@
 -- | Type and functions for first-order predicate logic.
-module Faun.FOL.Parser.LogicOps (
+module Faun.Parser.LogicOps (
   logicTbl
 ) where
 
 import Data.Functor.Identity
 import qualified Text.Parsec.Expr as Ex
-import Faun.FOL.Parser.Core
+import Faun.Parser.Core
 import Faun.FOL.Formula
 import Faun.FOL.BinT
 

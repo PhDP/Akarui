@@ -1,5 +1,5 @@
 -- | Type and functions for first-order predicate logic.
-module Faun.FOL.Parser.FOL where
+module Faun.Parser.FOL where
 
 import qualified Data.Text as T
 import Text.Parsec
@@ -7,10 +7,10 @@ import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr as Ex
 import Faun.FOL.Formula
 import Faun.FOL.FOL
-import Faun.FOL.Parser.LogicOps
-import Faun.FOL.Parser.Core
-import Faun.FOL.Parser.Numbers
-import Faun.FOL.Parser.Term as Term
+import Faun.Parser.LogicOps
+import Faun.Parser.Core
+import Faun.Parser.Numbers
+import Faun.Parser.Term as Term
 import Faun.FOL.Predicate
 import Faun.FOL.QuanT
 

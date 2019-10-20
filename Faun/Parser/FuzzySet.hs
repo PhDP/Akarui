@@ -13,17 +13,18 @@ import Text.Parsec.String (Parser)
 import Faun.Parser.Core
 import Faun.Parser.Numbers
 import Faun.MVL.FuzzySet
+import Faun.MVL.Truth
 
 -- | Parse a fuzzy set.
-parseFuzzySet :: String -> Either ParseError FuzzySet
+parseFuzzySet :: String -> Either ParseError (FuzzySet T.Text)
 parseFuzzySet = parse (contents getFuzzy) "<stdin>"
 
-getFuzzy :: Parser FuzzySet
+getFuzzy :: Parser (FuzzySet T.Text)
 getFuzzy = do
   reservedOp "{"
   elems <- commaSep getFuzzyElement
   reservedOp "}"
-  return $ FuzzySet $ foldl' (\m e -> Map.insert (T.pack $ fst e) (snd e) m) Map.empty elems
+  return $ MapFS $ foldl' (\m e -> Map.insert (T.pack $ fst e) (mkFuzzy $ snd e) m) Map.empty elems
 
 getFuzzyElement :: Parser (String, Double)
 getFuzzyElement = do

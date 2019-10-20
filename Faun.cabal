@@ -32,18 +32,17 @@ library
     Faun.FOL.FormulaSet
     Faun.FOL.MarkovLogic
     Faun.FOL.WalkSAT
+    Faun.MVL.Truth
+    Faun.MVL.FuzzySet
+    Faun.MVL.FuzzyLogic
     Faun.Parser.Core
     Faun.Parser.FOL
     Faun.Parser.Term
     Faun.Parser.FuzzySet
-    Faun.Parser.NamedFuzzy
     Faun.Parser.LogicOps
     Faun.Parser.Probability
     Faun.Parser.Numbers
     Faun.Parser.Bool
-    Faun.MVL.FuzzySet
-    Faun.MVL.NamedFuzzy
-    Faun.MVL.FuzzyLogic
   other-modules:
     Faun.Text
     Faun.Utils

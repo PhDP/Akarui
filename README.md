@@ -6,11 +6,7 @@ Faun is a fun functional library for experimenting with different reasoning
 systems (read the doc carefully: some stuff is experimental, some is fast, some
 is slow).
 
-<<<<<<< HEAD
-Development will move to 'develop' before the 1.0 release.
-=======
 Development is done on the 'develop' branch.
->>>>>>> 378b2391949b54f61a12280dde87f476e6aacf03
 
 ## Building
 

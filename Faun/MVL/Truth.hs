@@ -1,57 +1,22 @@
--- | Faun.Fuzzy is a fun functional set of functions for fuzzy sets.
 module Faun.MVL.Truth
-( Fuzzy()
-, mkFuzzy
-, invNeg
-, toDouble
-, isFalse
-, isTrue
-, nonZero
-, fuzzyFalse
-, fuzzyTrue
-, Fuzzy2()
-, mkFuzzyInterval
+( Truth(..)
 ) where
 
-data Fuzzy = Fuzzy Double
-  deriving (Eq, Ord, Show)
+class Truth a where
+  order :: a -> Int
 
--- | Builds a fuzzy value, ensuring it is in the [0, 1] range.
-mkFuzzy :: Double -> Fuzzy
-mkFuzzy = Fuzzy . unit
+  isFalse :: a -> Bool
 
--- | Involutive negation.
-invNeg :: Fuzzy -> Fuzzy
-invNeg (Fuzzy x) = Fuzzy $ 1 - x
+  isTrue :: a -> Bool
 
-toDouble :: Fuzzy -> Double
-toDouble (Fuzzy x) = x
+  isNuanced :: a -> Bool
+  isNuanced t = not (isFalse t) && not (isTrue t)
 
-isFalse :: Fuzzy -> Bool
-isFalse (Fuzzy x) = x == 0
+instance Truth Bool where
+  order _ = 0
 
-isTrue :: Fuzzy -> Bool
-isTrue (Fuzzy x) = x == 1
+  isFalse x = not x
 
-nonZero :: Fuzzy -> Bool
-nonZero (Fuzzy x) = x /= 0
+  isTrue x = x
 
-fuzzyFalse :: Fuzzy
-fuzzyFalse = Fuzzy 0
-
-fuzzyTrue :: Fuzzy
-fuzzyTrue = Fuzzy 1
-
-data Fuzzy2 =
-    FuzzyInterval Fuzzy Fuzzy
---  | FuzzyFun (Fuzzy -> Fuzzy)
-
-mkFuzzyInterval :: Double -> Double -> Fuzzy2
-mkFuzzyInterval x y = if x > y then mkFuzzyInterval y x else FuzzyInterval (mkFuzzy x) (mkFuzzy y)
-
-{-# INLINE unit #-}
-unit :: Double -> Double
-unit x
-  | x < 0     = 0
-  | x > 1     = 1
-  | otherwise = x
+  isNuanced _ = False

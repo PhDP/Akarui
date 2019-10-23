@@ -23,7 +23,7 @@ import qualified Data.Text as T
 import Faun.ShowTxt
 import Faun.Utils
 import Faun.FOL.PrettyPrint
-import Faun.MVL.Truth
+import Faun.MVL.Fuzzy
 
 -- | A discrete fuzzy set.
 data FuzzySet a = MapFS (Map a Fuzzy)
@@ -61,7 +61,7 @@ support :: (Ord a) => FuzzySet a -> Set a
 support (MapFS m) = Map.keysSet $ Map.filter nonZero m
 
 -- | Number of elements with a degree greater than 0.
-supportSize :: (Ord a) => FuzzySet a -> Int -- Integral?
+supportSize :: (Ord a) => FuzzySet a -> Int
 supportSize = Set.size . support
 
 -- | Removes elements with a degree of 0.   -- size $ removes0 === support

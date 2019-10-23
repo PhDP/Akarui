@@ -13,7 +13,7 @@ import Text.Parsec.String (Parser)
 import Faun.Parser.Core
 import Faun.Parser.Numbers
 import Faun.MVL.FuzzySet
-import Faun.MVL.Truth
+import Faun.MVL.Fuzzy
 
 -- | Parse a fuzzy set.
 parseFuzzySet :: String -> Either ParseError (FuzzySet T.Text)

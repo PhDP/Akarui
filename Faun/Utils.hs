@@ -6,15 +6,19 @@ import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 
+-- | Checks whether 'c' is between 'l' and 'r' (including those).
+between :: (Ord a) => a -> a -> a -> Bool
+between l c r = if l <= c then c <= r else False
+
 -- | Max value in a map.
 maxVal :: (Ord k, Ord v) => Map k v -> v
 maxVal m = Map.foldr max f m
-  where (_, f) = Map.findMin m -- any value would do
+  where (_, f) = Map.findMax m
 
 -- | Max value in a map.
 minVal :: (Ord k, Ord v) => Map k v -> v
 minVal m = Map.foldr min f m
-  where (_, f) = Map.findMin m -- any value would do
+  where (_, f) = Map.findMin m
 
 -- | Converts a Map k v to a Map v (Set k)
 reverseMap :: (Ord k, Ord v) => Map k v -> Map v (Set k)

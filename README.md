@@ -1,14 +1,14 @@
-# Faun
+<p align='center'>
+  <img src='http://phdp.github.io/images/akarui.svg.png' alt='logo'/>
+</p>
 
-[![Build status](https://travis-ci.org/PhDP/Faun.svg?branch=master)](https://travis-ci.org/PhDP/Faun)
-
-Faun is a fun functional library for experimenting with different reasoning
-systems (read the doc carefully: some stuff is experimental, some is fast, some
-is slow).
+Akarui is a fun functional library for experimenting with different reasoning systems (read the doc
+carefully: some stuff is experimental, some is fast, some is slow).
 
 Development is done on the 'develop' branch.
 
 ## Building
+[![Build Status](https://travis-ci.org/PhDP/Akarui.svg?branch=master)](https://travis-ci.org/PhDP/Akarui)
 
 Using Cabal, ghc's package manager, you can build the library with:
 

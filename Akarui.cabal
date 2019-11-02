@@ -1,0 +1,80 @@
+cabal-version:  2.4
+name:           Akarui
+version:        0.2.0.0
+synopsis:       Hybrid logic + probabilistic machine learning library
+license:        Apache-2.0
+license-file:   LICENSE.md
+author:         Philippe Desjardins-Proulx <philippe.d.proulx@gmail.com>
+maintainer:     Philippe Desjardins-Proulx philippe.d.proulx@gmail.com
+category:       AI, Machine Learning, Logic, Statistics
+build-type:     Simple
+description:
+  A research library for ideas at the frontier of logic, probability, and fuzziness.
+
+library
+  default-language: Haskell2010
+  ghc-options: -O2 -Wall -fno-warn-orphans
+  default-extensions: OverloadedStrings Strict StrictData
+  exposed-modules:
+    Akarui.Fmt
+    Akarui.ShowTxt
+    Akarui.Network
+    Akarui.FOL.Formula
+    Akarui.FOL.FOL
+    Akarui.FOL.Predicate
+    Akarui.FOL.Term
+    Akarui.FOL.Symbols
+    Akarui.FOL.BinT
+    Akarui.FOL.QuanT
+    Akarui.FOL.PrettyPrint
+    Akarui.FOL.FormulaSet
+    Akarui.FOL.MarkovLogic
+    Akarui.FOL.WalkSAT
+    Akarui.MVL.Truth
+    Akarui.MVL.Fuzzy
+    Akarui.MVL.Fuzzy2
+    Akarui.MVL.FuzzySet
+    Akarui.MVL.FuzzyLogic
+    Akarui.Parser.Core
+    Akarui.Parser.FOL
+    Akarui.Parser.Term
+    Akarui.Parser.FuzzySet
+    Akarui.Parser.LogicOps
+    Akarui.Parser.Probability
+    Akarui.Parser.Numbers
+    Akarui.Parser.Bool
+  other-modules:
+    Akarui.Text
+    Akarui.Utils
+  build-depends:
+    base >= 4.6 && < 4.13,
+    containers,
+    parsec >= 3.1.2,
+    text,
+    transformers,
+    random
+
+test-suite tests
+  default-language: Haskell2010
+  -- Supress orphan warnings to allow 'Arbitrary' instance def:
+  ghc-options: -Wall -fno-warn-orphans
+  hs-source-dirs: tests
+  type: exitcode-stdio-1.0
+  main-is: Properties.hs
+  other-modules:
+    FOLSpec
+    TermSpec
+    PredicateSpec
+    TextGen
+  build-depends:
+    base >= 4.6 && < 4.13,
+    containers,
+    QuickCheck >= 2.7,
+    test-framework-quickcheck2,
+    text,
+    Akarui,
+    random
+
+source-repository head
+  type:       git
+  location:   git://github.com/PhDP/Akarui.git

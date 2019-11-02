@@ -4,7 +4,7 @@ module TermSpec where
 
 import Data.Text as T
 import Test.QuickCheck
-import Faun.FOL.Term
+import Akarui.FOL.Term
 import TextGen
 
 instance Arbitrary Term where

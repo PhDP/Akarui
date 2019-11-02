@@ -3,7 +3,7 @@
 module PredicateSpec where
 
 import Test.QuickCheck
-import Faun.FOL.Predicate
+import Akarui.FOL.Predicate
 import TextGen
 import TermSpec
 import qualified Data.Text as T

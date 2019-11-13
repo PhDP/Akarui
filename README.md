@@ -1,5 +1,5 @@
 <p align='center'>
-  <img src='http://phdp.github.io/images/akarui.svg.png' alt='logo'/>
+  <img src='https://phdp.github.io/images/akarui.svg.png' alt='logo'/>
 </p>
 
 Akarui is a fun functional library for experimenting with different reasoning systems (read the doc

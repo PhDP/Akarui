@@ -4,8 +4,8 @@ version:        0.2.0.0
 synopsis:       Hybrid logic + probabilistic machine learning library
 license:        Apache-2.0
 license-file:   LICENSE.md
-author:         Philippe Desjardins-Proulx <philippe.d.proulx@gmail.com>
-maintainer:     Philippe Desjardins-Proulx philippe.d.proulx@gmail.com
+author:         Philippe Desjardins-Proulx <philippe.desjardins.proulx@umontreal.ca>
+maintainer:     Philippe Desjardins-Proulx <philippe.desjardins.proulx@umontreal.ca>
 category:       AI, Machine Learning, Logic, Statistics
 build-type:     Simple
 description:
@@ -14,7 +14,10 @@ description:
 library
   default-language: Haskell2010
   ghc-options: -O2 -Wall -fno-warn-orphans
-  default-extensions: OverloadedStrings Strict StrictData
+  default-extensions:
+    OverloadedStrings
+    Strict
+    StrictData
   exposed-modules:
     Akarui.Fmt
     Akarui.ShowTxt

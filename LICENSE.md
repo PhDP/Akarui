@@ -188,7 +188,7 @@ their entirety and only with respect to the Combined Software.
 
 —- end —-
 
-Copyright 2019 Philippe Desjardins-Proulx <philippe.d.proulx@gmail.com>
+©2019-2020 Philippe Desjardins-Proulx <philippe.desjardins.proulx@umontreal.ca>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

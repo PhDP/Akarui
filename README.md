@@ -12,6 +12,7 @@ Development is done on the 'develop' branch.
 
 Using Cabal, ghc's package manager, you can build the library with:
 
+    $ cabal new-update
     $ cabal new-install --lib
     $ cabal new-configure --enable-tests
     $ cabal new-build

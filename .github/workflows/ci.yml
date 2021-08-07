@@ -1,0 +1,22 @@
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cabal: ["3.4"]
+        ghc: ["8.10.5"]
+    env:
+      CONFIG: "--enable-tests"
+#      CONFIG: "--enable-tests --enable-benchmarks"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-haskell@v1.1.2
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
+      - run: cabal v2-update $CONFIG
+      - run: cabal v2-build $CONFIG
+      - run: cabal v2-test $CONFIG
+#      - run: cabal v2-haddock $CONFIG
+#      - run: cabal v2-sdist
+
